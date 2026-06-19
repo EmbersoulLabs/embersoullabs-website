@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 240" fill="none">
+  <defs>
+  <linearGradient id="textGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#1E90FF"/>
+    <stop offset="50%" stop-color="#00D4B4"/>
+    <stop offset="100%" stop-color="#FFB020"/>
+  </linearGradient>
+</defs>
+  
+  <style>
+    .title { font-family: Montserrat, 'Segoe UI', Arial, sans-serif; font-weight: 700; letter-spacing: 0.08em; fill: url(#textGrad); }
+    .subtitle { font-family: Montserrat, 'Segoe UI', Arial, sans-serif; font-weight: 500; letter-spacing: 0.35em; fill: #FFFFFF; }
+  </style>
+
+  <g transform="translate(0 -10) scale(0.85)">
+  <defs>
+    <linearGradient id="flameGrad" x1="40" y1="220" x2="160" y2="20" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E90FF"/>
+      <stop offset="45%" stop-color="#00D4B4"/>
+      <stop offset="100%" stop-color="#FFB020"/>
+    </linearGradient>
+    <linearGradient id="haloGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFB020" stop-opacity="0.25"/>
+      <stop offset="50%" stop-color="#FFB020"/>
+      <stop offset="100%" stop-color="#FFB020" stop-opacity="0.25"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="M100 28c-18 38-52 58-52 98 0 32 22 58 52 66 30-8 52-34 52-66 0-40-34-60-52-98z" fill="url(#flameGrad)" opacity="0.95"/>
+  <path d="M100 52c-12 24-32 38-32 64 0 22 14 40 32 46 18-6 32-24 32-46 0-26-20-40-32-64z" fill="url(#flameGrad)"/>
+  <path d="M100 78c-6 14-18 22-18 38 0 12 8 22 18 26 10-4 18-14 18-26 0-16-12-24-18-38z" fill="#FFFFFF" opacity="0.2"/>
+  <ellipse cx="100" cy="188" rx="18" ry="22" fill="#050505"/>
+  <ellipse cx="100" cy="46" rx="52" ry="14" stroke="url(#haloGrad)" stroke-width="2.5" transform="rotate(-8 100 46)" filter="url(#glow)"/>
+  <path d="M58 130 C34 110 28 88 42 68" stroke="#1E90FF" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <circle cx="48" cy="118" r="4" fill="#1E90FF"/>
+  <circle cx="40" cy="98" r="3.5" fill="#1E90FF"/>
+  <circle cx="38" cy="78" r="3" fill="#1E90FF"/>
+  <path d="M142 130 C166 110 172 88 158 68" stroke="#FFB020" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <circle cx="152" cy="118" r="4" fill="#FFB020"/>
+  <circle cx="160" cy="98" r="3.5" fill="#FFB020"/>
+  <circle cx="162" cy="78" r="3" fill="#FFB020"/>
+  <ellipse cx="100" cy="210" rx="36" ry="8" fill="#1E90FF" opacity="0.25"/>
+</g>
+  <text x="210" y="105" class="title" font-size="42">EMBERSOUL</text>
+  <line x1="210" y1="125" x2="260" y2="125" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8"/>
+  <text x="290" y="148" class="subtitle" font-size="18">LABS</text>
+  <line x1="350" y1="125" x2="400" y2="125" stroke="#FFFFFF" stroke-width="1.5" opacity="0.8"/>
+</svg>
