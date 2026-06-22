@@ -342,6 +342,27 @@ section {
   border-image-slice: 1 0 0 0;
 }
 
+.product-card.services-card {
+  border-top: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--gold), var(--blue)) 1;
+  border-image-slice: 1 0 0 0;
+}
+
+.product-badge.badge-open {
+  background: rgba(0, 212, 180, 0.12);
+  color: var(--teal);
+  border-color: rgba(0, 212, 180, 0.3);
+}
+
+.stat-value span {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* About */
 .about-grid {
   display: grid;
