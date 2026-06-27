@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh" data-lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>申请已提交 — EmberOS</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container legal-content" style="text-align:center;">
+      <div class="thanks-icon">✓</div>
+      <h1>
+        <span class="lang-zh">申请已收到</span>
+        <span class="lang-en">Application Received</span>
+      </h1>
+      <p>
+        <span class="lang-zh">感谢申请 EmberOS 代运营试点。我们将在 <strong>2–3 个工作日</strong>内通过邮件回复。通过后请准备素材，即可开始免费 3 支视频制作。</span>
+        <span class="lang-en">Thanks for applying to the EmberOS agency pilot. We'll reply by email within <strong>2–3 business days</strong>. Once approved, prepare your assets to start your 3 free videos.</span>
+      </p>
+      <a href="/" class="btn btn-primary" style="margin-top:1.5rem;">
+        <span class="lang-zh">返回首页</span>
+        <span class="lang-en">Back to Home</span>
+      </a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <p>&copy; 2026 EmberSoul Labs</p>
+        <p>Johor Bahru, Malaysia</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const saved = localStorage.getItem("esl-lang");
+    if (saved) {
+      document.documentElement.setAttribute("data-lang", saved);
+      document.documentElement.lang = saved === "zh" ? "zh" : "en";
+    }
+  </script>
+</body>
+</html>

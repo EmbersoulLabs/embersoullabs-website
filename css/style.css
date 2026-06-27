@@ -363,6 +363,207 @@ section {
   background-clip: text;
 }
 
+/* Apply form */
+.form-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.promo-banner {
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 212, 180, 0.25);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.promo-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 0.5rem;
+}
+
+.promo-banner h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin-bottom: 0.75rem;
+}
+
+.promo-offer {
+  font-size: 1.05rem;
+  color: var(--text-muted);
+}
+
+.promo-offer strong {
+  color: var(--gold);
+}
+
+.form-intro {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.apply-form fieldset {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  background: var(--bg-card);
+}
+
+.apply-form legend {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--teal);
+  padding: 0 0.5rem;
+}
+
+.apply-form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.apply-form label span {
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.apply-form input[type="text"],
+.apply-form input[type="email"],
+.apply-form input[type="tel"],
+.apply-form input[type="url"],
+.apply-form select,
+.apply-form textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.apply-form input:focus,
+.apply-form select:focus,
+.apply-form textarea:focus {
+  outline: none;
+  border-color: var(--teal);
+  box-shadow: 0 0 0 2px rgba(0, 212, 180, 0.15);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field-hint {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  margin-top: 0.2rem;
+  accent-color: var(--teal);
+}
+
+.checkbox-label.consent {
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+.checkbox-label a {
+  color: var(--teal);
+}
+
+.offer-box {
+  background: rgba(255, 176, 32, 0.06);
+  border: 1px solid rgba(255, 176, 32, 0.2);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.offer-box ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.offer-box li {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  padding: 0.35rem 0 0.35rem 1.25rem;
+  position: relative;
+}
+
+.offer-box li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+}
+
+.product-cta {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.thanks-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.5rem;
+  border-radius: 50%;
+  background: rgba(0, 212, 180, 0.15);
+  color: var(--teal);
+  font-size: 2rem;
+  line-height: 64px;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* About */
 .about-grid {
   display: grid;

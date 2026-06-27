@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh" data-lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EmberOS 代运营申请 — EmberSoul Labs</title>
+  <meta name="description" content="Apply for EmberOS agency mode. Provide your assets and get 3 free AI-edited videos during the pilot.">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+      <nav class="nav">
+        <a href="/#products">
+          <span class="lang-zh">产品</span>
+          <span class="lang-en">Products</span>
+        </a>
+        <a href="/">
+          <span class="lang-zh">返回首页</span>
+          <span class="lang-en">Home</span>
+        </a>
+      </nav>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-set-lang="zh" class="active">中文</button>
+        <button type="button" data-set-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container form-page">
+      <a href="/#products" class="back-link">&larr;
+        <span class="lang-zh">返回产品</span>
+        <span class="lang-en">Back to products</span>
+      </a>
+
+      <div class="promo-banner">
+        <p class="promo-label">EmberOS Pilot</p>
+        <h1>
+          <span class="lang-zh">代运营申请</span>
+          <span class="lang-en">Agency Application</span>
+        </h1>
+        <p class="promo-offer">
+          <span class="lang-zh">提供素材，<strong>免费制作 3 支短视频</strong>（9:16 成片 + 配套文案）</span>
+          <span class="lang-en">Provide your assets — <strong>3 short videos free</strong> (9:16 edits + copy variants)</span>
+        </p>
+      </div>
+
+      <p class="form-intro">
+        <span class="lang-zh">EmberOS 代运营模式现已开放试点。填写以下表格，我们将在 2–3 个工作日内回复。通过后为您开通 Workspace，上传素材即可开始 AI 剪辑与文案生成流程。</span>
+        <span class="lang-en">EmberOS agency mode is open for pilot partners. Submit the form below — we reply within 2–3 business days. Approved applicants receive a Workspace to upload assets and run the AI editing pipeline.</span>
+      </p>
+
+      <form class="apply-form" action="https://formsubmit.co/support@embersoullabs.com" method="POST">
+        <input type="hidden" name="_subject" value="EmberOS 代运营申请 / Agency Application">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://embersoullabs.com/emberos/apply/thanks/">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+        <fieldset>
+          <legend>
+            <span class="lang-zh">基本信息</span>
+            <span class="lang-en">Basic Info</span>
+          </legend>
+
+          <label>
+            <span class="lang-zh">公司 / 团队名称 *</span>
+            <span class="lang-en">Company / Team Name *</span>
+            <input type="text" name="company" required maxlength="120">
+          </label>
+
+          <label>
+            <span class="lang-zh">联系人姓名 *</span>
+            <span class="lang-en">Contact Name *</span>
+            <input type="text" name="contact_name" required maxlength="80">
+          </label>
+
+          <div class="form-row">
+            <label>
+              <span class="lang-zh">邮箱 *</span>
+              <span class="lang-en">Email *</span>
+              <input type="email" name="email" required>
+            </label>
+            <label>
+              <span class="lang-zh">电话 / WhatsApp *</span>
+              <span class="lang-en">Phone / WhatsApp *</span>
+              <input type="tel" name="phone" required maxlength="30">
+            </label>
+          </div>
+
+          <label>
+            <span class="lang-zh">申请类型 *</span>
+            <span class="lang-en">Application Type *</span>
+            <select name="applicant_type" required>
+              <option value="" disabled selected>—</option>
+              <option value="agency">代运营公司 / Agency</option>
+              <option value="mcn">MCN / 自媒体团队</option>
+              <option value="brand">品牌方（自运营）/ In-house brand</option>
+              <option value="freelancer">独立运营 / Freelancer</option>
+              <option value="other">其他 / Other</option>
+            </select>
+          </label>
+
+          <label>
+            <span class="lang-zh">目前管理客户数量</span>
+            <span class="lang-en">Number of clients you manage</span>
+            <select name="client_count">
+              <option value="1">1</option>
+              <option value="2-5">2–5</option>
+              <option value="6-15">6–15</option>
+              <option value="16+">16+</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <span class="lang-zh">营销需求</span>
+            <span class="lang-en">Marketing Needs</span>
+          </legend>
+
+          <p class="field-hint">
+            <span class="lang-zh">目标平台（可多选）</span>
+            <span class="lang-en">Target platforms (select all that apply)</span>
+          </p>
+          <div class="checkbox-group">
+            <label class="checkbox-label"><input type="checkbox" name="platform_douyin" value="yes"> 抖音 / Douyin</label>
+            <label class="checkbox-label"><input type="checkbox" name="platform_xiaohongshu" value="yes"> 小红书 / Xiaohongshu</label>
+            <label class="checkbox-label"><input type="checkbox" name="platform_tiktok" value="yes"> TikTok</label>
+            <label class="checkbox-label"><input type="checkbox" name="platform_wechat" value="yes"> 微信视频号 / WeChat Channels</label>
+            <label class="checkbox-label"><input type="checkbox" name="platform_other" value="yes"> 其他 / Other</label>
+          </div>
+
+          <label>
+            <span class="lang-zh">主要行业 / 客户类型</span>
+            <span class="lang-en">Main industry / client vertical</span>
+            <input type="text" name="industry" placeholder="e.g. 美妆、餐饮、电商" maxlength="100">
+          </label>
+
+          <label>
+            <span class="lang-zh">您希望用 EmberOS 解决什么问题？ *</span>
+            <span class="lang-en">What do you want EmberOS to help with? *</span>
+            <textarea name="use_case" rows="4" required maxlength="2000" placeholder="例如：为 5 个餐饮客户批量产出抖音短视频…"></textarea>
+          </label>
+
+          <label>
+            <span class="lang-zh">网站或社媒链接（选填）</span>
+            <span class="lang-en">Website or social links (optional)</span>
+            <input type="url" name="links" placeholder="https://">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <span class="lang-zh">试点优惠</span>
+            <span class="lang-en">Pilot Offer</span>
+          </legend>
+
+          <div class="offer-box">
+            <ul>
+              <li><span class="lang-zh">您提供原始视频 / 图片素材</span><span class="lang-en">You provide raw video / image assets</span></li>
+              <li><span class="lang-zh">EmberOS 免费制作 <strong>3 支</strong> 9:16 短视频成片</span><span class="lang-en">EmberOS produces <strong>3</strong> free 9:16 video edits</span></li>
+              <li><span class="lang-zh">每支含多版文案 + 封面，支持内部 / 客户审片</span><span class="lang-en">Each includes copy variants + cover, with review workflow</span></li>
+              <li><span class="lang-zh">试点名额有限，以审核通过为准</span><span class="lang-en">Limited pilot slots — subject to approval</span></li>
+            </ul>
+          </div>
+
+          <label class="checkbox-label consent">
+            <input type="checkbox" name="agree_materials" value="yes" required>
+            <span class="lang-zh">我了解需提供素材，并同意 EmberSoul Labs 在试点期间按 <a href="/privacy/">隐私政策</a> 处理提交的信息。</span>
+            <span class="lang-en">I understand I must provide assets and agree to processing per the <a href="/privacy/">Privacy Policy</a>.</span>
+          </label>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          <span class="lang-zh">提交申请</span>
+          <span class="lang-en">Submit Application</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <p>&copy; 2026 EmberSoul Labs</p>
+        <p>Johor Bahru, Malaysia</p>
+      </div>
+      <div class="footer-links">
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+        <a href="mailto:support@embersoullabs.com">support@embersoullabs.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const html = document.documentElement;
+    const saved = localStorage.getItem("esl-lang");
+    if (saved === "en" || saved === "zh") {
+      html.setAttribute("data-lang", saved);
+      html.lang = saved === "zh" ? "zh" : "en";
+      document.querySelectorAll(".lang-toggle button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.setLang === saved);
+      });
+    }
+    document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lang = btn.dataset.setLang;
+        html.setAttribute("data-lang", lang);
+        html.lang = lang === "zh" ? "zh" : "en";
+        localStorage.setItem("esl-lang", lang);
+        document.querySelectorAll(".lang-toggle button").forEach((b) => {
+          b.classList.toggle("active", b === btn);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
