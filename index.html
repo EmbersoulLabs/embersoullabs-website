@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh" data-lang="zh">
+<html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EmberSoul Labs — SaaS, Custom Web Apps &amp; Software</title>
-  <meta name="description" content="EmberSoul Labs — SaaS products (EmberCore ERP, EmberOS), custom software, and Web App development for businesses and tailored projects.">
-  <meta property="og:title" content="EmberSoul Labs — SaaS &amp; Custom Web Apps">
-  <meta property="og:description" content="Own SaaS products plus custom Web App development and tailored software solutions.">
+  <title>EmberSoul Labs — AI Ads for Small Businesses</title>
+  <meta name="description" content="EmberSoul Labs creates AI advertising videos for small businesses in Singapore and Malaysia — AI short ads, story ads, branded story series, and business automation.">
+  <meta property="og:title" content="EmberSoul Labs — AI Ads for Small Businesses">
+  <meta property="og:description" content="AI video ads, story ads and monthly AI content for small businesses. Ready-to-post social ads powered by EmberOS.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://embersoullabs.com">
   <meta property="og:image" content="https://embersoullabs.com/assets/logo-stacked.png">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <link rel="apple-touch-icon" href="/assets/logo-icon.png">
   <link rel="stylesheet" href="/css/style.css">
@@ -21,14 +22,16 @@
         <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
       </a>
       <nav class="nav" id="main-nav">
-        <a href="#products">
-          <span class="lang-zh">产品</span>
-          <span class="lang-en">Products</span>
+        <a href="#ai-ads">
+          <span class="lang-zh">AI 广告</span>
+          <span class="lang-en">AI Ads</span>
         </a>
-        <a href="#services">
-          <span class="lang-zh">客制化</span>
-          <span class="lang-en">Services</span>
+        <a href="#work">
+          <span class="lang-zh">作品</span>
+          <span class="lang-en">Our Work</span>
         </a>
+        <a href="#emberos">EmberOS</a>
+        <a href="#embercore">EmberCore</a>
         <a href="#about">
           <span class="lang-zh">关于</span>
           <span class="lang-en">About</span>
@@ -39,9 +42,13 @@
         </a>
       </nav>
       <div style="display:flex;align-items:center;gap:0.75rem;">
+        <a href="/ai-ads/" class="btn btn-primary btn-nav">
+          <span class="lang-zh">做一支 AI 广告</span>
+          <span class="lang-en">Create My AI Ad</span>
+        </a>
         <div class="lang-toggle" role="group" aria-label="Language">
-          <button type="button" data-set-lang="zh" class="active">中文</button>
-          <button type="button" data-set-lang="en">EN</button>
+          <button type="button" data-set-lang="zh">中文</button>
+          <button type="button" data-set-lang="en" class="active">EN</button>
         </div>
         <button class="menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false">☰</button>
       </div>
@@ -49,171 +56,589 @@
   </header>
 
   <main>
-    <section class="hero">
+    <!-- Hero -->
+    <section class="hero hero-commercial">
       <div class="container">
-        <img class="hero-logo" src="/assets/logo-stacked.png" alt="EmberSoul Labs logo" width="380" height="253">
         <p class="hero-badge">
-          <span class="lang-zh">SaaS · 客制化 · Web App</span>
-          <span class="lang-en">SaaS · Custom Build · Web Apps</span>
+          <span class="lang-zh">AI 创意 · 内容 · 业务自动化</span>
+          <span class="lang-en">AI Creative &amp; Automation Studio</span>
         </p>
         <h1>
-          <span class="lang-zh">自研产品 + 客制化软件开发</span>
-          <span class="lang-en">Own Products &amp; Custom Software</span>
+          <span class="lang-zh">专为中小企业打造的 AI 广告</span>
+          <span class="lang-en">AI Ads Made for Small Businesses</span>
         </h1>
         <p class="tagline">
-          <span class="lang-zh">EmberSoul Labs 打造自有 SaaS（<strong>EmberCore ERP</strong>、<strong>EmberOS</strong>），同时<strong>承接客制化项目</strong> — 从企业系统到 Web App，按你的业务需求量身开发。</span>
-          <span class="lang-en">EmberSoul Labs builds its own SaaS — <strong>EmberCore ERP</strong> and <strong>EmberOS</strong> — and takes on <strong>custom projects</strong>, from enterprise systems to Web Apps tailored to your needs.</span>
+          <span class="lang-zh">把你的产品、照片和想法，做成可直接发布的 AI 广告短视频。</span>
+          <span class="lang-en">Turn your products, photos and ideas into ready-to-post AI advertising videos.</span>
+        </p>
+        <p class="hero-support">
+          <span class="lang-zh">从短产品广告到故事型营销片，EmberSoul Labs 帮中小企业用更低成本产出更多内容。</span>
+          <span class="lang-en">From short product ads to story-driven campaigns, EmberSoul Labs helps small businesses create more content without traditional production costs.</span>
         </p>
         <div class="hero-actions">
-          <a href="#products" class="btn btn-primary">
-            <span class="lang-zh">了解产品</span>
-            <span class="lang-en">Our Products</span>
+          <a href="/ai-ads/" class="btn btn-primary">
+            <span class="lang-zh">做一支 AI 广告</span>
+            <span class="lang-en">Create My AI Ad</span>
           </a>
-          <a href="#services" class="btn btn-ghost">
-            <span class="lang-zh">客制化 / Web App</span>
-            <span class="lang-en">Custom / Web App</span>
-          </a>
-          <a href="#contact" class="btn btn-ghost">
-            <span class="lang-zh">联系我们</span>
-            <span class="lang-en">Contact</span>
+          <a href="#work" class="btn btn-ghost">
+            <span class="lang-zh">看作品示例</span>
+            <span class="lang-en">Watch Examples</span>
           </a>
         </div>
       </div>
     </section>
 
-    <section id="products">
+    <!-- Portfolio / Showcase -->
+    <section id="work" class="section-work">
       <div class="container">
         <p class="section-label">
-          <span class="lang-zh">产品</span>
-          <span class="lang-en">Products</span>
+          <span class="lang-zh">作品</span>
+          <span class="lang-en">Our Work</span>
         </p>
         <h2 class="section-title">
-          <span class="lang-zh">正在开发中</span>
-          <span class="lang-en">In Development</span>
+          <span class="lang-zh">看看 AI 能做出什么</span>
+          <span class="lang-en">See What AI Can Create</span>
         </h2>
         <p class="section-desc">
-          <span class="lang-zh">两款自研 SaaS 均在积极开发中，尚未开放公开注册。同时我们也为 B2B 及有客制化需求的客户提供试点合作与定制扩展。</span>
-          <span class="lang-en">Both in-house SaaS products are in active development with no public signup yet. We also work with B2B clients and teams that need tailored extensions or pilots.</span>
+          <span class="lang-zh">竖版 9:16 广告短视频，适合 TikTok、Instagram Reels 与短视频平台。正式作品将陆续上线。</span>
+          <span class="lang-en">Vertical 9:16 advertising videos for TikTok, Instagram Reels and short-form platforms. Real examples will be added here as campaigns go live.</span>
         </p>
 
-        <div class="products-grid">
-          <article class="product-card embercore">
-            <div class="product-icon-wrap">
-              <img class="product-icon" src="/assets/embercore-icon.png" alt="EmberCore ERP" width="160" height="145">
+        <div class="category-chips" role="list">
+          <span class="chip" role="listitem">
+            <span class="lang-zh">餐饮</span><span class="lang-en">Food &amp; Beverage</span>
+          </span>
+          <span class="chip" role="listitem">
+            <span class="lang-zh">花店</span><span class="lang-en">Florist</span>
+          </span>
+          <span class="chip" role="listitem">
+            <span class="lang-zh">产品</span><span class="lang-en">Product</span>
+          </span>
+          <span class="chip" role="listitem">
+            <span class="lang-zh">故事广告</span><span class="lang-en">Story Ad</span>
+          </span>
+          <span class="chip" role="listitem">
+            <span class="lang-zh">AI 故事系列</span><span class="lang-en">AI Story Series</span>
+          </span>
+        </div>
+
+        <div class="showcase-grid" id="showcase-grid">
+          <!-- Placeholder cards — replace poster/src when real assets are ready -->
+          <article class="showcase-card" data-category="food">
+            <div class="video-frame" data-video-slot>
+              <div class="video-placeholder">
+                <span class="play-hint">9:16</span>
+                <p>
+                  <span class="lang-zh">餐饮短广告示例位</span>
+                  <span class="lang-en">F&amp;B short ad slot</span>
+                </p>
+              </div>
             </div>
-            <div class="product-header">
-              <h3 class="product-name">EmberCore ERP</h3>
-              <span class="product-badge">
-                <span class="lang-zh">开发中</span>
-                <span class="lang-en">In Dev</span>
-              </span>
+            <div class="showcase-meta">
+              <p class="showcase-cat">
+                <span class="lang-zh">餐饮</span><span class="lang-en">Food &amp; Beverage</span>
+              </p>
+              <h3 class="showcase-title">
+                <span class="lang-zh">产品短广告</span><span class="lang-en">Product Short Ad</span>
+              </h3>
+              <p class="showcase-desc">
+                <span class="lang-zh">适合菜单、招牌菜与促销活动的竖版短视频。</span>
+                <span class="lang-en">Vertical short ads for menus, signature dishes and promotions.</span>
+              </p>
+              <a href="/ai-ads/?type=short" class="showcase-cta">
+                <span class="lang-zh">做同款短广告 →</span>
+                <span class="lang-en">Create a Short Ad →</span>
+              </a>
             </div>
-            <p class="product-desc">
-              <span class="lang-zh">多租户企业运营平台 — 覆盖 POS 收银、订单管理、配送调度、现场服务、客户与发票、报表分析。支持按行业自定义模块与权限，基于 Flutter + Firebase 构建。</span>
-              <span class="lang-en">Multi-tenant operations platform — POS, orders, delivery scheduling, field service, customers, invoicing, and reporting. Industry-customizable modules with granular RBAC. Built with Flutter + Firebase.</span>
-            </p>
-            <ul class="product-features">
-              <li><span class="lang-zh">17 个业务模块 · 10 种角色 · 33 项权限</span><span class="lang-en">17 modules · 10 roles · 33 permissions</span></li>
-              <li><span class="lang-zh">Web · Android · iOS 三端</span><span class="lang-en">Web · Android · iOS</span></li>
-              <li><span class="lang-zh">B2B 多租户 · 按企业隔离数据</span><span class="lang-en">B2B multi-tenant · per-company data isolation</span></li>
-              <li><span class="lang-zh">Shopify 集成 · 角色权限管理</span><span class="lang-en">Shopify integration · role-based access</span></li>
-            </ul>
           </article>
 
-          <article class="product-card emberos">
-            <div class="product-icon-wrap">
-              <img class="product-icon" src="/assets/emberos-icon.png" alt="EmberOS" width="160" height="153">
+          <article class="showcase-card" data-category="florist">
+            <div class="video-frame" data-video-slot>
+              <div class="video-placeholder">
+                <span class="play-hint">9:16</span>
+                <p>
+                  <span class="lang-zh">花店示例位</span>
+                  <span class="lang-en">Florist slot</span>
+                </p>
+              </div>
             </div>
-            <div class="product-header">
-              <h3 class="product-name">EmberOS</h3>
-              <span class="product-badge badge-open">
-                <span class="lang-zh">代运营开放</span>
-                <span class="lang-en">Agency Open</span>
-              </span>
+            <div class="showcase-meta">
+              <p class="showcase-cat">
+                <span class="lang-zh">花店</span><span class="lang-en">Florist</span>
+              </p>
+              <h3 class="showcase-title">
+                <span class="lang-zh">花艺推广广告</span>
+                <span class="lang-en">Floral Promo Ad</span>
+              </h3>
+              <p class="showcase-desc">
+                <span class="lang-zh">适合花束上新、节日档期与门店推广的竖版广告。</span>
+                <span class="lang-en">Vertical ads for bouquet launches, festive seasons and shop promos.</span>
+              </p>
+              <a href="/ai-ads/?type=short" class="showcase-cta">
+                <span class="lang-zh">做同款短广告 →</span>
+                <span class="lang-en">Create a Short Ad →</span>
+              </a>
             </div>
-            <p class="product-desc">
-              <span class="lang-zh">AI 营销操作系统 — 上传素材后由 CEO Agent 编排多模态子 Agent，自动产出爆款文案、9:16 短视频成片与平台适配内容，支持审核闭环与导出发布。<strong>代运营试点：提供素材，免费 3 支视频。</strong></span>
-              <span class="lang-en">AI Marketing Operating System — CEO Agent orchestrates sub-agents for viral copy, 9:16 video edits, and platform-ready content. <strong>Agency pilot: provide assets, get 3 videos free.</strong></span>
-            </p>
-            <ul class="product-features">
-              <li><span class="lang-zh">CEO Agent 任务编排 · 多平台文案</span><span class="lang-en">CEO Agent orchestration · multi-platform copy</span></li>
-              <li><span class="lang-zh">智能剪辑 · 客户审片 Portal</span><span class="lang-en">Smart editing · client review portal</span></li>
-              <li><span class="lang-zh">多客户 Workspace · 代运营已开放</span><span class="lang-en">Multi-client workspaces · agency mode live</span></li>
-            </ul>
-            <div class="product-cta">
-              <a href="/emberos/apply/" class="btn btn-primary" style="width:100%;justify-content:center;">
-                <span class="lang-zh">申请代运营 · 免费 3 支视频</span>
-                <span class="lang-en">Apply — 3 Free Videos</span>
+          </article>
+
+          <article class="showcase-card" data-category="products">
+            <div class="video-frame" data-video-slot>
+              <div class="video-placeholder">
+                <span class="play-hint">9:16</span>
+                <p>
+                  <span class="lang-zh">产品展示示例位</span>
+                  <span class="lang-en">Product showcase slot</span>
+                </p>
+              </div>
+            </div>
+            <div class="showcase-meta">
+              <p class="showcase-cat">
+                <span class="lang-zh">产品</span><span class="lang-en">Product</span>
+              </p>
+              <h3 class="showcase-title">
+                <span class="lang-zh">产品卖点广告</span><span class="lang-en">Product Highlight Ad</span>
+              </h3>
+              <p class="showcase-desc">
+                <span class="lang-zh">突出卖点与行动号召，适合电商与零售上新。</span>
+                <span class="lang-en">Highlight key benefits and CTAs for e-commerce and retail launches.</span>
+              </p>
+              <a href="/ai-ads/?type=short" class="showcase-cta">
+                <span class="lang-zh">做同款短广告 →</span>
+                <span class="lang-en">Create a Short Ad →</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="showcase-card" data-category="story">
+            <div class="video-frame" data-video-slot>
+              <div class="video-placeholder">
+                <span class="play-hint">9:16</span>
+                <p>
+                  <span class="lang-zh">故事广告示例位</span>
+                  <span class="lang-en">Story ad slot</span>
+                </p>
+              </div>
+            </div>
+            <div class="showcase-meta">
+              <p class="showcase-cat">
+                <span class="lang-zh">故事广告</span><span class="lang-en">Story Ad</span>
+              </p>
+              <h3 class="showcase-title">
+                <span class="lang-zh">故事型营销片</span><span class="lang-en">Story-Driven Ad</span>
+              </h3>
+              <p class="showcase-desc">
+                <span class="lang-zh">角色、对白与产品结合，适合品牌故事与活动推广。</span>
+                <span class="lang-en">Characters, dialogue and product integration for brand stories and campaigns.</span>
+              </p>
+              <a href="/ai-ads/?type=story" class="showcase-cta">
+                <span class="lang-zh">做故事广告 →</span>
+                <span class="lang-en">Create a Story Ad →</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="showcase-card" data-category="story-series">
+            <div class="video-frame" data-video-slot>
+              <div class="video-placeholder">
+                <span class="play-hint">AI STORY SERIES</span>
+                <div class="episode-flow episode-flow-compact" aria-hidden="true">
+                  <span class="ep-chip">EP01</span>
+                  <span class="ep-arrow">→</span>
+                  <span class="ep-chip">EP02</span>
+                  <span class="ep-arrow">→</span>
+                  <span class="ep-chip">EP03</span>
+                  <span class="ep-arrow">→</span>
+                  <span class="ep-chip">EP04</span>
+                </div>
+                <p>
+                  <span class="lang-zh">连续故事系列示例位</span>
+                  <span class="lang-en">Story series slot</span>
+                </p>
+              </div>
+            </div>
+            <div class="showcase-meta">
+              <p class="showcase-cat">
+                <span class="lang-zh">AI 故事系列</span><span class="lang-en">AI Story Series</span>
+              </p>
+              <h3 class="showcase-title">
+                <span class="lang-zh">四集品牌故事</span><span class="lang-en">4-Episode Brand Series</span>
+              </h3>
+              <p class="showcase-desc">
+                <span class="lang-zh">固定角色、连贯剧情与产品植入 — 适合每月内容套餐。</span>
+                <span class="lang-en">Recurring characters, connected episodes and product presence — for Monthly packages.</span>
+              </p>
+              <a href="/ai-ads/?type=monthly" class="showcase-cta">
+                <span class="lang-zh">开始每月内容 →</span>
+                <span class="lang-en">Start Monthly Content →</span>
               </a>
             </div>
           </article>
         </div>
+
+        <p class="portfolio-cta-line">
+          <span class="lang-zh">想为自己的产品做类似广告？</span>
+          <span class="lang-en">Want an ad like this for your product?</span>
+          <a href="/ai-ads/">
+            <span class="lang-zh">做一支 AI 广告 →</span>
+            <span class="lang-en">Create My AI Ad →</span>
+          </a>
+        </p>
       </div>
     </section>
 
-    <section id="services">
+    <!-- How it works -->
+    <section id="how" class="section-how">
       <div class="container">
         <p class="section-label">
-          <span class="lang-zh">客制化服务</span>
-          <span class="lang-en">Custom Services</span>
+          <span class="lang-zh">流程</span>
+          <span class="lang-en">How It Works</span>
         </p>
         <h2 class="section-title">
-          <span class="lang-zh">Web App 与软件客制化，我们接</span>
-          <span class="lang-en">We Build Custom Web Apps</span>
+          <span class="lang-zh">从产品到 AI 广告</span>
+          <span class="lang-en">From Product to AI Ad</span>
+        </h2>
+        <ol class="steps-grid">
+          <li class="step-card">
+            <span class="step-num">1</span>
+            <h3>
+              <span class="lang-zh">发送产品</span>
+              <span class="lang-en">Send Your Product</span>
+            </h3>
+            <p>
+              <span class="lang-zh">上传产品照片、视频、品牌资料或你的想法。</span>
+              <span class="lang-en">Upload your product photos, videos, brand information or idea.</span>
+            </p>
+          </li>
+          <li class="step-card">
+            <span class="step-num">2</span>
+            <h3>
+              <span class="lang-zh">我们创作</span>
+              <span class="lang-en">We Create</span>
+            </h3>
+            <p>
+              <span class="lang-zh">我们完成创意、画面、对白与 AI 制作。</span>
+              <span class="lang-en">We develop the concept, visuals, dialogue and AI production.</span>
+            </p>
+          </li>
+          <li class="step-card">
+            <span class="step-num">3</span>
+            <h3>
+              <span class="lang-zh">审核修改</span>
+              <span class="lang-en">Review</span>
+            </h3>
+            <p>
+              <span class="lang-zh">你审片并提出支持范围内的修改意见。</span>
+              <span class="lang-en">Review the result and request supported revisions.</span>
+            </p>
+          </li>
+          <li class="step-card">
+            <span class="step-num">4</span>
+            <h3>
+              <span class="lang-zh">发布上线</span>
+              <span class="lang-en">Publish</span>
+            </h3>
+            <p>
+              <span class="lang-zh">收到可直接发布到 TikTok、Instagram Reels 等平台的成片。</span>
+              <span class="lang-en">Receive a ready-to-post video for TikTok, Instagram Reels and other social platforms.</span>
+            </p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Buyable offers -->
+    <section id="ai-ads" class="section-offers">
+      <div class="container">
+        <p class="section-label">
+          <span class="lang-zh">服务</span>
+          <span class="lang-en">Services</span>
+        </p>
+        <h2 class="section-title">
+          <span class="lang-zh">可选服务</span>
+          <span class="lang-en">What You Can Buy</span>
         </h2>
         <p class="section-desc">
-          <span class="lang-zh">不只是自研 SaaS — 我们也承接客制化开发与 Web App 项目，从需求梳理、原型到上线部署，按你的场景灵活合作。</span>
-          <span class="lang-en">Beyond our own SaaS — we take on custom development and Web App projects, from discovery and prototyping through launch, scoped to your needs.</span>
+          <span class="lang-zh">从一支短广告起步，再升级到故事片或每月持续内容。以下为各市场公开报价。</span>
+          <span class="lang-en">Start with one short ad, then move into story ads or monthly content. Prices below are market-specific public rates.</span>
         </p>
 
-        <div class="products-grid">
-          <article class="product-card services-card">
+        <div class="pricing-region-bar" data-pricing-region-bar>
+          <label class="pricing-region-label" for="pricing-region-home">
+            <span class="lang-zh">报价地区：</span>
+            <span class="lang-en">Pricing for:</span>
+          </label>
+          <select id="pricing-region-home" class="pricing-region-select" data-region-select aria-label="Pricing region">
+            <option value="my">🇲🇾 Malaysia — MYR</option>
+            <option value="sg">🇸🇬 Singapore — SGD</option>
+            <option value="intl" selected>🌍 International — USD</option>
+          </select>
+        </div>
+
+        <div class="products-grid offers-grid">
+          <article class="product-card offer-card">
             <div class="product-header">
               <h3 class="product-name">
-                <span class="lang-zh">Web App 开发</span>
-                <span class="lang-en">Web App Development</span>
+                <span class="lang-zh">AI 短广告</span>
+                <span class="lang-en">AI Short Ad</span>
               </h3>
               <span class="product-badge badge-open">
-                <span class="lang-zh">接单中</span>
+                <span class="lang-zh">可下单</span>
                 <span class="lang-en">Available</span>
               </span>
             </div>
             <p class="product-desc">
-              <span class="lang-zh">响应式 Web 应用、管理后台、客户 Portal、内部工具 — 使用 Flutter Web、Next.js、Firebase 等现代技术栈，支持多租户与云端部署。</span>
-              <span class="lang-en">Responsive web apps, admin dashboards, client portals, and internal tools — built with Flutter Web, Next.js, Firebase, and modern cloud deployment.</span>
+              <span class="lang-zh">面向社媒的快速产品广告，突出卖点、适合马上发布。</span>
+              <span class="lang-en">A fast product-focused AI advertisement for social media.</span>
             </p>
             <ul class="product-features">
-              <li><span class="lang-zh">企业系统 · 运营工具 · 数据看板</span><span class="lang-en">Business systems · ops tools · dashboards</span></li>
-              <li><span class="lang-zh">与 Shopify、支付、第三方 API 集成</span><span class="lang-en">Shopify, payments, third-party API integrations</span></li>
-              <li><span class="lang-zh">Web · 移动端可扩展</span><span class="lang-en">Web-first, mobile-ready</span></li>
+              <li><span class="lang-zh">7–10 秒竖版视频（9:16）</span><span class="lang-en">7–10 second vertical video (9:16)</span></li>
+              <li><span class="lang-zh">单一主推产品</span><span class="lang-en">One primary product</span></li>
+              <li><span class="lang-zh">AI 创意制作 · 合适时配基础音乐</span><span class="lang-en">AI creative production · basic music where appropriate</span></li>
+              <li><span class="lang-zh">可直接发布的 MP4 · 含最多 3 次修改</span><span class="lang-en">Ready-to-post MP4 · Up to 3 revisions included</span></li>
             </ul>
+            <p class="price-slot" data-price-offer="short">USD 19</p>
+            <p class="one-time-note">
+              <span class="lang-zh">一次性付款</span>
+              <span class="lang-en">One-time payment</span>
+            </p>
+            <div class="product-cta offer-cta-stack">
+              <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-checkout-service="short">
+                <span class="lang-zh">购买 AI 短广告</span>
+                <span class="lang-en">Buy AI Short Ad</span>
+              </button>
+              <a href="/ai-ads/?type=short" class="btn btn-ghost" style="width:100%;justify-content:center;">
+                <span class="lang-zh">先询盘</span>
+                <span class="lang-en">Enquire first</span>
+              </a>
+            </div>
           </article>
 
-          <article class="product-card services-card">
+          <article class="product-card offer-card offer-card-featured">
             <div class="product-header">
               <h3 class="product-name">
-                <span class="lang-zh">客制化 / 白标扩展</span>
-                <span class="lang-en">Customization &amp; Extensions</span>
+                <span class="lang-zh">AI 故事广告</span>
+                <span class="lang-en">AI Story Ad</span>
               </h3>
               <span class="product-badge badge-open">
-                <span class="lang-zh">接单中</span>
-                <span class="lang-en">Available</span>
+                <span class="lang-zh">推荐</span>
+                <span class="lang-en">Popular</span>
               </span>
             </div>
             <p class="product-desc">
-              <span class="lang-zh">在 EmberCore / EmberOS 基础上按行业定制模块，或从零为你的业务流程打造专属方案 — B2B、代运营、垂直行业均可洽谈。</span>
-              <span class="lang-en">Industry-specific modules on top of EmberCore / EmberOS, or greenfield solutions for your workflow — B2B, agencies, and vertical niches welcome.</span>
+              <span class="lang-zh">故事驱动的 AI 广告：产品、角色与对白结合。</span>
+              <span class="lang-en">A story-driven AI advertisement combining product, characters and dialogue.</span>
             </p>
             <ul class="product-features">
-              <li><span class="lang-zh">模块定制 · 品牌白标 · 工作流改造</span><span class="lang-en">Module customization · white-label · workflow design</span></li>
-              <li><span class="lang-zh">AI 能力集成（文案、自动化、Agent）</span><span class="lang-en">AI integration — copy, automation, agents</span></li>
-              <li><span class="lang-zh">长期维护与迭代支持</span><span class="lang-en">Ongoing maintenance &amp; iteration</span></li>
+              <li><span class="lang-zh">约 45–48 秒 · 9:16 竖版</span><span class="lang-en">Up to ~45–48 seconds · 9:16 vertical</span></li>
+              <li><span class="lang-zh">故事创意 · 产品植入 · 合适时含角色对白</span><span class="lang-en">Story-driven creative · product integration · dialogue where appropriate</span></li>
+              <li><span class="lang-zh">可直接发布的 MP4 · 含最多 3 次修改</span><span class="lang-en">Ready-to-post MP4 · Up to 3 revisions included</span></li>
             </ul>
+            <p class="price-slot" data-price-offer="story">USD 59</p>
+            <p class="one-time-note">
+              <span class="lang-zh">一次性付款</span>
+              <span class="lang-en">One-time payment</span>
+            </p>
+            <div class="product-cta offer-cta-stack">
+              <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-checkout-service="story">
+                <span class="lang-zh">购买 AI 故事广告</span>
+                <span class="lang-en">Buy AI Story Ad</span>
+              </button>
+              <a href="/ai-ads/?type=story" class="btn btn-ghost" style="width:100%;justify-content:center;">
+                <span class="lang-zh">先询盘</span>
+                <span class="lang-en">Enquire first</span>
+              </a>
+            </div>
           </article>
+
+          <article class="product-card offer-card offer-card-monthly">
+            <div class="product-header">
+              <h3 class="product-name">
+                <span class="lang-zh">每月 AI 内容</span>
+                <span class="lang-en">Monthly AI Content</span>
+              </h3>
+              <span class="product-badge badge-open">
+                <span class="lang-zh">30 天套餐</span>
+                <span class="lang-en">30-day package</span>
+              </span>
+            </div>
+            <p class="product-desc">
+              <span class="lang-zh">做四支独立广告 — 或把品牌做成连续 AI 故事系列。</span>
+              <span class="lang-en">Create four standalone ads — or turn your brand into an ongoing AI story series.</span>
+            </p>
+            <p class="product-desc product-desc-soft">
+              <span class="lang-zh">用固定角色、连贯剧集与自然产品植入，打造可识别的品牌系列。故事可按月续写。</span>
+              <span class="lang-en">Build a recognizable branded series with recurring characters, connected episodes and natural product integration. Continue the story month by month.</span>
+            </p>
+
+            <div class="monthly-modes">
+              <div class="monthly-mode">
+                <strong><span class="lang-zh">模式 A</span><span class="lang-en">Mode A</span></strong>
+                <span><span class="lang-zh">4 支独立 AI 广告</span><span class="lang-en">4 Standalone AI Ads</span></span>
+              </div>
+              <div class="monthly-mode">
+                <strong><span class="lang-zh">模式 B</span><span class="lang-en">Mode B</span></strong>
+                <span><span class="lang-zh">4 集连续 AI 故事系列</span><span class="lang-en">4-Episode Continuous AI Story Series</span></span>
+              </div>
+            </div>
+
+            <div class="episode-flow" aria-label="Story series episodes">
+              <span class="ep-chip">EP01</span>
+              <span class="ep-arrow" aria-hidden="true">→</span>
+              <span class="ep-chip">EP02</span>
+              <span class="ep-arrow" aria-hidden="true">→</span>
+              <span class="ep-chip">EP03</span>
+              <span class="ep-arrow" aria-hidden="true">→</span>
+              <span class="ep-chip">EP04</span>
+            </div>
+
+            <ul class="product-features">
+              <li><span class="lang-zh">4 支 AI 广告视频 · 30 天内容套餐</span><span class="lang-en">4 AI advertising videos · 30-day content package</span></li>
+              <li><span class="lang-zh">内容规划 · 创意制作 · 产品植入</span><span class="lang-en">Content planning · creative production · product integration</span></li>
+              <li><span class="lang-zh">竖版成片交付 · 每支含最多 3 次修改</span><span class="lang-en">Ready-to-post vertical delivery · Up to 3 revisions per video included</span></li>
+              <li><span class="lang-zh">一次性 30 天套餐（非自动续订）</span><span class="lang-en">One-time 30-day package (not auto-renewing)</span></li>
+            </ul>
+            <p class="price-slot" data-price-offer="monthly">USD 129 / 30-day package</p>
+            <p class="one-time-note">
+              <span class="lang-zh">一次性 30 天套餐 · 非自动续订</span>
+              <span class="lang-en">One-time 30-day package · not a subscription</span>
+            </p>
+            <div class="product-cta offer-cta-stack">
+              <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;" data-checkout-service="monthly">
+                <span class="lang-zh">购买每月套餐</span>
+                <span class="lang-en">Buy Monthly Package</span>
+              </button>
+              <a href="/ai-ads/?type=monthly" class="btn btn-ghost" style="width:100%;justify-content:center;">
+                <span class="lang-zh">先询盘</span>
+                <span class="lang-en">Enquire first</span>
+              </a>
+            </div>
+          </article>
+        </div>
+
+        <p class="policy-note">
+          <span class="lang-zh">含最多 3 次修改（在已确认的创意方向内）。重大概念变更或整片重做可能需另计费用。每月套餐：每支视频各自含最多 3 次修改。故事系列中，影响后续集数的调整通常从后续集起生效，而非整集重做已通过的内容。</span>
+          <span class="lang-en">Includes up to 3 revisions within the approved creative direction. Major concept changes or complete remakes may require an additional fee. Monthly: up to 3 revisions per video. For Story Series, direction changes normally apply to future episodes rather than remaking already-approved ones.</span>
+        </p>
+        <p class="policy-note policy-note-soft">
+          <span class="lang-zh">AI 生成内容可能存在自然的生成差异。</span>
+          <span class="lang-en">AI-generated content may contain natural generative variations.</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- EmberOS -->
+    <section id="emberos" class="section-platform">
+      <div class="container platform-split">
+        <div class="platform-copy">
+          <p class="section-label">EmberOS</p>
+          <h2 class="section-title">
+            <span class="lang-zh">由 EmberOS 驱动</span>
+            <span class="lang-en">Powered by EmberOS</span>
+          </h2>
+          <p class="section-desc" style="margin-bottom:1rem;">
+            <span class="lang-zh">我们的 AI 内容工作流由 EmberOS 驱动 — EmberSoul Labs 自研的 AI 营销制作平台。</span>
+            <span class="lang-en">Our AI content workflow is powered by EmberOS — EmberSoul Labs' own AI marketing production platform.</span>
+          </p>
+          <ul class="benefit-list">
+            <li><span class="lang-zh">可重复的内容生产流程</span><span class="lang-en">Repeatable content production</span></li>
+            <li><span class="lang-zh">贴合你的业务场景</span><span class="lang-en">Business context built in</span></li>
+            <li><span class="lang-zh">品牌风格更一致</span><span class="lang-en">Brand consistency</span></li>
+            <li><span class="lang-zh">围绕产品做创意</span><span class="lang-en">Product-aware creative</span></li>
+            <li><span class="lang-zh">便于扩展成系列活动</span><span class="lang-en">Scalable campaigns</span></li>
+          </ul>
+          <p class="platform-note">
+            <span class="lang-zh">代运营团队也可申请试点：提供素材，体验免费 3 支视频。</span>
+            <span class="lang-en">Agencies can also apply for a pilot: provide assets and try 3 free videos.</span>
+          </p>
+          <div class="hero-actions" style="justify-content:flex-start;margin-top:1.25rem;">
+            <a href="/emberos/apply/" class="btn btn-ghost">
+              <span class="lang-zh">申请 EmberOS 代运营试点</span>
+              <span class="lang-en">Apply for EmberOS Agency Pilot</span>
+            </a>
+          </div>
+        </div>
+        <div class="platform-visual">
+          <img src="/assets/emberos-icon.png" alt="EmberOS" width="280" height="268">
         </div>
       </div>
     </section>
 
+    <!-- EmberCore -->
+    <section id="embercore" class="section-platform section-platform-alt">
+      <div class="container platform-split platform-split-rev">
+        <div class="platform-visual">
+          <img src="/assets/embercore-icon.png" alt="EmberCore ERP" width="280" height="254">
+        </div>
+        <div class="platform-copy">
+          <p class="section-label">EmberCore</p>
+          <h2 class="section-title">
+            <span class="lang-zh">营销起来了，运营也要跟上</span>
+            <span class="lang-en">When Marketing Grows, Operations Need to Keep Up</span>
+          </h2>
+          <p class="section-desc">
+            <span class="lang-zh">EmberCore 是面向订单、流程与日常执行的业务运营软件。</span>
+            <span class="lang-en">EmberCore is business operations software for orders, workflows and day-to-day execution.</span>
+          </p>
+          <ul class="benefit-list">
+            <li><span class="lang-zh">EmberOS 帮忙创造需求</span><span class="lang-en">EmberOS helps businesses create demand</span></li>
+            <li><span class="lang-zh">EmberCore 帮忙承接需求背后的运营</span><span class="lang-en">EmberCore helps handle the operations behind that demand</span></li>
+            <li><span class="lang-zh">订单 · 工作流 · 日常执行</span><span class="lang-en">Orders · workflows · day-to-day execution</span></li>
+          </ul>
+          <p class="platform-note">
+            <span class="lang-zh">EmberCore 仍在开发中。有运营自动化需求欢迎先沟通。</span>
+            <span class="lang-en">EmberCore is in active development. Talk to us if you need operations support as you grow.</span>
+          </p>
+          <div class="hero-actions" style="justify-content:flex-start;margin-top:1.25rem;">
+            <a href="mailto:support@embersoullabs.com?subject=EmberCore%20enquiry" class="btn btn-ghost">
+              <span class="lang-zh">咨询 EmberCore</span>
+              <span class="lang-en">Ask about EmberCore</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business automation -->
+    <section id="automation" class="section-automation">
+      <div class="container">
+        <p class="section-label">
+          <span class="lang-zh">业务自动化</span>
+          <span class="lang-en">Business Automation</span>
+        </p>
+        <h2 class="section-title">
+          <span class="lang-zh">不止内容，还能帮你跑业务</span>
+          <span class="lang-en">Beyond Content — We Help You Run the Business</span>
+        </h2>
+        <p class="section-desc">
+          <span class="lang-zh">当广告带来更多询盘与订单，我们也能协助搭建运营侧能力。</span>
+          <span class="lang-en">When ads bring more enquiries and orders, we can also help build the operational side.</span>
+        </p>
+        <div class="auto-grid">
+          <div class="auto-card">
+            <h3><span class="lang-zh">订单管理</span><span class="lang-en">Order Management</span></h3>
+            <p><span class="lang-zh">跟进订单与履约流程</span><span class="lang-en">Track orders and fulfilment workflows</span></p>
+          </div>
+          <div class="auto-card">
+            <h3><span class="lang-zh">流程自动化</span><span class="lang-en">Workflow Automation</span></h3>
+            <p><span class="lang-zh">减少重复手工步骤</span><span class="lang-en">Reduce repetitive manual steps</span></p>
+          </div>
+          <div class="auto-card">
+            <h3><span class="lang-zh">业务看板</span><span class="lang-en">Business Dashboards</span></h3>
+            <p><span class="lang-zh">看清日常关键指标</span><span class="lang-en">See the metrics that matter day to day</span></p>
+          </div>
+          <div class="auto-card">
+            <h3><span class="lang-zh">内部工具</span><span class="lang-en">Custom Internal Tools</span></h3>
+            <p><span class="lang-zh">按你的流程定制工具</span><span class="lang-en">Tools shaped around how you work</span></p>
+          </div>
+          <div class="auto-card">
+            <h3><span class="lang-zh">AI 辅助运营</span><span class="lang-en">AI-assisted Operations</span></h3>
+            <p><span class="lang-zh">在运营环节加入实用 AI 能力</span><span class="lang-en">Practical AI support inside operations</span></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
     <section id="about">
       <div class="container about-grid">
         <div class="about-text">
@@ -223,73 +648,76 @@
           </p>
           <h2 class="section-title">EmberSoul Labs</h2>
           <p>
-            <span class="lang-zh">EmberSoul Labs 是一家马来西亚科技公司（SSM 注册）— 既有自研 SaaS 产品线，也提供<strong>客制化软件开发与 Web App 承包</strong>，服务中小企业、连锁品牌与有独特需求的团队。</span>
-            <span class="lang-en">EmberSoul Labs is a Malaysia-registered technology company (SSM) with its own SaaS products and <strong>custom software &amp; Web App development</strong> for SMEs, brands, and teams with unique requirements.</span>
+            <span class="lang-zh">EmberSoul Labs 是一家马来西亚科技公司（SSM 注册）— <strong>面向中小企业的 AI 创意与自动化工作室</strong>。我们用自有技术帮商家做广告、做内容，并逐步接到业务运营。</span>
+            <span class="lang-en">EmberSoul Labs is a Malaysia-registered technology company (SSM) — an <strong>AI Creative &amp; Automation Studio for small businesses</strong>. We use our own technology to help merchants create ads and content, then grow into business operations.</span>
           </p>
           <p>
-            <span class="lang-zh">我们的名字「Ember」代表持续燃烧的创新火种，「Soul」代表对产品质量与用户体验的执着。</span>
-            <span class="lang-en">Our name reflects enduring innovation — an ember that keeps burning — and a soul committed to product quality and user experience.</span>
+            <span class="lang-zh">核心对外能力：AI 广告 · AI 内容 · 业务自动化。背后则是 EmberOS（营销制作）与 EmberCore（运营）。</span>
+            <span class="lang-en">What you buy first: AI Ads · AI Content · Business Automation. Behind the scenes: EmberOS (marketing production) and EmberCore (operations).</span>
           </p>
         </div>
         <div class="about-stats">
           <div class="stat">
-            <div class="stat-value">2</div>
+            <div class="stat-value">AI Ads</div>
             <div class="stat-label">
-              <span class="lang-zh">产品管线</span>
-              <span class="lang-en">Products in Pipeline</span>
+              <span class="lang-zh">广告入口</span>
+              <span class="lang-en">Entry Offer</span>
             </div>
           </div>
           <div class="stat">
-            <div class="stat-value">SaaS</div>
+            <div class="stat-value">EmberOS</div>
             <div class="stat-label">
-              <span class="lang-zh">多租户架构</span>
-              <span class="lang-en">Multi-Tenant</span>
+              <span class="lang-zh">营销制作平台</span>
+              <span class="lang-en">Marketing Platform</span>
             </div>
           </div>
           <div class="stat">
-            <div class="stat-value">AI</div>
+            <div class="stat-value">EmberCore</div>
             <div class="stat-label">
-              <span class="lang-zh">智能驱动</span>
-              <span class="lang-en">AI-Powered</span>
+              <span class="lang-zh">业务运营</span>
+              <span class="lang-en">Operations</span>
             </div>
           </div>
           <div class="stat">
-            <div class="stat-value">Web</div>
+            <div class="stat-value">MY</div>
             <div class="stat-label">
-              <span class="lang-zh">Web App 开发</span>
-              <span class="lang-en">Web Apps</span>
-            </div>
-          </div>
-          <div class="stat">
-            <div class="stat-value">
-              <span class="lang-zh">定制</span>
-              <span class="lang-en">Custom</span>
-            </div>
-            <div class="stat-label">
-              <span class="lang-zh">客制化接单</span>
-              <span class="lang-en">Tailored Projects</span>
+              <span class="lang-zh">柔佛 · 马来西亚</span>
+              <span class="lang-en">Johor Bahru, Malaysia</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="contact">
+    <!-- Final CTA -->
+    <section id="contact" class="section-final-cta">
       <div class="container">
-        <p class="section-label" style="text-align:center;">
-          <span class="lang-zh">联系</span>
-          <span class="lang-en">Contact</span>
-        </p>
-        <div class="contact-box">
-          <h2 class="section-title" style="margin-bottom:0.75rem;">
-            <span class="lang-zh">有 SaaS 试点、Web App 或客制化项目需求？</span>
-            <span class="lang-en">SaaS pilots, Web App builds, or custom software in mind?</span>
-          </h2>
-          <p>
-            <span class="lang-zh">欢迎企业、创业团队与有具体场景的客户来信洽谈 — 自研产品与定制开发均可讨论。</span>
-            <span class="lang-en">We welcome businesses, startups, and teams with a clear use case — whether it's our products or a bespoke build.</span>
+        <div class="final-cta-box">
+          <p class="section-label" style="text-align:center;">
+            <span class="lang-zh">开始</span>
+            <span class="lang-en">Get Started</span>
           </p>
-          <a class="contact-email" href="mailto:support@embersoullabs.com">support@embersoullabs.com</a>
+          <h2 class="section-title" style="text-align:center;margin-bottom:0.75rem;">
+            <span class="lang-zh">有产品？我们帮你做成广告。</span>
+            <span class="lang-en">Have a Product? Let's Turn It Into an Ad.</span>
+          </h2>
+          <p style="text-align:center;color:var(--text-muted);max-width:540px;margin:0 auto 1.75rem;">
+            <span class="lang-zh">把产品照片、视频或想法发给我们，我们帮你选合适的 AI 广告形式。</span>
+            <span class="lang-en">Send us your product photos, videos or idea and we'll help you decide the right AI ad format.</span>
+          </p>
+          <div class="hero-actions">
+            <a href="/ai-ads/" class="btn btn-primary">
+              <span class="lang-zh">做一支 AI 广告</span>
+              <span class="lang-en">Create My AI Ad</span>
+            </a>
+            <a href="mailto:support@embersoullabs.com" class="btn btn-ghost">
+              <span class="lang-zh">联系 EmberSoul Labs</span>
+              <span class="lang-en">Talk to EmberSoul Labs</span>
+            </a>
+          </div>
+          <p style="text-align:center;margin-top:1.25rem;">
+            <a class="contact-email" href="mailto:support@embersoullabs.com">support@embersoullabs.com</a>
+          </p>
         </div>
       </div>
     </section>
@@ -300,8 +728,18 @@
       <div class="footer-meta">
         <p>&copy; 2026 EmberSoul Labs</p>
         <p>Johor Bahru, Malaysia</p>
+        <p style="margin-top:0.35rem;">
+          <span class="lang-zh">AI 广告 · AI 内容 · 业务自动化</span>
+          <span class="lang-en">AI Ads · AI Content · Business Automation</span>
+        </p>
       </div>
       <div class="footer-links">
+        <a href="#ai-ads">
+          <span class="lang-zh">AI 广告</span>
+          <span class="lang-en">AI Ads</span>
+        </a>
+        <a href="#emberos">EmberOS</a>
+        <a href="#embercore">EmberCore</a>
         <a href="/privacy/">Privacy Policy</a>
         <a href="/terms/">Terms of Service</a>
         <a href="mailto:support@embersoullabs.com">support@embersoullabs.com</a>
@@ -342,5 +780,7 @@
       a.addEventListener("click", () => nav.classList.remove("open"));
     });
   </script>
+  <script src="/js/pricing.js" defer></script>
+  <script src="/js/stripe-config.js" defer></script>
 </body>
 </html>

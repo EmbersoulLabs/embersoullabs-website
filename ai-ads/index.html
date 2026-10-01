@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create My AI Ad — EmberSoul Labs</title>
+  <meta name="description" content="Order an AI advertising video from EmberSoul Labs — AI short ads, story ads, or a 30-day monthly AI content package for small businesses in Singapore and Malaysia.">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+      <nav class="nav">
+        <a href="/#ai-ads">
+          <span class="lang-zh">服务</span>
+          <span class="lang-en">Services</span>
+        </a>
+        <a href="/">
+          <span class="lang-zh">首页</span>
+          <span class="lang-en">Home</span>
+        </a>
+      </nav>
+      <div class="lang-toggle" role="group" aria-label="Language">
+        <button type="button" data-set-lang="zh">中文</button>
+        <button type="button" data-set-lang="en" class="active">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container form-page">
+      <a href="/#ai-ads" class="back-link">&larr;
+        <span class="lang-zh">返回服务</span>
+        <span class="lang-en">Back to services</span>
+      </a>
+
+      <div class="promo-banner">
+        <p class="promo-label">AI Ads</p>
+        <h1>
+          <span class="lang-zh">做一支 AI 广告</span>
+          <span class="lang-en">Create My AI Ad</span>
+        </h1>
+        <p class="promo-offer">
+          <span class="lang-zh">可在线购买（一次性付款），或先提交询盘。价格由服务器按地区套餐确定，浏览器不能改价。</span>
+          <span class="lang-en">Buy online (one-time payment) or send an enquiry first. Prices are set server-side by package + region — the browser cannot change the charge.</span>
+        </p>
+      </div>
+
+      <div class="pricing-region-bar" data-pricing-region-bar>
+        <label class="pricing-region-label" for="pricing-region-form">
+          <span class="lang-zh">报价地区：</span>
+          <span class="lang-en">Pricing for:</span>
+        </label>
+        <select id="pricing-region-form" class="pricing-region-select" data-region-select aria-label="Pricing region">
+          <option value="my">🇲🇾 Malaysia — MYR</option>
+          <option value="sg">🇸🇬 Singapore — SGD</option>
+          <option value="intl" selected>🌍 International — USD</option>
+        </select>
+      </div>
+
+      <div class="checkout-buy-panel">
+        <p class="one-time-note" style="margin-bottom:0.75rem;">
+          <span class="lang-zh">一次性付款 · 非订阅</span>
+          <span class="lang-en">One-time payment · not a subscription</span>
+        </p>
+        <p class="order-price-preview" id="checkout-panel-price" hidden></p>
+        <button type="button" class="btn btn-primary btn-full" id="btn-buy-now" data-checkout-service="short" hidden>
+          <span class="lang-zh">立即购买</span>
+          <span class="lang-en">Buy Now</span>
+        </button>
+        <p class="field-hint" id="buy-hint" style="margin-top:0.65rem;">
+          <span class="lang-zh">选择套餐后可直接结账，或向下填写询盘表单。</span>
+          <span class="lang-en">Select a package to checkout, or scroll down to send an enquiry.</span>
+        </p>
+      </div>
+
+      <p class="form-intro">
+        <span class="lang-zh">询盘：提交后我们会在 1–2 个工作日内回复。无需复杂简报 — 有产品图或想法即可。</span>
+        <span class="lang-en">Enquiry: we'll reply within 1–2 business days. No complex brief needed — product photos or a clear idea is enough.</span>
+      </p>
+
+      <form class="apply-form" id="ai-ad-form" action="https://formsubmit.co/support@embersoullabs.com" method="POST">
+        <input type="hidden" name="_subject" value="AI Ad enquiry / AI 广告咨询 — EmberSoul Labs">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://embersoullabs.com/ai-ads/thanks/">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+        <!-- Ops context only. Browser is NEVER authoritative for payment amount. -->
+        <input type="hidden" name="selected_service" id="field_selected_service" value="">
+        <input type="hidden" name="pricing_region" id="field_pricing_region" value="International">
+        <input type="hidden" name="currency" id="field_currency" value="USD">
+        <input type="hidden" name="displayed_price" id="field_displayed_price" value="">
+        <input type="hidden" name="monthly_content_format" id="field_monthly_content_format" value="n/a">
+        <input type="hidden" name="stripe_lookup_key" id="field_stripe_lookup_key" value="">
+
+        <fieldset>
+          <legend>
+            <span class="lang-zh">套餐</span>
+            <span class="lang-en">Selected Package</span>
+          </legend>
+          <label>
+            <span class="lang-zh">套餐 *</span>
+            <span class="lang-en">Package *</span>
+            <select name="ad_type" id="ad_type" required>
+              <option value="" disabled selected>—</option>
+              <option value="short">AI Short Ad (7–10s)</option>
+              <option value="story">AI Story Ad (~45–48s)</option>
+              <option value="monthly">Monthly AI Content (30-day package)</option>
+              <option value="unsure">Not sure yet — help me decide</option>
+            </select>
+          </label>
+          <p class="order-price-preview" id="displayed-price-preview" hidden></p>
+          <p class="price-hint">
+            <span class="lang-zh">当前市场报价（可在上方切换地区）：</span>
+            <span class="lang-en">Listed offer for your selected market (change region above):</span>
+          </p>
+          <ul class="order-price-list">
+            <li><span class="lang-zh">短广告</span><span class="lang-en">Short Ad</span>: <strong data-price-offer="short">USD 19</strong></li>
+            <li><span class="lang-zh">故事广告</span><span class="lang-en">Story Ad</span>: <strong data-price-offer="story">USD 59</strong></li>
+            <li><span class="lang-zh">每月内容</span><span class="lang-en">Monthly</span>: <strong data-price-offer="monthly">USD 129 / 30-day package</strong></li>
+          </ul>
+
+          <div id="monthly-format-block" hidden>
+            <label>
+              <span class="lang-zh">内容形式 *</span>
+              <span class="lang-en">Content Format *</span>
+              <select name="monthly_content_format_ui" id="monthly_content_format">
+                <option value="" disabled selected>—</option>
+                <option value="not_sure">Not sure</option>
+                <option value="standalone">Standalone Ads</option>
+                <option value="story_series">Continuous AI Story Series</option>
+                <option value="mix">Mix of Both</option>
+              </select>
+            </label>
+            <p class="field-hint">
+              <span class="lang-zh">可做四支独立广告，或 EP01→EP02→EP03→EP04 连续故事系列。一次性 30 天套餐，非自动续订。</span>
+              <span class="lang-en">Four standalone ads — or an EP01→EP02→EP03→EP04 story series. One-time 30-day package, not auto-renewing.</span>
+            </p>
+            <div class="episode-flow episode-flow-form" aria-hidden="true">
+              <span class="ep-chip">EP01</span>
+              <span class="ep-arrow">→</span>
+              <span class="ep-chip">EP02</span>
+              <span class="ep-arrow">→</span>
+              <span class="ep-chip">EP03</span>
+              <span class="ep-arrow">→</span>
+              <span class="ep-chip">EP04</span>
+            </div>
+            <div id="story-concept-block" hidden>
+              <label>
+                <span class="lang-zh">故事或品牌概念（选填）</span>
+                <span class="lang-en">What kind of story or brand concept do you have in mind? (optional)</span>
+                <textarea name="story_concept" rows="3" maxlength="1500" placeholder="Recurring characters, campaign idea, tone…"></textarea>
+              </label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <span class="lang-zh">联系方式</span>
+            <span class="lang-en">Contact</span>
+          </legend>
+          <label>
+            <span class="lang-zh">姓名 *</span>
+            <span class="lang-en">Name *</span>
+            <input type="text" name="contact_name" required maxlength="80" autocomplete="name">
+          </label>
+          <label>
+            <span class="lang-zh">公司 / 品牌 *</span>
+            <span class="lang-en">Business / Brand *</span>
+            <input type="text" name="business_name" required maxlength="120" autocomplete="organization">
+          </label>
+          <label>
+            <span class="lang-zh">邮箱 / 联系方式 *</span>
+            <span class="lang-en">Email / Contact *</span>
+            <input type="text" name="email_or_contact" required maxlength="120" placeholder="email@… or WhatsApp +60…">
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>
+            <span class="lang-zh">关于你的产品</span>
+            <span class="lang-en">About your product</span>
+          </legend>
+          <label>
+            <span class="lang-zh">想推广什么？ *</span>
+            <span class="lang-en">What are you promoting? *</span>
+            <textarea name="product_brief" rows="4" required maxlength="2000" placeholder="Product name, offer, or campaign idea…"></textarea>
+          </label>
+          <label>
+            <span class="lang-zh">是否已有产品照片 / 视频？</span>
+            <span class="lang-en">Do you already have product photos/videos?</span>
+            <select name="has_assets">
+              <option value="" disabled selected>—</option>
+              <option value="yes">Yes</option>
+              <option value="partial">Some / partial</option>
+              <option value="no">Not yet</option>
+            </select>
+          </label>
+          <label>
+            <span class="lang-zh">偏好语言</span>
+            <span class="lang-en">Preferred Language</span>
+            <select name="preferred_language">
+              <option value="" disabled selected>—</option>
+              <option value="en">English</option>
+              <option value="zh">中文</option>
+              <option value="ms">Bahasa Melayu</option>
+              <option value="mix">Mix / bilingual</option>
+            </select>
+          </label>
+          <label>
+            <span class="lang-zh">补充说明（选填）</span>
+            <span class="lang-en">Additional Notes (optional)</span>
+            <textarea name="additional_notes" rows="3" maxlength="1500" placeholder="Tone, deadline, platform preference…"></textarea>
+          </label>
+        </fieldset>
+
+        <p class="policy-note policy-note-form">
+          <span class="lang-zh">含最多 3 次修改（在已确认的创意方向内）。重大概念变更或整片重做可能需另计费用。每月套餐每支视频各自含最多 3 次修改。AI 生成内容可能存在自然的生成差异。</span>
+          <span class="lang-en">Includes up to 3 revisions within the approved creative direction. Major concept changes or complete remakes may require an additional fee. Monthly: up to 3 revisions per video. AI-generated content may contain natural generative variations.</span>
+        </p>
+
+        <label class="checkbox-label consent">
+          <input type="checkbox" name="agree_privacy" value="yes" required>
+          <span class="lang-zh">我同意 EmberSoul Labs 按 <a href="/privacy/">隐私政策</a> 处理本次咨询信息。</span>
+          <span class="lang-en">I agree EmberSoul Labs may process this enquiry per the <a href="/privacy/">Privacy Policy</a>.</span>
+        </label>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          <span class="lang-zh">提交询盘</span>
+          <span class="lang-en">Send Enquiry</span>
+        </button>
+      </form>
+
+      <p class="form-intro" style="margin-top:1.5rem;text-align:center;">
+        <span class="lang-zh">或直接发邮件：</span>
+        <span class="lang-en">Or email us:</span>
+        <a href="mailto:support@embersoullabs.com" style="color:var(--teal);">support@embersoullabs.com</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <p>&copy; 2026 EmberSoul Labs</p>
+        <p>Johor Bahru, Malaysia</p>
+      </div>
+      <div class="footer-links">
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="/terms/">Terms of Service</a>
+        <a href="mailto:support@embersoullabs.com">support@embersoullabs.com</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const html = document.documentElement;
+    const saved = localStorage.getItem("esl-lang");
+    if (saved === "en" || saved === "zh") {
+      html.setAttribute("data-lang", saved);
+      html.lang = saved === "zh" ? "zh" : "en";
+      document.querySelectorAll(".lang-toggle button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.setLang === saved);
+      });
+    }
+    document.querySelectorAll("[data-set-lang]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const lang = btn.dataset.setLang;
+        html.setAttribute("data-lang", lang);
+        html.lang = lang === "zh" ? "zh" : "en";
+        localStorage.setItem("esl-lang", lang);
+        document.querySelectorAll(".lang-toggle button").forEach((b) => {
+          b.classList.toggle("active", b === btn);
+        });
+      });
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const type = params.get("type");
+    const select = document.getElementById("ad_type");
+    if (type && select) {
+      const map = { short: "short", story: "story", monthly: "monthly" };
+      if (map[type]) select.value = map[type];
+    }
+
+    const buyBtn = document.getElementById("btn-buy-now");
+    const buyPrice = document.getElementById("checkout-panel-price");
+    const buyLabels = {
+      short: {
+        zh: "购买 AI 短广告",
+        en: "Buy AI Short Ad",
+      },
+      story: {
+        zh: "购买 AI 故事广告",
+        en: "Buy AI Story Ad",
+      },
+      monthly: {
+        zh: "购买每月套餐",
+        en: "Buy Monthly Package",
+      },
+    };
+
+    function syncBuyPanel() {
+      if (!buyBtn || !select) return;
+      const service = select.value;
+      const payable = service === "short" || service === "story" || service === "monthly";
+      buyBtn.hidden = !payable;
+      if (!payable) {
+        if (buyPrice) buyPrice.hidden = true;
+        return;
+      }
+      buyBtn.setAttribute("data-checkout-service", service);
+      const label = buyLabels[service];
+      const lang = document.documentElement.getAttribute("data-lang") === "zh" ? "zh" : "en";
+      buyBtn.innerHTML =
+        '<span class="lang-zh">' +
+        label.zh +
+        '</span><span class="lang-en">' +
+        label.en +
+        "</span>";
+      // Force visible language via existing CSS [data-lang]
+      if (buyPrice) {
+        const slot = document.querySelector('[data-price-offer="' + service + '"]');
+        if (slot && slot.textContent) {
+          buyPrice.textContent = slot.textContent;
+          buyPrice.hidden = false;
+        }
+      }
+    }
+
+    if (select) {
+      select.addEventListener("change", syncBuyPanel);
+      document.addEventListener("embersoul:pricing-region", syncBuyPanel);
+      // After pricing.js applies prices
+      window.addEventListener("DOMContentLoaded", syncBuyPanel);
+      setTimeout(syncBuyPanel, 50);
+      setTimeout(syncBuyPanel, 400);
+    }
+  </script>
+  <script src="/js/pricing.js" defer></script>
+  <script src="/js/stripe-config.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enquiry Received — EmberSoul Labs</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container legal-content" style="text-align:center;">
+      <div class="thanks-icon">✓</div>
+      <h1>
+        <span class="lang-zh">已收到你的询盘</span>
+        <span class="lang-en">Enquiry Received</span>
+      </h1>
+      <p>
+        <span class="lang-zh">感谢联系 EmberSoul Labs。我们将在 <strong>1–2 个工作日</strong>内通过邮件或 WhatsApp 回复，并帮你确认合适的 AI 广告形式。</span>
+        <span class="lang-en">Thanks for contacting EmberSoul Labs. We'll reply by email or WhatsApp within <strong>1–2 business days</strong> and help you pick the right AI ad format.</span>
+      </p>
+      <a href="/" class="btn btn-primary" style="margin-top:1.5rem;">
+        <span class="lang-zh">返回首页</span>
+        <span class="lang-en">Back to Home</span>
+      </a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <p>&copy; 2026 EmberSoul Labs</p>
+        <p>Johor Bahru, Malaysia</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const saved = localStorage.getItem("esl-lang");
+    if (saved) {
+      document.documentElement.setAttribute("data-lang", saved);
+      document.documentElement.lang = saved === "zh" ? "zh" : "en";
+    }
+  </script>
+</body>
+</html>

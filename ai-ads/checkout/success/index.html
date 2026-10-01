@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment status — EmberSoul Labs</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container form-page">
+      <div class="promo-banner" id="status-banner">
+        <p class="promo-label">Checkout</p>
+        <h1 id="status-title">
+          <span class="lang-zh">正在核实付款…</span>
+          <span class="lang-en">We're verifying your payment.</span>
+        </h1>
+        <p class="promo-offer" id="status-body">
+          <span class="lang-zh">到达此页面并不等于付款已确认。我们正在向 Stripe 核实支付状态。</span>
+          <span class="lang-en">Reaching this page does not confirm payment by itself. We're checking payment status with Stripe.</span>
+        </p>
+      </div>
+
+      <div id="paid-panel" hidden>
+        <ul class="order-price-list" style="margin-top:1rem;">
+          <li><span class="lang-zh">状态</span><span class="lang-en">Status</span>: <strong id="paid-status">Payment received</strong></li>
+          <li><span class="lang-zh">参考编号</span><span class="lang-en">Reference</span>: <strong id="paid-ref">—</strong></li>
+          <li><span class="lang-zh">套餐</span><span class="lang-en">Package</span>: <strong id="paid-service">—</strong></li>
+        </ul>
+        <p class="form-intro" style="margin-top:1rem;">
+          <span class="lang-zh"><strong>下一步：</strong>提交创意简报 / 产品素材，我们好开始制作。</span>
+          <span class="lang-en"><strong>Next step:</strong> submit your creative brief / product assets so we can start production.</span>
+        </p>
+      </div>
+
+      <p class="form-intro" id="session-note" hidden></p>
+
+      <div class="hero-actions" style="justify-content:flex-start;margin-top:1.5rem;">
+        <a href="/ai-ads/" class="btn btn-primary" id="cta-brief">
+          <span class="lang-zh">提交创意简报</span>
+          <span class="lang-en">Submit creative brief</span>
+        </a>
+        <a href="/" class="btn btn-ghost">
+          <span class="lang-zh">回首页</span>
+          <span class="lang-en">Home</span>
+        </a>
+      </div>
+
+      <p class="policy-note" style="margin-top:1.5rem;">
+        <span class="lang-zh">如有疑问，请联系 </span>
+        <span class="lang-en">Questions? Contact </span>
+        <a href="mailto:support@embersoullabs.com" style="color:var(--teal);">support@embersoullabs.com</a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var sid = params.get("session_id");
+      var note = document.getElementById("session-note");
+      var title = document.getElementById("status-title");
+      var body = document.getElementById("status-body");
+      var paidPanel = document.getElementById("paid-panel");
+      var cta = document.getElementById("cta-brief");
+
+      if (sid && note) {
+        note.hidden = false;
+        note.textContent = "Session: " + sid.slice(0, 24) + "…";
+      }
+
+      if (!sid) {
+        title.innerHTML =
+          '<span class="lang-zh">缺少结账会话</span><span class="lang-en">Missing checkout session</span>';
+        body.innerHTML =
+          '<span class="lang-zh">请从套餐页重新发起结账。</span><span class="lang-en">Please restart checkout from the package page.</span>';
+        return;
+      }
+
+      function showPaid(data) {
+        title.innerHTML =
+          '<span class="lang-zh">已收到付款</span><span class="lang-en">Payment received</span>';
+        body.innerHTML =
+          '<span class="lang-zh">Stripe 已确认付款。EmberOS 制作尚未自动启动 — 请先提交简报与素材。</span><span class="lang-en">Stripe confirmed payment. EmberOS production is not started automatically — please submit your brief and assets next.</span>';
+        paidPanel.hidden = false;
+        document.getElementById("paid-ref").textContent = data.reference || data.session_id || sid;
+        document.getElementById("paid-service").textContent = data.service || "—";
+        if (data.service) {
+          cta.href = "/ai-ads/?type=" + encodeURIComponent(data.service);
+        }
+      }
+
+      function showPending(msg) {
+        title.innerHTML =
+          '<span class="lang-zh">正在核实付款…</span><span class="lang-en">We\'re verifying your payment.</span>';
+        body.textContent =
+          msg ||
+          "Payment is not confirmed yet. If you completed Checkout, please wait a moment or contact support.";
+      }
+
+      function showFailed(msg) {
+        title.innerHTML =
+          '<span class="lang-zh">付款未确认</span><span class="lang-en">Payment not confirmed</span>';
+        body.textContent =
+          msg ||
+          "We could not confirm a successful payment for this session. No order has been started.";
+      }
+
+      fetch("/api/checkout/session?session_id=" + encodeURIComponent(sid), {
+        credentials: "omit",
+        cache: "no-store",
+      })
+        .then(function (r) {
+          return r.json().then(function (data) {
+            return { http: r.status, data: data };
+          });
+        })
+        .then(function (result) {
+          var data = result.data;
+          if (data && data.ok && (data.paid || data.payment_state === "CONFIRMED")) {
+            showPaid(data);
+          } else if (data && data.ok && data.payment_state === "FAILED") {
+            showFailed(
+              "Payment state: failed/expired. No order has been started."
+            );
+          } else if (data && data.ok) {
+            showPending(
+              "Stripe status: " +
+                (data.payment_status || data.payment_state || "pending") +
+                ". We're still verifying — no order has started yet."
+            );
+          } else {
+            showPending(
+              (data && data.error) ||
+                "Unable to verify payment yet. Reaching this page alone is not payment confirmation."
+            );
+          }
+        })
+        .catch(function () {
+          showPending(
+            "Verification endpoint unavailable. Reaching this page alone is not payment confirmation."
+          );
+        });
+    })();
+  </script>
+</body>
+</html>
