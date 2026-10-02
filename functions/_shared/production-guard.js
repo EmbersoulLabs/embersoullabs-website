@@ -91,25 +91,51 @@ export function assertWebhookSecretConfigured(env) {
 
 export function assertPaymentEventsKv(env, { allowInMemoryDev = false } = {}) {
   const mode = getRuntimeMode(env);
-  if (env && env.PAYMENT_EVENTS && typeof env.PAYMENT_EVENTS.get === "function") {
-    return { ok: true, store: "kv" };
+  const binding = env ? env.PAYMENT_EVENTS : undefined;
+  const hasGet = !!(binding && typeof binding.get === "function");
+  const hasPut = !!(binding && typeof binding.put === "function");
+
+  // Cloudflare KV namespace is an object with get/put — never a plain env string.
+  if (hasGet && hasPut) {
+    return { ok: true, store: "kv", probe: describePaymentEventsBinding(binding) };
   }
+
+  const probe = describePaymentEventsBinding(binding);
   if (mode === "production") {
     return {
       ok: false,
       code: "missing_payment_events_kv",
       error:
-        "PAYMENT_EVENTS KV binding is required in production. In-memory fallback is forbidden.",
+        probe.present && probe.type === "string"
+          ? "PAYMENT_EVENTS is a string env var, not a KV namespace binding. Remove any plain Environment Variable named PAYMENT_EVENTS so the KV binding can attach."
+          : "PAYMENT_EVENTS KV binding is required in production. In-memory fallback is forbidden.",
+      probe,
     };
   }
   if (allowInMemoryDev && env && env.ALLOW_IN_MEMORY_IDEMPOTENCY === "true") {
-    return { ok: true, store: "memory_dev_only" };
+    return { ok: true, store: "memory_dev_only", probe };
   }
   return {
     ok: false,
     code: "missing_payment_events_kv",
     error:
       "PAYMENT_EVENTS KV is required. For local testing only, set ALLOW_IN_MEMORY_IDEMPOTENCY=true.",
+    probe,
+  };
+}
+
+/** Safe probe — never includes values/secrets/KV contents. */
+export function describePaymentEventsBinding(binding) {
+  const present = binding !== undefined && binding !== null;
+  const type = present ? typeof binding : "undefined";
+  return {
+    present,
+    type,
+    has_get: !!(binding && typeof binding.get === "function"),
+    has_put: !!(binding && typeof binding.put === "function"),
+    has_delete: !!(binding && typeof binding.delete === "function"),
+    looks_like_kv:
+      !!(binding && typeof binding.get === "function" && typeof binding.put === "function"),
   };
 }
 

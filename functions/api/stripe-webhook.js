@@ -314,6 +314,7 @@ export async function onRequestGet(context) {
     webhook_secret_configured: wh.ok,
     stripe_secret_configured: sk.ok,
     payment_events: kv.ok ? kv.store : "missing",
+    payment_events_probe: kv.probe || null,
     idempotency_key: "stripe_event_id (event.id)",
     in_memory_production_fallback: false,
     payment_states: {
