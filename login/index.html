@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>Customer login — EmberSoul Labs</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container form-page">
+      <div class="promo-banner">
+        <p class="promo-label">Customer portal</p>
+        <h1>Sign in</h1>
+        <p class="promo-offer">We'll email a one-time code. The same message is shown whether or not an account already exists.</p>
+      </div>
+      <form id="email-form">
+        <label>Email<input type="email" name="email" required maxlength="120" autocomplete="email"></label>
+        <button class="btn btn-primary" type="submit">Email me a code</button>
+      </form>
+      <form id="code-form" hidden>
+        <label>Login code<input name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code"></label>
+        <button class="btn btn-primary" type="submit">Continue</button>
+      </form>
+      <p id="login-note" class="form-intro"></p>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var next = params.get("next") || "";
+      if (!next.startsWith("/account/") || next.startsWith("//")) next = "/account/orders/";
+      var emailForm = document.getElementById("email-form");
+      var codeForm = document.getElementById("code-form");
+      var note = document.getElementById("login-note");
+      var email = params.get("email") || "";
+      var challenge = params.get("challenge") || "";
+      var code = params.get("code") || "";
+      if (email) emailForm.email.value = email;
+      function safeNext() { return next; }
+      function verify(payload) {
+        return fetch("/api/auth/verify", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(function (response) {
+          return response.json().then(function (data) { return { ok: response.ok, data: data }; });
+        }).then(function (result) {
+          if (result.ok && result.data.ok) {
+            window.location.replace(safeNext());
+            return;
+          }
+          note.textContent = result.data && result.data.code === "rate_limited"
+            ? "Too many attempts. Wait a while, then request a new code."
+            : "That code was not accepted. Request a new one if it expired.";
+        });
+      }
+      emailForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        email = new FormData(emailForm).get("email");
+        fetch("/api/auth/start", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email })
+        }).then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+          .then(function (result) {
+            if (result.status === 503) {
+              note.textContent = "Login email is not configured yet. Contact support@embersoullabs.com.";
+              return;
+            }
+            if (!result.data.ok) {
+              note.textContent = "Enter a valid email address.";
+              return;
+            }
+            codeForm.hidden = false;
+            note.textContent = "If that address can receive mail, a one-time code is on its way.";
+          });
+      });
+      codeForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        verify({ email: email, code: new FormData(codeForm).get("code"), challenge: challenge || undefined });
+      });
+      if (challenge && code) {
+        history.replaceState({}, "", "/login/");
+        codeForm.hidden = false;
+        verify({ challenge: challenge, code: code });
+      }
+    })();
+  </script>
+</body>
+</html>

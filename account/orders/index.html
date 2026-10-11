@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <title>My orders — EmberSoul Labs</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+      <a class="btn btn-ghost" href="/account/">Account</a>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <div class="promo-banner">
+        <p class="promo-label">My orders</p>
+        <h1>Orders linked to you</h1>
+        <p class="promo-offer">Payment status comes from the website ledger. EmberCore synchronization is not live.</p>
+      </div>
+      <p id="claim-note" class="form-intro" hidden></p>
+      <form id="filters" class="portal-filters">
+        <label>Payment
+          <select name="payment">
+            <option value="">All</option>
+            <option value="PAID">Paid</option>
+            <option value="READY_FOR_PRODUCTION">Ready for production</option>
+            <option value="CREATED">Created</option>
+          </select>
+        </label>
+        <label>Progress
+          <select name="progress">
+            <option value="">All</option>
+            <option value="PAID">Paid</option>
+            <option value="BRIEF_RECEIVED">Brief received</option>
+            <option value="IN_PRODUCTION">In production</option>
+            <option value="REVIEW">Review</option>
+            <option value="DELIVERED">Delivered</option>
+          </select>
+        </label>
+      </form>
+      <div id="orders" class="portal-list"></div>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var note = document.getElementById("claim-note");
+      var list = document.getElementById("orders");
+      var filters = document.getElementById("filters");
+      function load() {
+        var query = new URLSearchParams(new FormData(filters));
+        if (!query.get("payment")) query.delete("payment");
+        if (!query.get("progress")) query.delete("progress");
+        fetch("/api/account/orders/?" + query.toString(), { credentials: "same-origin", cache: "no-store" })
+          .then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+          .then(function (result) {
+            if (result.status === 401) {
+              window.location.replace("/login/?next=" + encodeURIComponent("/account/orders/"));
+              return;
+            }
+            var orders = result.data.orders || [];
+            list.innerHTML = "";
+            if (!orders.length) {
+              list.innerHTML = '<p class="form-intro">No linked orders yet. Open the payment confirmation link while signed in to claim one.</p>';
+              return;
+            }
+            orders.forEach(function (order) {
+              var card = document.createElement("a");
+              card.className = "portal-card";
+              card.href = "/account/orders/" + encodeURIComponent(order.reference) + "/";
+              card.innerHTML =
+                "<strong>" + order.package + "</strong>" +
+                "<span>" + order.reference + "</span>" +
+                "<span>" + order.amount_display + "</span>" +
+                "<span>Payment " + order.payment_status + "</span>" +
+                "<span>Brief " + order.brief_status + "</span>" +
+                "<span>Progress " + (order.workflow_status || "—") + "</span>" +
+                "<span>Revisions left " + order.revisions_remaining + "</span>" +
+                "<span>Delivery " + order.delivery_status + "</span>";
+              list.appendChild(card);
+            });
+          });
+      }
+      function claimThenLoad() {
+        var sessionId = params.get("session_id");
+        var token = params.get("access_token");
+        if (!sessionId || !token) { load(); return; }
+        history.replaceState({}, "", "/account/orders/");
+        fetch("/api/account/orders/", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sessionId, access_token: token })
+        }).then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+          .then(function (result) {
+            note.hidden = false;
+            if (result.status === 401) {
+              var back = "/account/orders/?session_id=" + encodeURIComponent(sessionId) + "&access_token=" + encodeURIComponent(token);
+              window.location.replace("/login/?next=" + encodeURIComponent(back));
+              return;
+            }
+            note.textContent = result.data && result.data.ok ? "Order linked to this login." : "That payment link could not be claimed.";
+            load();
+          });
+      }
+      filters.addEventListener("change", load);
+      claimThenLoad();
+    })();
+  </script>
+</body>
+</html>

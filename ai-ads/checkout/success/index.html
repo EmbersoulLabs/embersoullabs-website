@@ -33,9 +33,24 @@
 
       <form id="brief-form" hidden>
         <label>
+          <span class="lang-en">Business / product name</span>
+          <span class="lang-zh">品牌 / 产品名称</span>
+          <input name="business_name" maxlength="120" required>
+        </label>
+        <label>
           <span class="lang-en">What should this ad promote?</span>
           <span class="lang-zh">这条广告要推广什么？</span>
           <textarea name="promotion_text" maxlength="2000" required></textarea>
+        </label>
+        <label>
+          <span class="lang-en">Advertising objective</span>
+          <span class="lang-zh">广告目标</span>
+          <input name="objective" maxlength="500" required>
+        </label>
+        <label>
+          <span class="lang-en">Target audience</span>
+          <span class="lang-zh">目标受众</span>
+          <input name="audience" maxlength="500" required>
         </label>
         <label>
           <span class="lang-en">Language</span>
@@ -48,9 +63,24 @@
           </select>
         </label>
         <label>
-          <span class="lang-en">Product assets</span>
-          <span class="lang-zh">产品素材</span>
-          <input name="asset_status" maxlength="500" required>
+          <span class="lang-en">Visual style</span>
+          <span class="lang-zh">视觉风格</span>
+          <input name="visual_style" maxlength="200" required>
+        </label>
+        <label>
+          <span class="lang-en">Product assets (optional — leave blank for text only)</span>
+          <span class="lang-zh">产品素材（可选，留空表示仅文字）</span>
+          <input name="asset_status" maxlength="500">
+        </label>
+        <label>
+          <span class="lang-en">Asset links (optional)</span>
+          <span class="lang-zh">素材链接（可选）</span>
+          <input name="asset_links" maxlength="1000">
+        </label>
+        <label>
+          <span class="lang-en">Special instructions (optional)</span>
+          <span class="lang-zh">特别说明（可选）</span>
+          <textarea name="special_instructions" maxlength="2000"></textarea>
         </label>
         <label>
           <span class="lang-en">Contact</span>
@@ -82,6 +112,10 @@
         <a href="/ai-ads/" class="btn btn-primary" id="cta-brief">
           <span class="lang-zh">提交创意简报</span>
           <span class="lang-en">Submit creative brief</span>
+        </a>
+        <a href="/login/" class="btn btn-ghost" id="portal-login">
+          <span class="lang-zh">客户登录</span>
+          <span class="lang-en">Customer login</span>
         </a>
         <a href="/" class="btn btn-ghost">
           <span class="lang-zh">回首页</span>
@@ -155,6 +189,12 @@
         return;
       }
 
+      var login = document.getElementById("portal-login");
+      if (login) {
+        var next = "/account/orders/?session_id=" + encodeURIComponent(sid) + "&access_token=" + encodeURIComponent(token);
+        login.href = "/login/?next=" + encodeURIComponent(next);
+      }
+
       fetch(
         "/api/orders/status?session_id=" + encodeURIComponent(sid) +
           "&access_token=" + encodeURIComponent(token),
@@ -200,7 +240,13 @@
             promotion_text: form.get("promotion_text"),
             language: form.get("language"),
             asset_status: form.get("asset_status"),
-            contact: form.get("contact")
+            contact: form.get("contact"),
+            business_name: form.get("business_name"),
+            objective: form.get("objective"),
+            audience: form.get("audience"),
+            visual_style: form.get("visual_style"),
+            asset_links: form.get("asset_links"),
+            special_instructions: form.get("special_instructions")
           })
         })
           .then(function (r) { return r.json(); })

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Order — EmberSoul Labs</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+      <a class="btn btn-ghost" href="/account/orders/">All orders</a>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container form-page">
+      <p class="form-intro" id="sync-banner">EmberCore synchronization is not live. Progress below is the website record only.</p>
+      <div id="order" class="portal-card"></div>
+      <ol id="timeline" class="portal-timeline"></ol>
+      <form id="brief-form" hidden>
+        <h2>Creative brief</h2>
+        <p class="form-intro">Text is enough. File upload is optional and stays unavailable until private storage and scanning are configured.</p>
+        <label>Business / product name<input name="business_name" maxlength="120" required></label>
+        <label>Promotion description<textarea name="promotion_text" maxlength="2000" required></textarea></label>
+        <label>Advertising objective<input name="objective" maxlength="500" required></label>
+        <label>Target audience<input name="audience" maxlength="500" required></label>
+        <label>Language
+          <select name="language" required>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="ms">Bahasa Melayu</option>
+            <option value="mix">Mix</option>
+          </select>
+        </label>
+        <label>Visual style<input name="visual_style" maxlength="200" required></label>
+        <label>Asset links (optional)<input name="asset_links" maxlength="1000"></label>
+        <label>Special instructions (optional)<textarea name="special_instructions" maxlength="2000"></textarea></label>
+        <label>Customer contact<input name="contact" maxlength="120" required></label>
+        <button class="btn btn-primary" type="submit">Submit brief</button>
+      </form>
+      <form id="revision-form" hidden>
+        <h2>Request a revision</h2>
+        <p class="form-intro" id="revision-count"></p>
+        <label>What should change?<textarea name="comment" maxlength="2000" required></textarea></label>
+        <button class="btn btn-primary" type="submit">Submit revision</button>
+        <p class="form-intro">A new video concept is not a revision. EmberCore approves revision requests.</p>
+      </form>
+      <form id="upload-form">
+        <h2>Reference file</h2>
+        <label>Optional image or PDF<input type="file" name="file" accept="image/jpeg,image/png,image/webp,application/pdf"></label>
+        <button class="btn btn-ghost" type="submit">Upload</button>
+        <p id="upload-note" class="form-intro"></p>
+      </form>
+      <p id="delivery" class="form-intro"></p>
+      <p id="note" class="form-intro"></p>
+    </div>
+  </main>
+  <script>
+    (function () {
+      var parts = window.location.pathname.split("/").filter(Boolean);
+      var orderId = parts[parts.length - 1] === "_" ? "" : parts[parts.length - 1];
+      var note = document.getElementById("note");
+      if (!orderId || orderId.indexOf("ord_") !== 0) {
+        note.textContent = "This order link is not valid.";
+        return;
+      }
+      function field(name) { return document.querySelector("[name='" + name + "']"); }
+      fetch("/api/account/orders/" + encodeURIComponent(orderId), { credentials: "same-origin", cache: "no-store" })
+        .then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+        .then(function (result) {
+          if (result.status === 401) {
+            window.location.replace("/login/?next=" + encodeURIComponent(window.location.pathname));
+            return;
+          }
+          if (!result.data.ok) {
+            note.textContent = "This order is not linked to your login.";
+            return;
+          }
+          var order = result.data.order;
+          document.getElementById("order").innerHTML =
+            "<strong>" + order.package + "</strong>" +
+            "<span>Reference " + order.reference + "</span>" +
+            "<span>" + order.amount_display + "</span>" +
+            "<span>Payment " + order.payment_status + "</span>" +
+            "<span>Brief " + order.brief_status + "</span>" +
+            "<span>Progress " + (order.workflow_status || "—") + "</span>" +
+            "<span>Next " + order.next_action + "</span>" +
+            "<span>Created " + (order.created_at || "—") + "</span>" +
+            "<span>Paid " + (order.paid_at || "—") + "</span>" +
+            "<span>Revisions " + order.revisions_used + " used, " + order.revisions_remaining + " remaining (" + order.revision_scope + ")</span>" +
+            "<span>Delivery " + order.delivery_status + (order.delivered_at ? " at " + order.delivered_at : "") + "</span>" +
+            "<span>Sync " + order.sync_status + "</span>";
+          var timeline = document.getElementById("timeline");
+          (order.timeline || []).forEach(function (item) {
+            var li = document.createElement("li");
+            li.textContent = item.created_at + " — " + item.status;
+            timeline.appendChild(li);
+          });
+          if (order.next_action === "submit_creative_brief") document.getElementById("brief-form").hidden = false;
+          if (order.workflow_status === "REVIEW" || order.workflow_status === "IN_PRODUCTION" || order.workflow_status === "DELIVERED") {
+            document.getElementById("revision-form").hidden = false;
+            document.getElementById("revision-count").textContent = order.revisions_remaining + " revisions remaining.";
+          }
+          if (order.next_action === "download_delivery") {
+            var delivery = document.getElementById("delivery");
+            var button = document.createElement("button");
+            button.className = "btn btn-primary";
+            button.type = "button";
+            button.textContent = "Prepare download";
+            button.addEventListener("click", function () {
+              fetch("/api/account/orders/" + encodeURIComponent(orderId) + "/delivery", { method: "POST", credentials: "same-origin" })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                  if (!data.ok) { delivery.textContent = "No finished file is available."; return; }
+                  var link = document.createElement("a");
+                  link.href = data.download_path;
+                  link.textContent = "Download expires " + data.expires_at;
+                  delivery.appendChild(link);
+                });
+            });
+            delivery.appendChild(button);
+          } else {
+            document.getElementById("delivery").textContent = "No finished file is available.";
+          }
+        });
+      document.getElementById("brief-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var form = new FormData(event.target);
+        var body = {};
+        form.forEach(function (value, key) { body[key] = value; });
+        fetch("/api/account/orders/" + encodeURIComponent(orderId) + "/brief", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        }).then(function (response) { return response.json(); })
+          .then(function (data) {
+            note.textContent = data.ok ? "Brief saved. EmberCore sync is still pending." : "Brief was not saved.";
+          });
+      });
+      document.getElementById("revision-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        fetch("/api/account/orders/" + encodeURIComponent(orderId) + "/revisions", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ kind: "revision", comment: field("comment").value })
+        }).then(function (response) { return response.json(); })
+          .then(function (data) {
+            note.textContent = data.ok ? "Revision request is waiting for approval." : "Revision was not accepted.";
+          });
+      });
+      document.getElementById("upload-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var data = new FormData(event.target);
+        fetch("/api/account/orders/" + encodeURIComponent(orderId) + "/assets", {
+          method: "POST",
+          credentials: "same-origin",
+          body: data
+        }).then(function (response) { return response.json().then(function (body) { return { status: response.status, body: body }; }); })
+          .then(function (result) {
+            document.getElementById("upload-note").textContent = result.status === 503
+              ? "Uploads are disabled until private storage and scanning are configured."
+              : (result.body.ok ? "File stored for this order." : "File was not accepted.");
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

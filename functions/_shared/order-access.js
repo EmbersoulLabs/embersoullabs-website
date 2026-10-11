@@ -70,7 +70,29 @@ const LANGUAGES = new Set(["en", "zh", "ms", "mix"]);
 export async function submitCreativeBrief(db, input) {
   const auth = await readAuthorizedOrder(db, input.sessionId, input.accessToken);
   if (auth.status !== 200) return { status: auth.status, body: auth.body };
-  if (auth.order.state !== "PAID") {
+  const promotion = typeof input.promotionText === "string" ? input.promotionText.trim() : "";
+  const assetsRaw = typeof input.assetStatus === "string" ? input.assetStatus.trim() : "";
+  const assets = assetsRaw || "text_only";
+  const contact = typeof input.contact === "string" ? input.contact.trim() : "";
+  const language = typeof input.language === "string" ? input.language.trim() : "";
+  if (promotion.length < 1 || promotion.length > 2000) {
+    return { status: 400, body: { ok: false, code: "invalid_brief", field: "promotion_text" } };
+  }
+  if (!LANGUAGES.has(language)) {
+    return { status: 400, body: { ok: false, code: "invalid_brief", field: "language" } };
+  }
+  if (assets.length > 500) {
+    return { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_status" } };
+  }
+  if (contact.length < 1 || contact.length > 120) {
+    return { status: 400, body: { ok: false, code: "invalid_brief", field: "contact" } };
+  }
+  const existing = await db.get(
+    `SELECT promotion_text, asset_status, language, contact
+     FROM creative_briefs WHERE order_id = ?`,
+    [auth.order.id]
+  );
+  if (auth.order.state !== "PAID" && !(auth.order.state === "READY_FOR_PRODUCTION" && existing)) {
     return {
       status: 409,
       body: {
@@ -81,21 +103,31 @@ export async function submitCreativeBrief(db, input) {
       },
     };
   }
-  const promotion = typeof input.promotionText === "string" ? input.promotionText.trim() : "";
-  const assets = typeof input.assetStatus === "string" ? input.assetStatus.trim() : "";
-  const contact = typeof input.contact === "string" ? input.contact.trim() : "";
-  const language = typeof input.language === "string" ? input.language.trim() : "";
-  if (promotion.length < 1 || promotion.length > 2000) {
-    return { status: 400, body: { ok: false, code: "invalid_brief", field: "promotion_text" } };
-  }
-  if (!LANGUAGES.has(language)) {
-    return { status: 400, body: { ok: false, code: "invalid_brief", field: "language" } };
-  }
-  if (assets.length < 1 || assets.length > 500) {
-    return { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_status" } };
-  }
-  if (contact.length < 1 || contact.length > 120) {
-    return { status: 400, body: { ok: false, code: "invalid_brief", field: "contact" } };
+  if (existing) {
+    const same =
+      existing.promotion_text === promotion &&
+      existing.asset_status === assets &&
+      existing.language === language &&
+      existing.contact === contact;
+    if (!same) {
+      return { status: 409, body: { ok: false, code: "brief_exists", emberos_production: "not_connected" } };
+    }
+    const current = await db.get(
+      "SELECT state, brief_status FROM orders WHERE id = ?",
+      [auth.order.id]
+    );
+    return {
+      status: 200,
+      body: {
+        ok: true,
+        duplicate: true,
+        order_id: auth.order.id,
+        state: current.state,
+        brief_status: current.brief_status,
+        confirmed: current.state === "READY_FOR_PRODUCTION",
+        emberos_production: "not_connected",
+      },
+    };
   }
   try {
     const row = await completeCreativeBrief(db, {
@@ -111,6 +143,7 @@ export async function submitCreativeBrief(db, input) {
       status: 200,
       body: {
         ok: true,
+        order_id: auth.order.id,
         state: row.state,
         brief_status: row.brief_status,
         confirmed: row.state === "READY_FOR_PRODUCTION",

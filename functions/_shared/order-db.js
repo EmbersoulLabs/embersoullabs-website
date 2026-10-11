@@ -14,6 +14,9 @@ export function sqliteAdapter(database) {
       const result = database.prepare(sql).run(...params);
       return { changes: result.changes || 0 };
     },
+    async all(sql, params = []) {
+      return database.prepare(sql).all(...params);
+    },
   };
 }
 
@@ -31,6 +34,10 @@ export function d1Adapter(d1) {
     async run(sql, params = []) {
       const result = await statement(sql, params).run();
       return { changes: result.meta && result.meta.changes ? result.meta.changes : 0 };
+    },
+    async all(sql, params = []) {
+      const result = await statement(sql, params).all();
+      return result && result.results ? result.results : [];
     },
   };
 }
