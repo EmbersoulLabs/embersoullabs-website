@@ -24,10 +24,13 @@ export function assertTestModeSecret(secret) {
   return assertAllowedSecret(secret);
 }
 
-export async function stripeRequest(secret, method, path, body) {
+export async function stripeRequest(secret, method, path, body, options = {}) {
   const headers = {
     Authorization: `Bearer ${secret}`,
   };
+  if (options.idempotencyKey) {
+    headers["Idempotency-Key"] = options.idempotencyKey;
+  }
   let payload;
   if (body != null) {
     headers["Content-Type"] = "application/x-www-form-urlencoded";

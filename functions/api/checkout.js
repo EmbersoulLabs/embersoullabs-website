@@ -8,12 +8,13 @@
  *   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SITE_ORIGIN, PAYMENT_EVENTS
  * Success/cancel URLs always from configured SITE_ORIGIN (never Host header in prod).
  */
-import { SERVICE_LABELS } from "../_shared/catalog.js";
 import { validateCheckoutBody } from "../_shared/checkout-validate.js";
 import {
   assertProductionCheckoutReady,
   resolveSiteOrigin,
 } from "../_shared/production-guard.js";
+import { persistCheckoutSession, recoverWebsiteCheckout } from "../_shared/checkout-order.js";
+import { d1Adapter } from "../_shared/order-db.js";
 import {
   assertAllowedSecret,
   corsHeaders,
@@ -21,6 +22,12 @@ import {
   resolvePriceByLookupKey,
   stripeRequest,
 } from "../_shared/stripe.js";
+
+function ordersDb(env) {
+  const binding = env && env.WEBSITE_ORDERS;
+  if (!binding || typeof binding.prepare !== "function") return null;
+  return d1Adapter(binding);
+}
 
 export async function onRequestOptions(context) {
   const origin = context.request.headers.get("Origin") || "*";
@@ -66,6 +73,24 @@ export async function onRequestPost(context) {
         400,
         headers
       );
+    }
+
+    if (body && typeof body === "object" && body.recovery_handle) {
+      const db = ordersDb(context.env);
+      if (!db) {
+        return jsonResponse(
+          { ok: false, code: "missing_website_orders", emberos_production: "not_connected" },
+          503,
+          headers
+        );
+      }
+      const recovered = await recoverWebsiteCheckout({
+        db,
+        env: context.env,
+        handle: body.recovery_handle,
+        stripeRequest,
+      });
+      return jsonResponse(recovered.body, recovered.status, headers);
     }
 
     const validated = validateCheckoutBody(body);
@@ -143,61 +168,33 @@ export async function onRequestPost(context) {
       );
     }
 
-    const successUrl = `${site.origin}/ai-ads/checkout/success/?session_id={CHECKOUT_SESSION_ID}`;
-    const cancelUrl = `${site.origin}/ai-ads/checkout/cancel/?service=${encodeURIComponent(
-      service
-    )}&region=${encodeURIComponent(region)}`;
-
-    const form = {
-      mode: "payment",
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      "line_items[0][price]": resolved.price.id,
-      "line_items[0][quantity]": "1",
-      "metadata[service]": service,
-      "metadata[region]": region,
-      "metadata[lookup_key]": lookupKey,
-      "metadata[package_version]": "ai_ads_v1",
-      "metadata[product_label]": SERVICE_LABELS[service],
-      "metadata[source]": "embersoul_ai_ads_website",
-      "payment_intent_data[metadata][service]": service,
-      "payment_intent_data[metadata][region]": region,
-      "payment_intent_data[metadata][lookup_key]": lookupKey,
-      "payment_intent_data[metadata][package_version]": "ai_ads_v1",
-    };
-
-    const { status, data } = await stripeRequest(
-      secret,
-      "POST",
-      "checkout/sessions",
-      form
-    );
-
-    if (data.error || !data.url) {
+    const db = ordersDb(context.env);
+    if (!db) {
       return jsonResponse(
         {
           ok: false,
-          error:
-            (data.error && data.error.message) ||
-            "Failed to create Checkout Session",
-          code: "session_create_failed",
+          code: "missing_website_orders",
+          error: "WEBSITE_ORDERS D1 binding is required before a Checkout URL can be returned",
+          emberos_production: "not_connected",
         },
-        status >= 400 ? status : 502,
+        503,
         headers
       );
     }
 
+    const placed = await persistCheckoutSession({
+      db,
+      env: context.env,
+      origin: site.origin,
+      service,
+      region,
+      lookupKey,
+      price: resolved.price,
+      stripeRequest,
+    });
     return jsonResponse(
-      {
-        ok: true,
-        url: data.url,
-        sessionId: data.id,
-        service,
-        region,
-        lookupKey,
-        mode: modeCheck.mode,
-      },
-      200,
+      { ...placed.body, mode: placed.body && placed.body.ok ? modeCheck.mode : undefined },
+      placed.status,
       headers
     );
   } catch (err) {

@@ -2,12 +2,16 @@
 -- Claim and transition run inside the payment_events insert trigger.
 -- Node sqlite 3.53.0 accepts INSERT ... ON CONFLICT DO NOTHING RETURNING.
 -- It rejects INSERT inside a WITH clause, so that form is not used.
+-- D1 supports triggers. Keep this file LF-only: remote D1 rejects CRLF inside BEGIN/END.
+-- D1 enforces foreign keys by default. The pragma below is for local SQLite, where they are off.
+-- Do not use BEGIN IMMEDIATE. D1 has no interactive transactions.
 
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE orders (
   id TEXT PRIMARY KEY,
   checkout_session_id TEXT NOT NULL UNIQUE,
+  access_token_hash TEXT,
   payment_intent_id TEXT,
   state TEXT NOT NULL CHECK (
     state IN (

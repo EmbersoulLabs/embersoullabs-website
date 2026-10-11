@@ -24,7 +24,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 if (!isMainThread) {
   const db = openDatabase(workerData.dbPath, false);
   try {
-    const result = applyPaymentEvent(db, workerData.input);
+    const result = await applyPaymentEvent(db, workerData.input);
     db.close();
     parentPort.postMessage({ ok: true, result });
   } catch (error) {
@@ -99,8 +99,8 @@ function strip(source, keys) {
   return copy;
 }
 
-function seedOrder(db, overrides = {}) {
-  createOrder(db, {
+async function seedOrder(db, overrides = {}) {
+  await createOrder(db, {
     id: "ord_short_my",
     checkoutSessionId: "cs_live_ShortMySession001",
     paymentIntentId: null,
@@ -132,8 +132,8 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
-    const paid = applyPaymentEvent(db, {
+    await seedOrder(db);
+    const paid = await applyPaymentEvent(db, {
       eventId: "evt_paid",
       eventType: "checkout.session.completed",
       session: session(),
@@ -147,8 +147,8 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
-    const pending = applyPaymentEvent(db, {
+    await seedOrder(db);
+    const pending = await applyPaymentEvent(db, {
       eventId: "evt_unpaid",
       eventType: "checkout.session.completed",
       session: session({ payment_status: "unpaid" }),
@@ -164,8 +164,8 @@ async function run() {
     ["wrong package version", { metadata: { package_version: "ai_ads_v0" } }, "wrong_package_version"],
   ]) {
     const { db } = freshDatabase();
-    seedOrder(db);
-    const rejected = applyPaymentEvent(db, {
+    await seedOrder(db);
+    const rejected = await applyPaymentEvent(db, {
       eventId: "evt_" + code,
       eventType: "checkout.session.completed",
       session: session(patch),
@@ -178,14 +178,14 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
+    await seedOrder(db);
     const input = {
       eventId: "evt_dup",
       eventType: "checkout.session.completed",
       session: session(),
     };
-    const first = applyPaymentEvent(db, input);
-    const second = applyPaymentEvent(db, input);
+    const first = await applyPaymentEvent(db, input);
+    const second = await applyPaymentEvent(db, input);
     const state = db.prepare("SELECT state, apply_count FROM orders").get();
     assert(first.changed && second.duplicate === true, "duplicate event ID is ignored");
     assert(state.state === "PAID" && state.apply_count === 1, "duplicate event does not apply twice");
@@ -194,7 +194,7 @@ async function run() {
 
   {
     const { db, dbPath } = freshDatabase();
-    seedOrder(db);
+    await seedOrder(db);
     db.close();
     const input = {
       eventId: "evt_concurrent",
@@ -218,16 +218,16 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    const claimed = applyPaymentEvent(db, {
+    const claimed = await applyPaymentEvent(db, {
       eventId: "evt_interrupted",
       eventType: "checkout.session.completed",
       session: session(),
       now: "2026-10-11T00:00:02.000Z",
     });
     assert(claimed.code === "claimed_for_recovery", "claim can be stored before the order row");
-    seedOrder(db);
-    const recovered = recoverUnappliedEvent(db, "evt_interrupted", "2026-10-11T00:00:03.000Z");
-    const again = recoverUnappliedEvent(db, "evt_interrupted", "2026-10-11T00:00:04.000Z");
+    await seedOrder(db);
+    const recovered = await recoverUnappliedEvent(db, "evt_interrupted", "2026-10-11T00:00:03.000Z");
+    const again = await recoverUnappliedEvent(db, "evt_interrupted", "2026-10-11T00:00:04.000Z");
     const state = db.prepare("SELECT state, apply_count FROM orders").get();
     assert(recovered.changed && recovered.state === "PAID", "interrupted claim recovers to PAID");
     assert(again.changed === false && state.apply_count === 1, "recovery does not apply twice");
@@ -236,13 +236,13 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
-    applyPaymentEvent(db, {
+    await seedOrder(db);
+    await applyPaymentEvent(db, {
       eventId: "evt_paid_before_expire",
       eventType: "checkout.session.completed",
       session: session(),
     });
-    const late = applyPaymentEvent(db, {
+    const late = await applyPaymentEvent(db, {
       eventId: "evt_expired_late",
       eventType: "checkout.session.expired",
       session: session({ payment_status: "paid", status: "complete" }),
@@ -254,13 +254,13 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
-    applyPaymentEvent(db, {
+    await seedOrder(db);
+    await applyPaymentEvent(db, {
       eventId: "evt_paid_before_refund",
       eventType: "checkout.session.completed",
       session: session(),
     });
-    const refund = applyPaymentEvent(db, {
+    const refund = await applyPaymentEvent(db, {
       eventId: "evt_refund",
       eventType: "charge.refunded",
       session: session({ payment_status: "paid" }),
@@ -271,8 +271,8 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
-    const rejected = applyPaymentEvent(db, {
+    await seedOrder(db);
+    const rejected = await applyPaymentEvent(db, {
       eventId: "evt_nopay",
       eventType: "checkout.session.completed",
       session: session({ payment_status: "no_payment_required", amount_total: 0 }),
@@ -287,13 +287,13 @@ async function run() {
 
   {
     const { db } = freshDatabase();
-    seedOrder(db);
-    applyPaymentEvent(db, {
+    await seedOrder(db);
+    await applyPaymentEvent(db, {
       eventId: "evt_paid_for_brief",
       eventType: "checkout.session.completed",
       session: session(),
     });
-    const ready = completeCreativeBrief(db, {
+    const ready = await completeCreativeBrief(db, {
       id: "brief_1",
       orderId: "ord_short_my",
       promotionText: "RM69 short ad",

@@ -94,6 +94,10 @@ assert(
   (incomplete.missing || []).includes("STRIPE_WEBHOOK_SECRET"),
   "missing webhook listed"
 );
+assert(
+  (incomplete.missing || []).includes("WEBSITE_ORDERS"),
+  "missing WEBSITE_ORDERS listed"
+);
 
 const fakeKv = { get: async () => null, put: async () => {} };
 const complete = guard.assertProductionCheckoutReady({
@@ -102,6 +106,7 @@ const complete = guard.assertProductionCheckoutReady({
   STRIPE_WEBHOOK_SECRET: "whsec_test",
   SITE_ORIGIN: "https://embersoullabs.com",
   PAYMENT_EVENTS: fakeKv,
+  WEBSITE_ORDERS: { prepare() { return {}; } },
 });
 assert(complete.ok === true, "production ready when all bindings present");
 

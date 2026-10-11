@@ -31,6 +31,39 @@
         </p>
       </div>
 
+      <form id="brief-form" hidden>
+        <label>
+          <span class="lang-en">What should this ad promote?</span>
+          <span class="lang-zh">这条广告要推广什么？</span>
+          <textarea name="promotion_text" maxlength="2000" required></textarea>
+        </label>
+        <label>
+          <span class="lang-en">Language</span>
+          <span class="lang-zh">语言</span>
+          <select name="language" required>
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="ms">Bahasa Melayu</option>
+            <option value="mix">Mix</option>
+          </select>
+        </label>
+        <label>
+          <span class="lang-en">Product assets</span>
+          <span class="lang-zh">产品素材</span>
+          <input name="asset_status" maxlength="500" required>
+        </label>
+        <label>
+          <span class="lang-en">Contact</span>
+          <span class="lang-zh">联系方式</span>
+          <input name="contact" maxlength="120" required>
+        </label>
+        <button class="btn btn-primary" type="submit">
+          <span class="lang-en">Save creative brief</span>
+          <span class="lang-zh">保存创意简报</span>
+        </button>
+        <p id="brief-note"></p>
+      </form>
+
       <div id="paid-panel" hidden>
         <ul class="order-price-list" style="margin-top:1rem;">
           <li><span class="lang-zh">状态</span><span class="lang-en">Status</span>: <strong id="paid-status">Payment received</strong></li>
@@ -72,7 +105,9 @@
       var title = document.getElementById("status-title");
       var body = document.getElementById("status-body");
       var paidPanel = document.getElementById("paid-panel");
-      var cta = document.getElementById("cta-brief");
+      var briefForm = document.getElementById("brief-form");
+      var briefNote = document.getElementById("brief-note");
+      var token = params.get("access_token");
 
       if (sid && note) {
         note.hidden = false;
@@ -91,13 +126,12 @@
         title.innerHTML =
           '<span class="lang-zh">已收到付款</span><span class="lang-en">Payment received</span>';
         body.innerHTML =
-          '<span class="lang-zh">Stripe 已确认付款。EmberOS 制作尚未自动启动 — 请先提交简报与素材。</span><span class="lang-en">Stripe confirmed payment. EmberOS production is not started automatically — please submit your brief and assets next.</span>';
+          '<span class="lang-zh">订单账本已确认付款。EmberOS 制作尚未自动启动 — 请先提交简报与素材。</span><span class="lang-en">The order ledger confirmed payment. EmberOS production is not started automatically — please submit your brief and assets next.</span>';
         paidPanel.hidden = false;
-        document.getElementById("paid-ref").textContent = data.reference || data.session_id || sid;
-        document.getElementById("paid-service").textContent = data.service || "—";
-        if (data.service) {
-          cta.href = "/ai-ads/?type=" + encodeURIComponent(data.service);
-        }
+        document.getElementById("paid-ref").textContent = sid.slice(0, 24) + "…";
+        document.getElementById("paid-service").textContent = (data.service || "—") + " / " + (data.region || "—");
+        if (data.state === "PAID" && data.brief_status === "missing") briefForm.hidden = false;
+        if (data.state === "READY_FOR_PRODUCTION") briefForm.hidden = true;
       }
 
       function showPending(msg) {
@@ -116,10 +150,16 @@
           "We could not confirm a successful payment for this session. No order has been started.";
       }
 
-      fetch("/api/checkout/session?session_id=" + encodeURIComponent(sid), {
-        credentials: "omit",
-        cache: "no-store",
-      })
+      if (!token) {
+        showPending("This page cannot confirm payment without an order access token.");
+        return;
+      }
+
+      fetch(
+        "/api/orders/status?session_id=" + encodeURIComponent(sid) +
+          "&access_token=" + encodeURIComponent(token),
+        { credentials: "omit", cache: "no-store" }
+      )
         .then(function (r) {
           return r.json().then(function (data) {
             return { http: r.status, data: data };
@@ -127,30 +167,55 @@
         })
         .then(function (result) {
           var data = result.data;
-          if (data && data.ok && (data.paid || data.payment_state === "CONFIRMED")) {
+          if (
+            data &&
+            data.ok &&
+            data.confirmed === true &&
+            (data.state === "PAID" || data.state === "READY_FOR_PRODUCTION")
+          ) {
             showPaid(data);
-          } else if (data && data.ok && data.payment_state === "FAILED") {
-            showFailed(
-              "Payment state: failed/expired. No order has been started."
-            );
+          } else if (data && data.ok && (data.state === "FAILED" || data.state === "EXPIRED" || data.state === "CANCELLED")) {
+            showFailed("Payment state: " + data.state + ". No production has been started.");
           } else if (data && data.ok) {
-            showPending(
-              "Stripe status: " +
-                (data.payment_status || data.payment_state || "pending") +
-                ". We're still verifying — no order has started yet."
-            );
+            showPending("Order state: " + (data.state || "pending") + ". We're still verifying — payment is not confirmed yet.");
           } else {
-            showPending(
-              (data && data.error) ||
-                "Unable to verify payment yet. Reaching this page alone is not payment confirmation."
-            );
+            showPending("Unable to verify this order yet. Reaching this page alone is not payment confirmation.");
           }
         })
         .catch(function () {
-          showPending(
-            "Verification endpoint unavailable. Reaching this page alone is not payment confirmation."
-          );
+          showPending("Verification endpoint unavailable. Reaching this page alone is not payment confirmation.");
         });
+
+      briefForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var form = new FormData(briefForm);
+        fetch("/api/orders/brief", {
+          method: "POST",
+          credentials: "omit",
+          cache: "no-store",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sid,
+            access_token: token,
+            promotion_text: form.get("promotion_text"),
+            language: form.get("language"),
+            asset_status: form.get("asset_status"),
+            contact: form.get("contact")
+          })
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data && data.ok && data.state === "READY_FOR_PRODUCTION") {
+              briefForm.hidden = true;
+              briefNote.textContent = "Creative brief saved. Production has not started in EmberOS.";
+            } else {
+              briefNote.textContent = "Brief was not saved.";
+            }
+          })
+          .catch(function () {
+            briefNote.textContent = "Brief was not saved.";
+          });
+      });
     })();
   </script>
 </body>

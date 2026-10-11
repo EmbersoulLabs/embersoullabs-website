@@ -6,6 +6,7 @@
  *   STRIPE_WEBHOOK_SECRET
  *   SITE_ORIGIN (= https://embersoullabs.com)
  *   PAYMENT_EVENTS (KV)
+ *   WEBSITE_ORDERS (D1)
  *
  * In-memory idempotency is NEVER used in production.
  * Local/dev may opt in with ALLOW_IN_MEMORY_IDEMPOTENCY=true.
@@ -18,6 +19,7 @@ export const REQUIRED_PRODUCTION_BINDINGS = Object.freeze([
   "STRIPE_WEBHOOK_SECRET",
   "SITE_ORIGIN",
   "PAYMENT_EVENTS",
+  "WEBSITE_ORDERS",
 ]);
 
 /**
@@ -190,6 +192,16 @@ export function resolveSiteOrigin(env, requestUrl) {
  * Full production Checkout readiness.
  * Fail closed if any required binding is missing / invalid.
  */
+export function assertWebsiteOrdersDb(env) {
+  const db = env && env.WEBSITE_ORDERS;
+  if (db && typeof db.prepare === "function") return { ok: true };
+  return {
+    ok: false,
+    code: "missing_website_orders",
+    error: "WEBSITE_ORDERS D1 binding is required",
+  };
+}
+
 export function assertProductionCheckoutReady(env) {
   const mode = getRuntimeMode(env);
   const missing = [];
@@ -205,6 +217,9 @@ export function assertProductionCheckoutReady(env) {
 
   const kv = assertPaymentEventsKv(env, { allowInMemoryDev: false });
   if (!kv.ok) missing.push("PAYMENT_EVENTS");
+
+  const orders = assertWebsiteOrdersDb(env);
+  if (!orders.ok) missing.push("WEBSITE_ORDERS");
 
   if (mode === "production") {
     if (missing.length) {

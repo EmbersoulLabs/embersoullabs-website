@@ -5,15 +5,16 @@
  * In-memory idempotency ONLY when ALLOW_IN_MEMORY_IDEMPOTENCY=true in non-production.
  * No EmberOS jobs. No card data stored.
  */
+import { d1Adapter } from "../_shared/order-db.js";
 import {
   assertPaymentEventsKv,
   assertStripeSecretConfigured,
   assertWebhookSecretConfigured,
-  buildPaymentRecord,
-  classifyPaymentState,
+  assertWebsiteOrdersDb,
   getRuntimeMode,
 } from "../_shared/production-guard.js";
-import { jsonResponse } from "../_shared/stripe.js";
+import { jsonResponse, stripeRequest } from "../_shared/stripe.js";
+import { applyVerifiedStripeEvent } from "../_shared/webhook-order.js";
 
 /** Dev-only memory store — never used when runtime mode is production. */
 const memorySeen = new Map();
@@ -155,17 +156,14 @@ export async function onRequestPost(context) {
     );
   }
 
-  const kvCheck = assertPaymentEventsKv(env, {
-    allowInMemoryDev: mode !== "production",
-  });
-  if (!kvCheck.ok) {
-    // Fail closed — do NOT mark processed, do NOT create order.
+  const ordersCheck = assertWebsiteOrdersDb(env);
+  if (!ordersCheck.ok) {
     return jsonResponse(
       {
         ok: false,
         received: false,
-        error: kvCheck.error,
-        code: kvCheck.code,
+        error: ordersCheck.error,
+        code: ordersCheck.code || "missing_website_orders",
         status: "fail_closed",
         order_creation: "disabled",
         emberos_production: "not_connected",
@@ -174,6 +172,10 @@ export async function onRequestPost(context) {
       503
     );
   }
+
+  const kvCheck = assertPaymentEventsKv(env, {
+    allowInMemoryDev: mode !== "production",
+  });
 
   const payload = await context.request.text();
   const sigHeader = context.request.headers.get("Stripe-Signature");
@@ -209,93 +211,55 @@ export async function onRequestPost(context) {
     );
   }
 
-  const existing = await getProcessed(env, event.id, kvCheck.store);
-  if (existing) {
+  const applied = await applyVerifiedStripeEvent({
+    db: d1Adapter(env.WEBSITE_ORDERS),
+    event,
+    now: new Date().toISOString(),
+    retrieveSession: async (sessionId) => {
+      const { status, data } = await stripeRequest(
+        env.STRIPE_SECRET_KEY,
+        "GET",
+        `checkout/sessions/${encodeURIComponent(sessionId)}?expand[]=line_items`
+      );
+      if (status >= 400 || !data || data.error || !data.id) return { ok: false };
+      return { ok: true, session: data };
+    },
+  });
+
+  if (applied.status === 200 && kvCheck.ok && event.id) {
+    try {
+      await putProcessed(
+        env,
+        event.id,
+        {
+          stripe_event_id: event.id,
+          event_type: event.type,
+          code: applied.body && applied.body.code,
+          handled: applied.body && applied.body.handled,
+          order_creation: "disabled",
+          emberos_production: "not_connected",
+        },
+        kvCheck.store
+      );
+    } catch {
+      // KV is a cache. A cache write failure does not undo the D1 result.
+    }
+  }
+
+  if (applied.body && applied.body.duplicate) {
     return jsonResponse({
       ok: true,
       duplicate: true,
       event_id: event.id,
       handled: "idempotent_skip",
-      payment_state: existing.payment_state || null,
+      code: applied.body.code,
       order_creation: "disabled",
       emberos_production: "not_connected",
       side_effects: "none",
     });
   }
 
-  const type = event.type;
-  const obj = event.data && event.data.object;
-  const classification = classifyPaymentState(obj, type);
-
-  if (
-    type === "checkout.session.completed" ||
-    type === "checkout.session.async_payment_succeeded" ||
-    type === "checkout.session.async_payment_failed" ||
-    type === "checkout.session.expired"
-  ) {
-    const record = buildPaymentRecord({
-      event,
-      session: obj,
-      classification,
-    });
-    record.event_type = type;
-    record.idempotency_store = kvCheck.store;
-
-    await putProcessed(env, event.id, record, kvCheck.store);
-
-    // Future order creation ONLY when classification.orderEligible — not wired yet.
-    return jsonResponse({
-      ok: true,
-      handled: type,
-      payment_confirmed: classification.state === "CONFIRMED",
-      payment_state: classification.state,
-      order_eligible: classification.orderEligible,
-      stripe_event_id: record.stripe_event_id,
-      checkout_session_id: record.checkout_session_id,
-      payment_intent_id: record.payment_intent_id,
-      service: record.service,
-      region: record.region,
-      lookup_key: record.lookup_key,
-      currency: record.currency,
-      amount_total: record.amount_total,
-      payment_status: record.payment_status,
-      created_at: record.created_at,
-      order_creation: "deferred",
-      emberos_production: "not_connected",
-      note:
-        classification.state === "CONFIRMED"
-          ? "Payment CONFIRMED at webhook boundary. No EmberOS production job created."
-          : classification.state === "PENDING"
-            ? "Payment PENDING (e.g. async method). No confirmed order created."
-            : "Payment FAILED. No order created.",
-    });
-  }
-
-  // Persist ignored event ids so retries don't re-enter side-effect paths later.
-  await putProcessed(
-    env,
-    event.id,
-    {
-      stripe_event_id: event.id,
-      event_type: type,
-      ignored: true,
-      payment_state: "IGNORED",
-      order_eligible: false,
-      created_at: new Date().toISOString(),
-      order_creation: "disabled",
-      emberos_production: "not_connected",
-      idempotency_store: kvCheck.store,
-    },
-    kvCheck.store
-  );
-
-  return jsonResponse({
-    ok: true,
-    handled: "ignored",
-    type,
-    order_creation: "deferred",
-    emberos_production: "not_connected",
-  });
+  return jsonResponse(applied.body, applied.status);
 }
 
 export async function onRequestGet(context) {
@@ -322,11 +286,14 @@ export async function onRequestGet(context) {
       PENDING: "unpaid after checkout.session.completed (async methods)",
       FAILED: "expired | async_payment_failed",
     },
+    website_orders: assertWebsiteOrdersDb(env).ok ? "present" : "missing",
+    order_authority: "d1",
     required_production_bindings: [
       "STRIPE_SECRET_KEY",
       "STRIPE_WEBHOOK_SECRET",
       "SITE_ORIGIN",
       "PAYMENT_EVENTS",
+      "WEBSITE_ORDERS",
     ],
   });
 }

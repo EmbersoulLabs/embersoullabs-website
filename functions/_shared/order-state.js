@@ -126,25 +126,46 @@ export function intendedStateForEvent(eventType, paymentStatus) {
   return null;
 }
 
+async function dbGet(db, sql, params = []) {
+  if (db && typeof db.get === "function") {
+    const row = await db.get(sql, params);
+    return row === undefined ? null : row;
+  }
+  const row = db.prepare(sql).get(...params);
+  return row === undefined ? null : row;
+}
+
+async function dbRun(db, sql, params = []) {
+  if (db && typeof db.run === "function" && typeof db.prepare !== "function") {
+    return db.run(sql, params);
+  }
+  const result = db.prepare(sql).run(...params);
+  return { changes: result.changes || 0 };
+}
+
+function isUniqueError(error) {
+  return String(error && error.message).includes("UNIQUE");
+}
+
 function orderBySession(db, checkoutSessionId) {
-  return db
-    .prepare(
-      `SELECT id, checkout_session_id, state, service, region, lookup_key, price_id,
-              currency, amount_total, quantity, package_version, livemode,
-              stripe_payment_status, brief_status, emberos_production, apply_count,
-              paid_at, ready_at
-       FROM orders WHERE checkout_session_id = ?`
-    )
-    .get(checkoutSessionId);
+  return dbGet(
+    db,
+    `SELECT id, checkout_session_id, access_token_hash, state, service, region, lookup_key, price_id,
+            currency, amount_total, quantity, package_version, livemode,
+            stripe_payment_status, brief_status, emberos_production, apply_count,
+            paid_at, ready_at
+     FROM orders WHERE checkout_session_id = ?`,
+    [checkoutSessionId]
+  );
 }
 
 function eventById(db, stripeEventId) {
-  return db
-    .prepare(
-      `SELECT stripe_event_id, checkout_session_id, intended_state, disposition, applied_at
-       FROM payment_events WHERE stripe_event_id = ?`
-    )
-    .get(stripeEventId);
+  return dbGet(
+    db,
+    `SELECT stripe_event_id, checkout_session_id, intended_state, disposition, applied_at
+     FROM payment_events WHERE stripe_event_id = ?`,
+    [stripeEventId]
+  );
 }
 
 function resultFrom(order, extra) {
@@ -157,31 +178,33 @@ function resultFrom(order, extra) {
   };
 }
 
-function recordRejected(db, input, code, now) {
+async function recordRejected(db, input, code, now) {
   try {
-    db.prepare(
+    await dbRun(
+      db,
       `INSERT INTO payment_events (
          stripe_event_id, checkout_session_id, event_type, intended_state,
          stripe_payment_status, failure_reason, disposition, applied_at, created_at
-       ) VALUES (?, ?, ?, 'REJECTED', ?, ?, 'rejected', ?, ?)`
-    ).run(
-      input.eventId,
-      input.session.id,
-      input.eventType,
-      input.session.payment_status || null,
-      code,
-      now,
-      now
+       ) VALUES (?, ?, ?, 'REJECTED', ?, ?, 'rejected', ?, ?)`,
+      [
+        input.eventId,
+        input.session.id,
+        input.eventType,
+        input.session.payment_status || null,
+        code,
+        now,
+        now,
+      ]
     );
   } catch (error) {
-    if (!String(error.message).includes("UNIQUE")) throw error;
-    return resultFrom(orderBySession(db, input.session.id), {
+    if (!isUniqueError(error)) throw error;
+    return resultFrom(await orderBySession(db, input.session.id), {
       duplicate: true,
       code,
       changed: false,
     });
   }
-  return resultFrom(orderBySession(db, input.session.id), {
+  return resultFrom(await orderBySession(db, input.session.id), {
     duplicate: false,
     code,
     changed: false,
@@ -193,26 +216,37 @@ function recordRejected(db, input, code, now) {
  * a legal transition at most once. Callers do not use BEGIN IMMEDIATE.
  */
 function insertPendingClaim(db, input, intended, paymentStatus, now) {
-  db.prepare(
+  return dbRun(
+    db,
     `INSERT INTO payment_events (
        stripe_event_id, checkout_session_id, event_type, intended_state,
        stripe_payment_status, failure_reason, disposition, applied_at, created_at
-     ) VALUES (?, ?, ?, ?, ?, ?, 'pending', NULL, ?)`
-  ).run(
-    input.eventId,
-    input.session.id,
-    input.eventType,
-    intended,
-    paymentStatus,
-    intended === "FAILED" || intended === "EXPIRED" || intended === "CANCELLED" ? intended : null,
-    now
+     ) VALUES (?, ?, ?, ?, ?, ?, 'pending', NULL, ?)`,
+    [
+      input.eventId,
+      input.session.id,
+      input.eventType,
+      intended,
+      paymentStatus,
+      intended === "FAILED" || intended === "EXPIRED" || intended === "CANCELLED" ? intended : null,
+      now,
+    ]
   );
 }
 
-export function applyPaymentEvent(db, input) {
+async function finishDuplicate(db, input, now) {
+  const pending = await eventById(db, input.eventId);
+  if (pending && pending.disposition === "pending") {
+    return recoverUnappliedEvent(db, input.eventId, now);
+  }
+  const current = await orderBySession(db, input.session.id);
+  return resultFrom(current, { duplicate: true, changed: false, code: "duplicate_event" });
+}
+
+export async function applyPaymentEvent(db, input) {
   const now = input.now || new Date().toISOString();
   const sessionId = input.session && input.session.id;
-  const order = orderBySession(db, sessionId);
+  const order = await orderBySession(db, sessionId);
   if (!order) {
     const catalogOrder = catalogOrderFromSession(input.session);
     if (!catalogOrder) {
@@ -223,10 +257,10 @@ export function applyPaymentEvent(db, input) {
     const intended = intendedStateForEvent(input.eventType, validation.paymentStatus);
     if (!intended) return { ...resultFrom(null), ok: false, code: "unsupported_event", changed: false };
     try {
-      insertPendingClaim(db, input, intended, validation.paymentStatus, now);
+      await insertPendingClaim(db, input, intended, validation.paymentStatus, now);
     } catch (error) {
-      if (!String(error.message).includes("UNIQUE")) throw error;
-      return resultFrom(null, { duplicate: true, changed: false, code: "duplicate_event" });
+      if (!isUniqueError(error)) throw error;
+      return finishDuplicate(db, input, now);
     }
     return resultFrom(null, { duplicate: false, changed: false, code: "claimed_for_recovery" });
   }
@@ -236,31 +270,30 @@ export function applyPaymentEvent(db, input) {
     livemode: order.livemode === 1,
   });
   if (!validation.ok) {
-    const rejected = recordRejected(db, input, validation.code, now);
+    const rejected = await recordRejected(db, input, validation.code, now);
     return { ...rejected, ok: false };
   }
 
   const intended = intendedStateForEvent(input.eventType, validation.paymentStatus);
   if (!intended) {
-    const rejected = recordRejected(db, input, "unsupported_event", now);
+    const rejected = await recordRejected(db, input, "unsupported_event", now);
     return { ...rejected, ok: false };
   }
 
   if (intended === "REFUNDED" && !canTransition(order.state, "REFUNDED")) {
-    const rejected = recordRejected(db, input, "refund_not_applicable", now);
+    const rejected = await recordRejected(db, input, "refund_not_applicable", now);
     return { ...rejected, ok: false };
   }
 
   try {
-    insertPendingClaim(db, input, intended, validation.paymentStatus, now);
+    await insertPendingClaim(db, input, intended, validation.paymentStatus, now);
   } catch (error) {
-    if (!String(error.message).includes("UNIQUE")) throw error;
-    const current = orderBySession(db, input.session.id);
-    return resultFrom(current, { duplicate: true, changed: false, code: "duplicate_event" });
+    if (!isUniqueError(error)) throw error;
+    return finishDuplicate(db, input, now);
   }
 
-  const current = orderBySession(db, input.session.id);
-  const event = eventById(db, input.eventId);
+  const current = await orderBySession(db, input.session.id);
+  const event = await eventById(db, input.eventId);
   return resultFrom(current, {
     duplicate: false,
     changed: event && event.disposition === "applied",
@@ -272,21 +305,22 @@ export function applyPaymentEvent(db, input) {
  * Finish a claim that was stored before the order row existed.
  * A second call cannot move the order again.
  */
-export function recoverUnappliedEvent(db, stripeEventId, now = new Date().toISOString()) {
-  const event = db
-    .prepare(
-      `SELECT stripe_event_id, checkout_session_id, event_type, intended_state,
-              stripe_payment_status, failure_reason, disposition
-       FROM payment_events WHERE stripe_event_id = ?`
-    )
-    .get(stripeEventId);
+export async function recoverUnappliedEvent(db, stripeEventId, now = new Date().toISOString()) {
+  const event = await dbGet(
+    db,
+    `SELECT stripe_event_id, checkout_session_id, event_type, intended_state,
+            stripe_payment_status, failure_reason, disposition
+     FROM payment_events WHERE stripe_event_id = ?`,
+    [stripeEventId]
+  );
   if (!event) return { ok: false, code: "event_not_found", emberos_production: EMBEROS_PRODUCTION };
   if (event.disposition !== "pending") {
-    const order = orderBySession(db, event.checkout_session_id);
+    const order = await orderBySession(db, event.checkout_session_id);
     return resultFrom(order, { duplicate: true, changed: false, code: "already_closed" });
   }
 
-  db.prepare(
+  await dbRun(
+    db,
     `UPDATE orders
      SET state = ?,
          stripe_payment_status = COALESCE(?, stripe_payment_status),
@@ -302,31 +336,34 @@ export function recoverUnappliedEvent(db, stripeEventId, now = new Date().toISOS
          OR (? = 'EXPIRED' AND state IN ('CREATED', 'PENDING'))
          OR (? = 'CANCELLED' AND state IN ('CREATED', 'PENDING'))
          OR (? = 'REFUNDED' AND state IN ('PAID', 'READY_FOR_PRODUCTION'))
-       )`
-  ).run(
-    event.intended_state,
-    event.stripe_payment_status,
-    event.failure_reason,
-    now,
-    event.intended_state,
-    now,
-    event.checkout_session_id,
-    event.intended_state,
-    event.intended_state,
-    event.intended_state,
-    event.intended_state,
-    event.intended_state,
-    event.intended_state
+       )`,
+    [
+      event.intended_state,
+      event.stripe_payment_status,
+      event.failure_reason,
+      now,
+      event.intended_state,
+      now,
+      event.checkout_session_id,
+      event.intended_state,
+      event.intended_state,
+      event.intended_state,
+      event.intended_state,
+      event.intended_state,
+      event.intended_state,
+    ]
   );
 
-  const order = orderBySession(db, event.checkout_session_id);
+  const order = await orderBySession(db, event.checkout_session_id);
   if (order && order.state === event.intended_state) {
-    db.prepare(
+    await dbRun(
+      db,
       `UPDATE payment_events
        SET disposition = 'applied', applied_at = ?
-       WHERE stripe_event_id = ? AND disposition = 'pending'`
-    ).run(now, stripeEventId);
-    return resultFrom(orderBySession(db, event.checkout_session_id), {
+       WHERE stripe_event_id = ? AND disposition = 'pending'`,
+      [now, stripeEventId]
+    );
+    return resultFrom(await orderBySession(db, event.checkout_session_id), {
       duplicate: false,
       changed: true,
       code: "recovered",
@@ -334,57 +371,78 @@ export function recoverUnappliedEvent(db, stripeEventId, now = new Date().toISOS
   }
 
   if (order) {
-    db.prepare(
+    await dbRun(
+      db,
       `UPDATE payment_events
        SET disposition = 'rejected', applied_at = ?
-       WHERE stripe_event_id = ? AND disposition = 'pending'`
-    ).run(now, stripeEventId);
+       WHERE stripe_event_id = ? AND disposition = 'pending'`,
+      [now, stripeEventId]
+    );
   }
   return resultFrom(order, { duplicate: false, changed: false, code: "not_recovered" });
 }
 
-export function createOrder(db, input) {
+export async function createOrder(db, input) {
   const now = input.now || new Date().toISOString();
-  db.prepare(
+  await dbRun(
+    db,
     `INSERT INTO orders (
-       id, checkout_session_id, payment_intent_id, state, service, region, lookup_key,
+       id, checkout_session_id, access_token_hash, payment_intent_id, state, service, region, lookup_key,
        price_id, currency, amount_total, quantity, package_version, livemode,
        stripe_payment_status, brief_status, failure_reason, emberos_production,
        apply_count, created_at, updated_at
-     ) VALUES (?, ?, ?, 'CREATED', ?, ?, ?, ?, ?, ?, 1, ?, 1, 'unpaid', 'missing', NULL, 'not_connected', 0, ?, ?)`
-  ).run(
-    input.id,
-    input.checkoutSessionId,
-    input.paymentIntentId || null,
-    input.service,
-    input.region,
-    input.lookupKey,
-    input.priceId,
-    input.currency,
-    input.amountTotal,
-    input.packageVersion || PACKAGE_VERSION,
-    now,
-    now
+     ) VALUES (?, ?, ?, ?, 'CREATED', ?, ?, ?, ?, ?, ?, 1, ?, 1, 'unpaid', 'missing', NULL, 'not_connected', 0, ?, ?)`,
+    [
+      input.id,
+      input.checkoutSessionId,
+      input.accessTokenHash || null,
+      input.paymentIntentId || null,
+      input.service,
+      input.region,
+      input.lookupKey,
+      input.priceId,
+      input.currency,
+      input.amountTotal,
+      input.packageVersion || PACKAGE_VERSION,
+      now,
+      now,
+    ]
   );
   return orderBySession(db, input.checkoutSessionId);
 }
 
-export function completeCreativeBrief(db, input) {
+export async function rememberPaymentIntent(db, checkoutSessionId, paymentIntentId) {
+  if (!paymentIntentId || typeof paymentIntentId !== "string") return;
+  await dbRun(
+    db,
+    `UPDATE orders SET payment_intent_id = COALESCE(payment_intent_id, ?)
+     WHERE checkout_session_id = ?`,
+    [paymentIntentId, checkoutSessionId]
+  );
+}
+
+export async function completeCreativeBrief(db, input) {
   const now = input.now || new Date().toISOString();
-  db.prepare(
+  await dbRun(
+    db,
     `INSERT INTO creative_briefs (
        id, order_id, promotion_text, asset_status, language, contact, completed_at
-     ) VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).run(
-    input.id,
-    input.orderId,
-    input.promotionText,
-    input.assetStatus,
-    input.language,
-    input.contact,
-    now
+     ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [
+      input.id,
+      input.orderId,
+      input.promotionText,
+      input.assetStatus,
+      input.language,
+      input.contact,
+      now,
+    ]
   );
-  return db.prepare("SELECT state, brief_status, emberos_production, ready_at FROM orders WHERE id = ?").get(input.orderId);
+  return dbGet(
+    db,
+    "SELECT state, brief_status, emberos_production, ready_at FROM orders WHERE id = ?",
+    [input.orderId]
+  );
 }
 
 function catalogOrderFromSession(session) {

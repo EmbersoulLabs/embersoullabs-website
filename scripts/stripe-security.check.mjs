@@ -75,8 +75,15 @@ assert(
     checkoutValidate.includes("client_amount_rejected"),
   "endpoint rejects client amounts"
 );
-assert(checkoutFn.includes('mode: "payment"'), "one-time payment mode");
-assert(!checkoutFn.includes('mode: "subscription"'), "no subscription mode in checkout");
+const checkoutOrder = readFileSync(join(root, "functions/_shared/checkout-order.js"), "utf8");
+assert(
+  checkoutFn.includes('mode: "payment"') || checkoutOrder.includes('mode: "payment"'),
+  "one-time payment mode"
+);
+assert(
+  !checkoutFn.includes('mode: "subscription"') && !checkoutOrder.includes('mode: "subscription"'),
+  "no subscription mode in checkout"
+);
 
 const success = readFileSync(
   join(root, "ai-ads/checkout/success/index.html"),
