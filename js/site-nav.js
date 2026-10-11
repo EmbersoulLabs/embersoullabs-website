@@ -55,7 +55,7 @@
     panel.setAttribute("data-customer-panel", "");
     panel.setAttribute("aria-label", "Site menu");
     panel.hidden = true;
-    header.appendChild(panel);
+    inner.appendChild(panel);
 
     function closeMenu() {
       panel.hidden = true;
