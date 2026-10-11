@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex">
   <title>My Orders — EmberSoul Labs</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261011b">
+  <link rel="stylesheet" href="/css/style.css?v=20261011c">
 </head>
 <body>
   <header class="site-header">
@@ -118,7 +118,9 @@
               var link = document.createElement("a");
               link.className = "btn btn-primary";
               link.href = "/account/orders/" + encodeURIComponent(order.reference) + "/";
-              link.textContent = "View order details";
+              link.textContent = order.brief_status === "missing" && order.payment_status === "PAID"
+                ? "Complete your creative brief"
+                : "View order details";
               card.append(title, amount, payment, brief, progress, link);
               list.appendChild(card);
             });

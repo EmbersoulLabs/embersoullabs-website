@@ -73,8 +73,8 @@ export async function submitCreativeBrief(db, input) {
   const promotion = typeof input.promotionText === "string" ? input.promotionText.trim() : "";
   const assetsRaw = typeof input.assetStatus === "string" ? input.assetStatus.trim() : "";
   const assets = assetsRaw || "text_only";
-  const contact = typeof input.contact === "string" ? input.contact.trim() : "";
-  const language = typeof input.language === "string" ? input.language.trim() : "";
+  const contact = (typeof input.contact === "string" && input.contact.trim()) || "not provided";
+  const language = (typeof input.language === "string" && input.language.trim()) || "en";
   if (promotion.length < 1 || promotion.length > 2000) {
     return { status: 400, body: { ok: false, code: "invalid_brief", field: "promotion_text" } };
   }

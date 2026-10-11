@@ -60,6 +60,16 @@ assert(
   success.includes("We're verifying your payment") && success.includes("Payment received") && success.includes("/api/orders/status"),
   "checkout confirmation is unchanged"
 );
+assert(success.includes("Complete Your Creative Brief"), "paid success page offers the brief");
+
+const css = readFileSync(join(root, "css/style.css"), "utf8");
+assert(css.includes("[hidden]") && css.includes("display: none !important"), "hidden cards stay hidden");
+assert(home.includes("Submit Inquiry") && !home.includes("Enquire first"), "homepage inquiry is one secondary action");
+assert((home.match(/data-checkout-service=/g) || []).length === 3, "homepage keeps three buy actions");
+const products = readFileSync(join(root, "ai-ads/index.html"), "utf8");
+assert((products.match(/data-checkout-service=/g) || []).length === 3, "product page has one buy action per package");
+assert((products.match(/id="ai-ad-form"/g) || []).length === 1, "inquiry form is not duplicated");
+assert(products.includes('id="inquiry"'), "inquiry sits with the packages");
 
 const sandbox = createContext({ window: {} });
 runInContext(readFileSync(join(root, "js/order-copy.js"), "utf8"), sandbox);

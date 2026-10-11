@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex">
   <title>Order details — EmberSoul Labs</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261011b">
+  <link rel="stylesheet" href="/css/style.css?v=20261011c">
 </head>
 <body>
   <header class="site-header">
@@ -33,23 +33,23 @@
         <p id="delivery" class="form-intro"></p>
         <form id="brief-form" hidden>
           <h2>Creative brief</h2>
-          <p class="form-intro">Tell us what the ad should say. A written brief is enough.</p>
-          <label>Business / product name<input name="business_name" maxlength="120" required></label>
+          <p class="form-intro">Payment is already confirmed. One sentence in the promotion description is enough. The other fields are optional.</p>
+          <label>Product or business name (optional)<input name="business_name" maxlength="120"></label>
           <label>Promotion description<textarea name="promotion_text" maxlength="2000" required></textarea></label>
-          <label>Advertising objective<input name="objective" maxlength="500" required></label>
-          <label>Target audience<input name="audience" maxlength="500" required></label>
+          <label>Advertising objective (optional)<input name="objective" maxlength="500"></label>
+          <label>Target audience (optional)<input name="audience" maxlength="500"></label>
           <label>Language
-            <select name="language" required>
-              <option value="en">English</option>
+            <select name="language">
+              <option value="en" selected>English</option>
               <option value="zh">中文</option>
               <option value="ms">Bahasa Melayu</option>
               <option value="mix">Mix</option>
             </select>
           </label>
-          <label>Visual style<input name="visual_style" maxlength="200" required></label>
-          <label>Asset links (optional)<input name="asset_links" maxlength="1000"></label>
+          <label>Visual style (optional)<input name="visual_style" maxlength="200"></label>
+          <label>Story idea or script (optional)<textarea name="story_idea" maxlength="2000"></textarea></label>
           <label>Special instructions (optional)<textarea name="special_instructions" maxlength="2000"></textarea></label>
-          <label>Customer contact<input name="contact" maxlength="120" required></label>
+          <label>Customer contact (optional)<input name="contact" maxlength="120"></label>
           <button class="btn btn-primary" type="submit">Submit brief</button>
         </form>
         <form id="revision-form" hidden>
@@ -60,10 +60,9 @@
           <p class="form-intro">A new video concept is a new order, not a revision. Requests are reviewed before a new version is made.</p>
         </form>
         <form id="upload-form">
-          <h2>Reference file</h2>
-          <label>Optional image or PDF<input type="file" name="file" accept="image/jpeg,image/png,image/webp,application/pdf"></label>
-          <button class="btn btn-ghost" type="submit">Upload</button>
-          <p id="upload-note" class="form-intro"></p>
+          <h2>Optional files</h2>
+          <p class="form-intro">Product images, a logo, reference pictures, and videos can be added later. Private file upload is not available yet, so you can submit the written brief without any files.</p>
+          <button class="btn btn-ghost" type="button" disabled>Upload unavailable</button>
         </form>
       </div>
       <p id="note" class="form-intro"></p>
@@ -184,20 +183,6 @@
         }).then(function (response) { return response.json(); })
           .then(function (data) {
             note.textContent = data.ok ? "Revision request is waiting for review." : "Revision was not accepted.";
-          });
-      });
-      document.getElementById("upload-form").addEventListener("submit", function (event) {
-        event.preventDefault();
-        var data = new FormData(event.target);
-        fetch("/api/account/orders/" + encodeURIComponent(orderId) + "/assets", {
-          method: "POST",
-          credentials: "same-origin",
-          body: data
-        }).then(function (response) { return response.json().then(function (body) { return { status: response.status, body: body }; }); })
-          .then(function (result) {
-            document.getElementById("upload-note").textContent = result.status === 503
-              ? "File upload isn't available yet. You can still submit the brief in writing."
-              : (result.body.ok ? "File stored for this order." : "File was not accepted.");
           });
       });
     })();

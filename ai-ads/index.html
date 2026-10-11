@@ -6,7 +6,7 @@
   <title>Create My AI Ad — EmberSoul Labs</title>
   <meta name="description" content="Order an AI advertising video from EmberSoul Labs — AI short ads, story ads, or a 30-day monthly AI content package for small businesses in Singapore and Malaysia.">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261011b">
+  <link rel="stylesheet" href="/css/style.css?v=20261011c">
 </head>
 <body>
   <header class="site-header">
@@ -62,26 +62,57 @@
         </select>
       </div>
 
-      <div class="checkout-buy-panel">
-        <p class="one-time-note" style="margin-bottom:0.75rem;">
-          <span class="lang-zh">一次性付款 · 非订阅</span>
-          <span class="lang-en">One-time payment · not a subscription</span>
-        </p>
-        <p class="order-price-preview" id="checkout-panel-price" hidden></p>
-        <button type="button" class="btn btn-primary btn-full" id="btn-buy-now" data-checkout-service="short" hidden>
-          <span class="lang-zh">立即购买</span>
-          <span class="lang-en">Buy Now</span>
-        </button>
-        <p class="field-hint" id="buy-hint" style="margin-top:0.65rem;">
-          <span class="lang-zh">选择套餐后可直接结账，或向下填写询盘表单。</span>
-          <span class="lang-en">Select a package to checkout, or scroll down to send an enquiry.</span>
-        </p>
+      <div class="purchase-stack" id="packages">
+        <article class="purchase-row">
+          <div>
+            <h2>
+              <span class="lang-zh">AI 短广告</span>
+              <span class="lang-en">AI Short Ad</span>
+            </h2>
+            <p class="price-slot" data-price-offer="short">USD 19</p>
+          </div>
+          <button type="button" class="btn btn-primary" data-checkout-service="short">
+            <span class="lang-zh">立即购买</span>
+            <span class="lang-en">Buy Now</span>
+          </button>
+        </article>
+        <article class="purchase-row">
+          <div>
+            <h2>
+              <span class="lang-zh">AI 故事广告</span>
+              <span class="lang-en">AI Story Ad</span>
+            </h2>
+            <p class="price-slot" data-price-offer="story">USD 59</p>
+          </div>
+          <button type="button" class="btn btn-primary" data-checkout-service="story">
+            <span class="lang-zh">立即购买</span>
+            <span class="lang-en">Buy Now</span>
+          </button>
+        </article>
+        <article class="purchase-row">
+          <div>
+            <h2>
+              <span class="lang-zh">每月 AI 内容</span>
+              <span class="lang-en">Monthly AI Content</span>
+            </h2>
+            <p class="price-slot" data-price-offer="monthly">USD 129 / 30-day package</p>
+          </div>
+          <button type="button" class="btn btn-primary" data-checkout-service="monthly">
+            <span class="lang-zh">立即购买</span>
+            <span class="lang-en">Buy Now</span>
+          </button>
+        </article>
       </div>
 
-      <p class="form-intro">
-        <span class="lang-zh">询盘：提交后我们会在 1–2 个工作日内回复。无需复杂简报 — 有产品图或想法即可。</span>
-        <span class="lang-en">Enquiry: we'll reply within 1–2 business days. No complex brief needed — product photos or a clear idea is enough.</span>
-      </p>
+      <section class="inquiry-panel" id="inquiry">
+        <h2>
+          <span class="lang-zh">提交询盘</span>
+          <span class="lang-en">Submit an inquiry</span>
+        </h2>
+        <p class="form-intro">
+          <span class="lang-zh">询盘可选。可以直接购买，不需要先填写这张表。提交后我们会在 1–2 个工作日内回复。</span>
+          <span class="lang-en">This inquiry is optional. Buy Now above checks out immediately and does not require this form. If you write to us, we reply within 1–2 business days.</span>
+        </p>
 
       <form class="apply-form" id="ai-ad-form" action="https://formsubmit.co/support@embersoullabs.com" method="POST">
         <input type="hidden" name="_subject" value="AI Ad enquiry / AI 广告咨询 — EmberSoul Labs">
@@ -231,11 +262,12 @@
           <span class="lang-en">I agree EmberSoul Labs may process this enquiry per the <a href="/privacy/">Privacy Policy</a>.</span>
         </label>
 
-        <button type="submit" class="btn btn-primary btn-full">
+        <button type="submit" class="btn btn-ghost btn-full">
           <span class="lang-zh">提交询盘</span>
-          <span class="lang-en">Send Enquiry</span>
+          <span class="lang-en">Submit Inquiry</span>
         </button>
       </form>
+      </section>
 
       <p class="form-intro" style="margin-top:1.5rem;text-align:center;">
         <span class="lang-zh">或直接发邮件：</span>
@@ -287,60 +319,6 @@
     if (type && select) {
       const map = { short: "short", story: "story", monthly: "monthly" };
       if (map[type]) select.value = map[type];
-    }
-
-    const buyBtn = document.getElementById("btn-buy-now");
-    const buyPrice = document.getElementById("checkout-panel-price");
-    const buyLabels = {
-      short: {
-        zh: "购买 AI 短广告",
-        en: "Buy AI Short Ad",
-      },
-      story: {
-        zh: "购买 AI 故事广告",
-        en: "Buy AI Story Ad",
-      },
-      monthly: {
-        zh: "购买每月套餐",
-        en: "Buy Monthly Package",
-      },
-    };
-
-    function syncBuyPanel() {
-      if (!buyBtn || !select) return;
-      const service = select.value;
-      const payable = service === "short" || service === "story" || service === "monthly";
-      buyBtn.hidden = !payable;
-      if (!payable) {
-        if (buyPrice) buyPrice.hidden = true;
-        return;
-      }
-      buyBtn.setAttribute("data-checkout-service", service);
-      const label = buyLabels[service];
-      const lang = document.documentElement.getAttribute("data-lang") === "zh" ? "zh" : "en";
-      buyBtn.innerHTML =
-        '<span class="lang-zh">' +
-        label.zh +
-        '</span><span class="lang-en">' +
-        label.en +
-        "</span>";
-      // Force visible language via existing CSS [data-lang]
-      if (buyPrice) {
-        const slot = document.querySelector('[data-price-offer="' + service + '"]');
-        if (slot && slot.textContent) {
-          buyPrice.textContent = slot.textContent;
-          buyPrice.hidden = false;
-        }
-      }
-    }
-
-    if (select) {
-      select.addEventListener("change", syncBuyPanel);
-      document.addEventListener("embersoul:pricing-region", syncBuyPanel);
-      // After pricing.js applies prices
-      window.addEventListener("DOMContentLoaded", syncBuyPanel);
-      setTimeout(syncBuyPanel, 50);
-      setTimeout(syncBuyPanel, 400);
     }
   </script>
   <script src="/js/pricing.js" defer></script>

@@ -46,6 +46,7 @@ function openDb() {
   db.exec("PRAGMA foreign_keys = ON;");
   db.exec(readFileSync(join(root, "migrations/0001_website_orders.sql"), "utf8"));
   db.exec(readFileSync(join(root, "migrations/0002_customer_portal.sql"), "utf8"));
+  db.exec(readFileSync(join(root, "migrations/0003_story_idea.sql"), "utf8"));
   return sqliteAdapter(db);
 }
 
@@ -398,6 +399,27 @@ async function run() {
   assert(!portalSource.includes("UPDATE orders SET state") && !coreSource.includes("UPDATE orders SET state"), "portal code does not write payment state");
   const success = readFileSync(join(root, "ai-ads/checkout/success/index.html"), "utf8");
   assert(success.includes("Payment received") && success.includes("/api/orders/status"), "success page payment confirmation remains");
+  assert(success.includes("Complete Your Creative Brief"), "success page leads to the brief");
+
+  await paidOrder(db, "ord_one_line", "cs_live_oneline001", "one-line-token-0000000000000000");
+  const claimedLine = await claimOrder(db, ownerAgain.customer, {
+    sessionId: "cs_live_oneline001",
+    accessToken: "one-line-token-0000000000000000",
+    now: NOW,
+  });
+  assert(claimedLine.status === 200, "one-line order can be claimed");
+  const oneLine = await submitOwnedBrief(db, {}, ownerAgain.customer, "ord_one_line", {
+    promotion_text: "Lunch set this weekend.",
+  }, NOW);
+  assert(oneLine.status === 200 && oneLine.body.order.payment_status === "READY_FOR_PRODUCTION", "one sentence brief is enough");
+  const repeatLine = await submitOwnedBrief(db, {}, ownerAgain.customer, "ord_one_line", {
+    promotion_text: "Lunch set this weekend.",
+  }, NOW);
+  assert(repeatLine.status === 200 && repeatLine.body.duplicate === true, "identical one sentence brief is idempotent");
+  const strangerLine = await submitOwnedBrief(db, {}, stranger.customer, "ord_one_line", {
+    promotion_text: "Lunch set this weekend.",
+  }, NOW);
+  assert(strangerLine.status === 404, "another customer cannot submit the brief");
 
   return "";
 }

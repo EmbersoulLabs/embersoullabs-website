@@ -44,6 +44,7 @@ export async function onRequestPost(context) {
         visual_style: body.visual_style,
         asset_links: body.asset_links,
         special_instructions: body.special_instructions,
+        story_idea: body.story_idea,
       },
       now: new Date().toISOString(),
       env,

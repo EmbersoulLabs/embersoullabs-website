@@ -28,6 +28,7 @@ const FIELD_LIMITS = Object.freeze({
   visual_style: 200,
   asset_links: 1000,
   special_instructions: 2000,
+  story_idea: 2000,
 });
 
 function money(amount, currency) {
@@ -140,6 +141,7 @@ export async function presentOrder(db, order, { includeTimeline = false } = {}) 
           visual_style: brief.visual_style || null,
           asset_links: brief.asset_links || null,
           special_instructions: brief.special_instructions || null,
+          story_idea: brief.story_idea || null,
           contact: brief.contact,
           asset_status: brief.asset_status,
         }
@@ -226,22 +228,21 @@ function briefFields(input, { requireText }) {
     if (trimmed.length > max) return { error: { status: 400, body: { ok: false, code: "invalid_brief", field: key } } };
     values[key] = trimmed;
   }
-  if (requireText) {
-    for (const key of ["business_name", "objective", "audience", "visual_style"]) {
-      if (!values[key]) return { error: { status: 400, body: { ok: false, code: "invalid_brief", field: key } } };
-    }
-  }
-  return { values };
+  return { values, requireText };
 }
 
 export async function applyBriefPortalEffects(db, input) {
-  const column = await db.get("SELECT name FROM pragma_table_info('creative_briefs') WHERE name = 'business_name'");
-  if (!column) return { status: 200, skipped: true };
+  const columns = await db.all("SELECT name FROM pragma_table_info('creative_briefs')");
+  const available = new Set((columns || []).map((row) => row.name));
+  if (!available.has("business_name")) return { status: 200, skipped: true };
   const parsed = briefFields(input.fields || {}, { requireText: false });
   if (parsed.error) return parsed.error;
+  const extra = Object.keys(FIELD_LIMITS).filter((name) => available.has(name));
+  for (const name of Object.keys(parsed.values)) {
+    if (!extra.includes(name)) delete parsed.values[name];
+  }
   const current = await db.get(
-    `SELECT business_name, objective, audience, visual_style, asset_links, special_instructions
-     FROM creative_briefs WHERE order_id = ?`,
+    `SELECT ${extra.join(", ")} FROM creative_briefs WHERE order_id = ?`,
     [input.orderId]
   );
   if (!current) return { status: 200, skipped: true };
@@ -282,8 +283,8 @@ export async function submitOwnedBrief(db, env, customer, orderId, body, now) {
     return { status: 409, body: { ok: false, code: "not_paid", state: order.state, emberos_production: "not_connected" } };
   }
   const promotion = typeof body.promotion_text === "string" ? body.promotion_text.trim() : "";
-  const language = typeof body.language === "string" ? body.language.trim() : "";
-  const contact = typeof body.contact === "string" ? body.contact.trim() : "";
+  const language = (typeof body.language === "string" && body.language.trim()) || "en";
+  const contact = (typeof body.contact === "string" && body.contact.trim()) || "not provided";
   const assets = typeof body.asset_status === "string" && body.asset_status.trim() ? body.asset_status.trim() : "text_only";
   if (!["en", "zh", "ms", "mix"].includes(language)) {
     return { status: 400, body: { ok: false, code: "invalid_brief", field: "language" } };
@@ -311,10 +312,11 @@ export async function submitOwnedBrief(db, env, customer, orderId, body, now) {
         audience: body.audience,
         visual_style: body.visual_style,
         asset_links: body.asset_links,
-        special_instructions: body.special_instructions,
-      },
-      { requireText: true }
-    );
+      special_instructions: body.special_instructions,
+      story_idea: body.story_idea,
+    },
+    { requireText: false }
+  );
     if (required.error) return required.error;
     try {
       await completeCreativeBrief(db, {
@@ -343,6 +345,7 @@ export async function submitOwnedBrief(db, env, customer, orderId, body, now) {
       visual_style: body.visual_style,
       asset_links: body.asset_links,
       special_instructions: body.special_instructions,
+      story_idea: body.story_idea,
     },
     now,
     env,

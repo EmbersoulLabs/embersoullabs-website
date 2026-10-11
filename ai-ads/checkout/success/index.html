@@ -6,7 +6,7 @@
   <title>Payment status — EmberSoul Labs</title>
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261011b">
+  <link rel="stylesheet" href="/css/style.css?v=20261011c">
 </head>
 <body>
   <header class="site-header">
@@ -31,51 +31,55 @@
         </p>
       </div>
 
+      <section id="creative-brief">
       <form id="brief-form" hidden>
+        <h2>
+          <span class="lang-en">Complete your creative brief</span>
+          <span class="lang-zh">完成创意简报</span>
+        </h2>
+        <p class="form-intro">
+          <span class="lang-en">Payment is already confirmed. One sentence is enough. File upload is not available yet, so a written brief is all we need.</span>
+          <span class="lang-zh">付款已确认，不必再次付款。写一句话即可。文件上传暂未开放，文字简报就够了。</span>
+        </p>
         <label>
-          <span class="lang-en">Business / product name</span>
-          <span class="lang-zh">品牌 / 产品名称</span>
-          <input name="business_name" maxlength="120" required>
+          <span class="lang-en">Product or business name (optional)</span>
+          <span class="lang-zh">产品或品牌名称（可选）</span>
+          <input name="business_name" maxlength="120">
         </label>
         <label>
-          <span class="lang-en">What should this ad promote?</span>
-          <span class="lang-zh">这条广告要推广什么？</span>
+          <span class="lang-en">Promotion description</span>
+          <span class="lang-zh">推广说明</span>
           <textarea name="promotion_text" maxlength="2000" required></textarea>
         </label>
         <label>
-          <span class="lang-en">Advertising objective</span>
-          <span class="lang-zh">广告目标</span>
-          <input name="objective" maxlength="500" required>
+          <span class="lang-en">Advertising objective (optional)</span>
+          <span class="lang-zh">广告目标（可选）</span>
+          <input name="objective" maxlength="500">
         </label>
         <label>
-          <span class="lang-en">Target audience</span>
-          <span class="lang-zh">目标受众</span>
-          <input name="audience" maxlength="500" required>
+          <span class="lang-en">Target audience (optional)</span>
+          <span class="lang-zh">目标受众（可选）</span>
+          <input name="audience" maxlength="500">
         </label>
         <label>
           <span class="lang-en">Language</span>
           <span class="lang-zh">语言</span>
-          <select name="language" required>
-            <option value="en">English</option>
+          <select name="language">
+            <option value="en" selected>English</option>
             <option value="zh">中文</option>
             <option value="ms">Bahasa Melayu</option>
             <option value="mix">Mix</option>
           </select>
         </label>
         <label>
-          <span class="lang-en">Visual style</span>
-          <span class="lang-zh">视觉风格</span>
-          <input name="visual_style" maxlength="200" required>
+          <span class="lang-en">Visual style (optional)</span>
+          <span class="lang-zh">视觉风格（可选）</span>
+          <input name="visual_style" maxlength="200">
         </label>
         <label>
-          <span class="lang-en">Product assets (optional — leave blank for text only)</span>
-          <span class="lang-zh">产品素材（可选，留空表示仅文字）</span>
-          <input name="asset_status" maxlength="500">
-        </label>
-        <label>
-          <span class="lang-en">Asset links (optional)</span>
-          <span class="lang-zh">素材链接（可选）</span>
-          <input name="asset_links" maxlength="1000">
+          <span class="lang-en">Story idea or script (optional)</span>
+          <span class="lang-zh">故事想法或脚本（可选）</span>
+          <textarea name="story_idea" maxlength="2000"></textarea>
         </label>
         <label>
           <span class="lang-en">Special instructions (optional)</span>
@@ -83,16 +87,17 @@
           <textarea name="special_instructions" maxlength="2000"></textarea>
         </label>
         <label>
-          <span class="lang-en">Contact</span>
-          <span class="lang-zh">联系方式</span>
-          <input name="contact" maxlength="120" required>
+          <span class="lang-en">Customer contact (optional)</span>
+          <span class="lang-zh">联系方式（可选）</span>
+          <input name="contact" maxlength="120">
         </label>
         <button class="btn btn-primary" type="submit">
-          <span class="lang-en">Save creative brief</span>
-          <span class="lang-zh">保存创意简报</span>
+          <span class="lang-en">Submit creative brief</span>
+          <span class="lang-zh">提交创意简报</span>
         </button>
         <p id="brief-note"></p>
       </form>
+      </section>
 
       <div id="paid-panel" hidden>
         <ul class="order-price-list" style="margin-top:1rem;">
@@ -109,9 +114,9 @@
       <p class="form-intro" id="session-note" hidden></p>
 
       <div class="hero-actions" style="justify-content:flex-start;margin-top:1.5rem;">
-        <a href="/ai-ads/" class="btn btn-primary" id="cta-brief">
-          <span class="lang-zh">提交创意简报</span>
-          <span class="lang-en">Submit creative brief</span>
+        <a href="#creative-brief" class="btn btn-primary" id="cta-brief" hidden>
+          <span class="lang-zh">完成创意简报</span>
+          <span class="lang-en">Complete Your Creative Brief</span>
         </a>
         <a href="/login/" class="btn btn-ghost" id="portal-login">
           <span class="lang-zh">客户登录</span>
@@ -160,12 +165,22 @@
         title.innerHTML =
           '<span class="lang-zh">已收到付款</span><span class="lang-en">Payment received</span>';
         body.innerHTML =
-          '<span class="lang-zh">订单账本已确认付款。EmberOS 制作尚未自动启动 — 请先提交简报与素材。</span><span class="lang-en">The order ledger confirmed payment. EmberOS production is not started automatically — please submit your brief and assets next.</span>';
+          '<span class="lang-zh">付款已确认。请完成创意简报。制作不会自动开始。</span><span class="lang-en">Payment is confirmed. Complete your creative brief next. Production does not start automatically.</span>';
         paidPanel.hidden = false;
         document.getElementById("paid-ref").textContent = sid.slice(0, 24) + "…";
         document.getElementById("paid-service").textContent = (data.service || "—") + " / " + (data.region || "—");
-        if (data.state === "PAID" && data.brief_status === "missing") briefForm.hidden = false;
-        if (data.state === "READY_FOR_PRODUCTION") briefForm.hidden = true;
+        if (data.state === "PAID" && data.brief_status === "missing") {
+          briefForm.hidden = false;
+          var briefCta = document.getElementById("cta-brief");
+          briefCta.hidden = false;
+          briefCta.setAttribute("href", "#creative-brief");
+        }
+        if (data.state === "READY_FOR_PRODUCTION") {
+          briefForm.hidden = true;
+          var done = document.getElementById("cta-brief");
+          done.hidden = false;
+          done.setAttribute("href", "/account/orders/");
+        }
       }
 
       function showPending(msg) {
@@ -246,7 +261,8 @@
             audience: form.get("audience"),
             visual_style: form.get("visual_style"),
             asset_links: form.get("asset_links"),
-            special_instructions: form.get("special_instructions")
+            special_instructions: form.get("special_instructions"),
+            story_idea: form.get("story_idea")
           })
         })
           .then(function (r) { return r.json(); })
