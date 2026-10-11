@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="no-referrer">
   <meta name="robots" content="noindex">
-  <title>My orders — EmberSoul Labs</title>
+  <title>My Orders — EmberSoul Labs</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -15,47 +15,70 @@
       <a href="/" class="logo-link" aria-label="EmberSoul Labs">
         <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
       </a>
-      <a class="btn btn-ghost" href="/account/">Account</a>
     </div>
   </header>
   <main class="legal-page">
     <div class="container">
       <div class="promo-banner">
-        <p class="promo-label">My orders</p>
-        <h1>Orders linked to you</h1>
-        <p class="promo-offer">Payment status comes from the website ledger. EmberCore synchronization is not live.</p>
+        <p class="promo-label">My Orders</p>
+        <h1>Your AI ad orders</h1>
+        <p class="promo-offer">Payment, creative brief, and production progress for orders linked to this login.</p>
       </div>
       <p id="claim-note" class="form-intro" hidden></p>
-      <form id="filters" class="portal-filters">
-        <label>Payment
-          <select name="payment">
-            <option value="">All</option>
-            <option value="PAID">Paid</option>
-            <option value="READY_FOR_PRODUCTION">Ready for production</option>
-            <option value="CREATED">Created</option>
-          </select>
-        </label>
-        <label>Progress
-          <select name="progress">
-            <option value="">All</option>
-            <option value="PAID">Paid</option>
-            <option value="BRIEF_RECEIVED">Brief received</option>
-            <option value="IN_PRODUCTION">In production</option>
-            <option value="REVIEW">Review</option>
-            <option value="DELIVERED">Delivered</option>
-          </select>
-        </label>
-      </form>
-      <div id="orders" class="portal-list"></div>
+      <section id="signed-out" class="portal-card" hidden>
+        <h2>Sign in to see your orders</h2>
+        <p class="form-intro">Orders stay private until login succeeds. An email address by itself does not list past payments.</p>
+        <a class="btn btn-primary" id="login-link" href="/login/?next=%2Faccount%2Forders%2F">Login</a>
+      </section>
+      <div id="signed-in" hidden>
+        <form id="filters" class="portal-filters">
+          <label>Payment
+            <select name="payment">
+              <option value="">All</option>
+              <option value="PAID">Payment received</option>
+              <option value="READY_FOR_PRODUCTION">Ready to produce</option>
+              <option value="CREATED">Waiting for payment</option>
+            </select>
+          </label>
+          <label>Production
+            <select name="progress">
+              <option value="">All</option>
+              <option value="PAID">Paid</option>
+              <option value="BRIEF_RECEIVED">Brief received</option>
+              <option value="IN_PRODUCTION">In production</option>
+              <option value="REVIEW">In review</option>
+              <option value="DELIVERED">Delivered</option>
+            </select>
+          </label>
+        </form>
+        <p id="orders-state" class="form-intro">Loading your orders…</p>
+        <div id="orders" class="portal-list"></div>
+      </div>
     </div>
   </main>
-  <script>
+  <script src="/js/order-copy.js" defer></script>
+  <script src="/js/site-nav.js" defer></script>
+  <script type="module">
     (function () {
       var params = new URLSearchParams(window.location.search);
       var note = document.getElementById("claim-note");
       var list = document.getElementById("orders");
       var filters = document.getElementById("filters");
+      var state = document.getElementById("orders-state");
+      var signedOut = document.getElementById("signed-out");
+      var signedIn = document.getElementById("signed-in");
+      function text(value) {
+        return window.EmberOrderCopy.label(value);
+      }
+      function showSignedOut() {
+        signedIn.hidden = true;
+        signedOut.hidden = false;
+        list.replaceChildren();
+      }
       function load() {
+        state.hidden = false;
+        state.textContent = "Loading your orders…";
+        list.replaceChildren();
         var query = new URLSearchParams(new FormData(filters));
         if (!query.get("payment")) query.delete("payment");
         if (!query.get("progress")) query.delete("progress");
@@ -63,30 +86,46 @@
           .then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
           .then(function (result) {
             if (result.status === 401) {
-              window.location.replace("/login/?next=" + encodeURIComponent("/account/orders/"));
+              showSignedOut();
               return;
             }
+            if (!result.data || result.data.ok === false) {
+              state.textContent = "We couldn't load your orders. Refresh and try again.";
+              return;
+            }
+            signedOut.hidden = true;
+            signedIn.hidden = false;
             var orders = result.data.orders || [];
-            list.innerHTML = "";
             if (!orders.length) {
-              list.innerHTML = '<p class="form-intro">No linked orders yet. Open the payment confirmation link while signed in to claim one.</p>';
+              state.textContent = "No orders are linked to this login yet. After checkout, open the payment confirmation while signed in.";
               return;
             }
+            state.hidden = true;
             orders.forEach(function (order) {
-              var card = document.createElement("a");
-              card.className = "portal-card";
-              card.href = "/account/orders/" + encodeURIComponent(order.reference) + "/";
-              card.innerHTML =
-                "<strong>" + order.package + "</strong>" +
-                "<span>" + order.reference + "</span>" +
-                "<span>" + order.amount_display + "</span>" +
-                "<span>Payment " + order.payment_status + "</span>" +
-                "<span>Brief " + order.brief_status + "</span>" +
-                "<span>Progress " + (order.workflow_status || "—") + "</span>" +
-                "<span>Revisions left " + order.revisions_remaining + "</span>" +
-                "<span>Delivery " + order.delivery_status + "</span>";
+              var card = document.createElement("article");
+              card.className = "portal-card order-card";
+              var title = document.createElement("strong");
+              title.textContent = order.package || "AI ad";
+              var amount = document.createElement("p");
+              amount.className = "order-meta";
+              amount.textContent = order.amount_display || "";
+              var payment = document.createElement("p");
+              payment.textContent = "Payment: " + text(order.payment_status);
+              var brief = document.createElement("p");
+              brief.textContent = "Creative brief: " + text(order.brief_status);
+              var progress = document.createElement("p");
+              progress.textContent = "Production: " + text(order.workflow_status || order.payment_status);
+              var link = document.createElement("a");
+              link.className = "btn btn-primary";
+              link.href = "/account/orders/" + encodeURIComponent(order.reference) + "/";
+              link.textContent = "View order details";
+              card.append(title, amount, payment, brief, progress, link);
               list.appendChild(card);
             });
+          })
+          .catch(function () {
+            signedIn.hidden = false;
+            state.textContent = "We couldn't load your orders. Refresh and try again.";
           });
       }
       function claimThenLoad() {
@@ -101,13 +140,18 @@
           body: JSON.stringify({ session_id: sessionId, access_token: token })
         }).then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
           .then(function (result) {
-            note.hidden = false;
             if (result.status === 401) {
               var back = "/account/orders/?session_id=" + encodeURIComponent(sessionId) + "&access_token=" + encodeURIComponent(token);
               window.location.replace("/login/?next=" + encodeURIComponent(back));
               return;
             }
-            note.textContent = result.data && result.data.ok ? "Order linked to this login." : "That payment link could not be claimed.";
+            note.hidden = false;
+            note.textContent = result.data && result.data.ok ? "This order is now linked to your login." : "That payment link could not be claimed.";
+            load();
+          })
+          .catch(function () {
+            note.hidden = false;
+            note.textContent = "We couldn't link that payment. Try the confirmation link again.";
             load();
           });
       }

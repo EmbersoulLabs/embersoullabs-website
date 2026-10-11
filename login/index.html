@@ -38,8 +38,13 @@
   <script>
     (function () {
       var params = new URLSearchParams(window.location.search);
-      var next = params.get("next") || "";
-      if (!next.startsWith("/account/") || next.startsWith("//")) next = "/account/orders/";
+      function allowedNext(raw) {
+        if (typeof raw !== "string" || raw.charAt(0) !== "/" || raw.charAt(1) === "/" || raw.indexOf("\\") !== -1 || raw.indexOf("://") !== -1) return "/";
+        var path = raw.split("?")[0].split("#")[0];
+        if (path === "/" || path === "/account" || path.indexOf("/account/") === 0 || path === "/ai-ads" || path.indexOf("/ai-ads/") === 0) return raw;
+        return "/";
+      }
+      var next = allowedNext(params.get("next") || "/");
       var emailForm = document.getElementById("email-form");
       var codeForm = document.getElementById("code-form");
       var note = document.getElementById("login-note");
@@ -99,5 +104,6 @@
       }
     })();
   </script>
+  <script src="/js/site-nav.js" defer></script>
 </body>
 </html>

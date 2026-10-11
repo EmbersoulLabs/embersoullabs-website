@@ -50,7 +50,7 @@
           <button type="button" data-set-lang="zh">中文</button>
           <button type="button" data-set-lang="en" class="active">EN</button>
         </div>
-        <button class="menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false">☰</button>
+        <button class="menu-btn" id="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="customer-nav"><span aria-hidden="true">☰</span><span class="visually-hidden">Menu</span></button>
       </div>
     </div>
   </header>
@@ -770,16 +770,8 @@
       });
     });
 
-    const menuBtn = document.getElementById("menu-btn");
-    const nav = document.getElementById("main-nav");
-    menuBtn.addEventListener("click", () => {
-      const open = nav.classList.toggle("open");
-      menuBtn.setAttribute("aria-expanded", open);
-    });
-    nav.querySelectorAll("a").forEach((a) => {
-      a.addEventListener("click", () => nav.classList.remove("open"));
-    });
   </script>
+  <script src="/js/site-nav.js" defer></script>
   <script src="/js/pricing.js" defer></script>
   <script src="/js/stripe-config.js" defer></script>
 </body>

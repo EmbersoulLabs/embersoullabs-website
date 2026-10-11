@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
-  <title>Account — EmberSoul Labs</title>
+  <title>My Profile — EmberSoul Labs</title>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <link rel="stylesheet" href="/css/style.css">
 </head>
@@ -14,37 +14,70 @@
       <a href="/" class="logo-link" aria-label="EmberSoul Labs">
         <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
       </a>
-      <a class="btn btn-ghost" href="/account/orders/">My orders</a>
     </div>
   </header>
   <main class="legal-page">
     <div class="container form-page">
       <div class="promo-banner">
-        <p class="promo-label">Account</p>
-        <h1 id="account-title">Your account</h1>
-        <p class="promo-offer" id="account-email">Checking your session…</p>
+        <p class="promo-label">My Profile</p>
+        <h1 id="account-title">Your profile</h1>
+        <p class="promo-offer" id="account-status">Checking your session…</p>
       </div>
-      <p class="form-intro">Orders appear here only after you claim them with the access link from your payment page. An email address by itself does not reveal past orders.</p>
-      <div class="hero-actions" style="justify-content:flex-start;">
-        <a class="btn btn-primary" href="/account/orders/">View orders</a>
-        <button class="btn btn-ghost" id="logout" type="button">Log out</button>
-      </div>
+      <section id="signed-out" class="portal-card" hidden>
+        <h2>Sign in</h2>
+        <p class="form-intro">Your profile, orders, and tracking stay private until you sign in with the email code we send you.</p>
+        <a class="btn btn-primary" href="/login/?next=%2Faccount%2F">Login</a>
+      </section>
+      <section id="signed-in" hidden>
+        <article class="portal-card">
+          <h2>Verified email</h2>
+          <p id="account-email"></p>
+          <p class="order-meta">This address was confirmed with a one-time login code.</p>
+        </article>
+        <article class="portal-card">
+          <h2>Customer profile</h2>
+          <p>This login is for the person who paid for an EmberSoul Labs AI ad. Orders appear only after you open the confirmation link from checkout while signed in.</p>
+          <p class="hero-actions" style="justify-content:flex-start;">
+            <a class="btn btn-primary" href="/account/orders/">My Orders</a>
+            <a class="btn btn-ghost" href="/account/tracking/">Order Tracking</a>
+          </p>
+        </article>
+        <article class="portal-card">
+          <h2>Account settings</h2>
+          <p>There is no password to store. Each visit can start with a fresh email code. This browser stays signed in for 14 days, or until you log out.</p>
+          <button class="btn btn-ghost" id="logout" type="button">Logout</button>
+        </article>
+      </section>
+      <p id="account-error" class="form-intro" hidden>We couldn't check your session. Refresh the page and try again.</p>
     </div>
   </main>
+  <script src="/js/site-nav.js" defer></script>
   <script>
-    fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
-      .then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
-      .then(function (result) {
-        if (result.status !== 200) {
-          window.location.replace("/login/?next=" + encodeURIComponent("/account/"));
-          return;
-        }
-        document.getElementById("account-email").textContent = result.data.email;
+    (function () {
+      var status = document.getElementById("account-status");
+      var signedOut = document.getElementById("signed-out");
+      var signedIn = document.getElementById("signed-in");
+      var error = document.getElementById("account-error");
+      fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
+        .then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+        .then(function (result) {
+          status.textContent = "";
+          if (result.status !== 200 || !result.data || !result.data.ok) {
+            signedOut.hidden = false;
+            return;
+          }
+          document.getElementById("account-email").textContent = result.data.email;
+          signedIn.hidden = false;
+        })
+        .catch(function () {
+          status.textContent = "";
+          error.hidden = false;
+        });
+      document.getElementById("logout").addEventListener("click", function () {
+        fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
+          .finally(function () { window.location.replace("/"); });
       });
-    document.getElementById("logout").addEventListener("click", function () {
-      fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" })
-        .then(function () { window.location.replace("/login/"); });
-    });
+    })();
   </script>
 </body>
 </html>

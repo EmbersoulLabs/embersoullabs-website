@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Order Tracking — EmberSoul Labs</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+    </div>
+  </header>
+  <main class="legal-page">
+    <div class="container">
+      <div class="promo-banner">
+        <p class="promo-label">Order Tracking</p>
+        <h1>Where your ads are</h1>
+        <p class="promo-offer">See the current step, what happens next, and whether a revision or finished video is available.</p>
+      </div>
+      <section id="signed-out" class="portal-card" hidden>
+        <h2>Sign in to track an order</h2>
+        <p class="form-intro">Production progress is shown only after you sign in, and only for orders linked to that login.</p>
+        <a class="btn btn-primary" href="/login/?next=%2Faccount%2Ftracking%2F">Login</a>
+      </section>
+      <p id="tracking-state" class="form-intro">Loading your orders…</p>
+      <div id="tracking" class="portal-list"></div>
+    </div>
+  </main>
+  <script src="/js/order-copy.js" defer></script>
+  <script src="/js/site-nav.js" defer></script>
+  <script type="module">
+    (function () {
+      var state = document.getElementById("tracking-state");
+      var list = document.getElementById("tracking");
+      var signedOut = document.getElementById("signed-out");
+      function track(order) {
+        var copy = window.EmberOrderCopy;
+        var index = copy.stepIndex(order);
+        var steps = document.createElement("ol");
+        steps.className = "progress-track";
+        steps.setAttribute("aria-label", "Production progress");
+        copy.steps.forEach(function (step, i) {
+          var item = document.createElement("li");
+          item.textContent = step.label;
+          if (index > i) item.className = "done";
+          if (index === i) {
+            item.className = "current";
+            item.setAttribute("aria-current", "step");
+          }
+          steps.appendChild(item);
+        });
+        return steps;
+      }
+      fetch("/api/account/orders/", { credentials: "same-origin", cache: "no-store" })
+        .then(function (response) { return response.json().then(function (data) { return { status: response.status, data: data }; }); })
+        .then(function (result) {
+          if (result.status === 401) {
+            state.hidden = true;
+            signedOut.hidden = false;
+            return;
+          }
+          if (!result.data || result.data.ok === false) {
+            state.textContent = "We couldn't load tracking. Refresh and try again.";
+            return;
+          }
+          var orders = result.data.orders || [];
+          if (!orders.length) {
+            state.textContent = "No linked orders to track yet.";
+            return;
+          }
+          state.hidden = true;
+          orders.forEach(function (order) {
+            var card = document.createElement("article");
+            card.className = "portal-card order-card";
+            var title = document.createElement("strong");
+            title.textContent = order.package || "AI ad";
+            var current = document.createElement("p");
+            current.textContent = "Current status: " + window.EmberOrderCopy.label(order.workflow_status || order.payment_status);
+            var next = document.createElement("p");
+            next.textContent = "Next: " + window.EmberOrderCopy.nextText(order.next_action);
+            var revision = document.createElement("p");
+            revision.className = "order-meta";
+            revision.textContent = "Revisions remaining: " + order.revisions_remaining + (order.revisions_pending ? " (" + order.revisions_pending + " waiting for review)" : "");
+            var delivery = document.createElement("p");
+            delivery.className = "order-meta";
+            delivery.textContent = "Delivery: " + window.EmberOrderCopy.label(order.delivery_status);
+            var link = document.createElement("a");
+            link.className = "btn btn-ghost";
+            link.href = "/account/orders/" + encodeURIComponent(order.reference) + "/";
+            link.textContent = "View order details";
+            card.append(title, track(order), current, next, revision, delivery, link);
+            list.appendChild(card);
+          });
+        })
+        .catch(function () {
+          state.textContent = "We couldn't load tracking. Refresh and try again.";
+        });
+    })();
+  </script>
+</body>
+</html>
