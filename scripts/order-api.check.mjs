@@ -315,6 +315,14 @@ async function run() {
     assert(await verifyStripeSignature('{"id":"evt_sig"}', header, "other_webhook_secret_value") === false, "wrong secret fails");
     assert(await verifyStripeSignature('{"id":"evt_other"}', header, "local_webhook_secret_value") === false, "changed payload fails");
 
+    const whsec = "whsec_" + btoa("website-endpoint-key");
+    const whsecPayload = '{"id":"evt_whsec"}';
+    const whsecHeader = await sign(whsec, whsecPayload);
+    assert(await verifyStripeSignature(whsecPayload, whsecHeader, whsec) === true, "whsec secret is the raw HMAC key");
+    const decodedKey = atob(whsec.slice(6));
+    const decodedHeader = await sign(decodedKey, whsecPayload);
+    assert(await verifyStripeSignature(whsecPayload, decodedHeader, whsec) === false, "base64-decoded whsec key is rejected");
+
     const success = readFileSync(join(root, "ai-ads/checkout/success/index.html"), "utf8");
     assert(success.includes("/api/orders/status"), "success page reads the order ledger");
     assert(!success.includes("/api/checkout/session"), "success page does not confirm from the Stripe session endpoint");

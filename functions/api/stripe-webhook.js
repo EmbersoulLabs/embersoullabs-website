@@ -63,18 +63,9 @@ async function hmacSha256Hex(keyBytes, message) {
     .join("");
 }
 
-function decodeWebhookSecret(webhookSecret) {
-  if (webhookSecret.startsWith("whsec_")) {
-    const b64 = webhookSecret.slice(6);
-    try {
-      const bin = atob(b64);
-      const bytes = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      return bytes;
-    } catch {
-      return new TextEncoder().encode(webhookSecret);
-    }
-  }
+function webhookSecretBytes(webhookSecret) {
+  // Stripe signs with the full secret string, including the whsec_ prefix.
+  // The prefix is not a Base64 envelope.
   return new TextEncoder().encode(webhookSecret);
 }
 
@@ -86,7 +77,7 @@ export async function verifyStripeSignature(payload, header, webhookSecret) {
   if (Math.abs(Math.floor(Date.now() / 1000) - ts) > 300) return false;
 
   const signed = `${parsed.t}.${payload}`;
-  const keyBytes = decodeWebhookSecret(webhookSecret);
+  const keyBytes = webhookSecretBytes(webhookSecret);
   const hex = await hmacSha256Hex(keyBytes, signed);
   return parsed.v1.some((v) => timingSafeEqual(hex, v));
 }
