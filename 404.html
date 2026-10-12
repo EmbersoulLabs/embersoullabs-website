@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+  <meta charset="UTF-8">
+<script>
+(function () {
+  var key = "es-appearance";
+  var pref = "light";
+  try {
+    var saved = localStorage.getItem(key);
+    if (saved === "light" || saved === "dark" || saved === "auto") pref = saved;
+  } catch (err) {}
+  var dark = false;
+  try { dark = window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (err) {}
+  var theme = pref === "auto" ? (dark ? "dark" : "light") : pref;
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute("data-appearance", pref);
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page not found — EmberSoul Labs</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css?v=20261012b">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo-link" aria-label="EmberSoul Labs">
+        <img src="/assets/logo-horizontal.png" alt="EmberSoul Labs" width="220" height="67">
+      </a>
+    </div>
+  </header>
+
+  <main class="legal-page">
+    <div class="container legal-content" style="text-align:center;">
+      <h1>
+        <span class="lang-zh">找不到这个页面</span>
+        <span class="lang-en">Page not found</span>
+      </h1>
+      <p>
+        <span class="lang-zh">这个地址没有对应的页面。你可以回到首页，或查看 AI 广告服务。</span>
+        <span class="lang-en">This address does not match a page. You can return home or view AI ad services.</span>
+      </p>
+      <p style="margin-top:1.5rem;">
+        <a href="/" class="btn btn-primary">
+          <span class="lang-zh">返回首页</span>
+          <span class="lang-en">Back to Home</span>
+        </a>
+        <a href="/ai-ads/" class="btn btn-ghost">
+          <span class="lang-zh">AI 广告</span>
+          <span class="lang-en">AI Ads</span>
+        </a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-meta">
+        <p>&copy; 2026 EmberSoul Labs</p>
+        <p>Johor Bahru, Malaysia</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const saved = localStorage.getItem("esl-lang");
+    if (saved === "en" || saved === "zh") {
+      document.documentElement.setAttribute("data-lang", saved);
+      document.documentElement.lang = saved === "zh" ? "zh" : "en";
+    }
+  </script>
+  <script src="/js/site-nav.js?v=20261011d" defer></script>
+</body>
+</html>
