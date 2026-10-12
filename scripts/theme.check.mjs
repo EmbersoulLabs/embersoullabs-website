@@ -28,7 +28,8 @@ assert(css.includes("html[data-theme=\"dark\"]") && css.includes("--bg: #050508"
 assert(css.includes("color-scheme: light") && css.includes("color-scheme: dark"), "native controls follow the theme");
 assert(css.includes("prefers-reduced-motion") && css.includes("--focus-ring"), "motion and focus are covered");
 assert(!/filter:\s*invert/.test(css), "theme does not invert the page");
-assert(css.includes("logo-horizontal-light.svg"), "light logo is used without a filter");
+assert(css.includes("logo-horizontal-light.png"), "light logo uses the same artwork");
+assert(css.includes("aspect-ratio: 420 / 128"), "header logo box is shared by both themes");
 
 const nav = readFileSync(join(root, "js/site-nav.js"), "utf8");
 assert(nav.includes("localStorage") && nav.includes("es-appearance"), "preference is stored locally");
@@ -40,7 +41,7 @@ assert(pages.length >= 14, "expected the public pages");
 for (const page of pages) {
   const text = readFileSync(page, "utf8");
   assert(text.includes("es-appearance"), `${page} applies the theme before paint`);
-  assert(text.includes("/css/style.css?v=20261012b"), `${page} loads the themed stylesheet`);
+  assert(text.includes("/css/style.css?v=20261012c"), `${page} loads the themed stylesheet`);
   assert(text.indexOf("es-appearance") < text.indexOf("/css/style.css"), `${page} sets the theme before the stylesheet`);
 }
 
