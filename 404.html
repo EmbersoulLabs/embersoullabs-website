@@ -2,11 +2,27 @@
 <html lang="en" data-lang="en">
 <head>
   <meta charset="UTF-8">
+<script>
+(function () {
+  var key = "es-appearance";
+  var pref = "light";
+  try {
+    var saved = localStorage.getItem(key);
+    if (saved === "light" || saved === "dark" || saved === "auto") pref = saved;
+  } catch (err) {}
+  var dark = false;
+  try { dark = window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (err) {}
+  var theme = pref === "auto" ? (dark ? "dark" : "light") : pref;
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.setAttribute("data-appearance", pref);
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Page not found — EmberSoul Labs</title>
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261011c">
+  <link rel="stylesheet" href="/css/style.css?v=20261011d">
 </head>
 <body>
   <header class="site-header">
@@ -56,6 +72,6 @@
       document.documentElement.lang = saved === "zh" ? "zh" : "en";
     }
   </script>
-  <script src="/js/site-nav.js?v=20261011b" defer></script>
+  <script src="/js/site-nav.js?v=20261011d" defer></script>
 </body>
 </html>
