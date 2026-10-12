@@ -393,6 +393,11 @@
             return;
           }
           if (submitButton) submitButton.disabled = false;
+          if (result.status === 429) {
+            window.alert("Please wait a little while before sending another inquiry.");
+          } else {
+            window.alert("The inquiry was not sent. Please check the form and try again.");
+          }
         }).catch(function () {
           inquiryForm.submit();
         });
