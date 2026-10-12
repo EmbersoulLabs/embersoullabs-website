@@ -1,0 +1,8 @@
+# Public pages stay crawlable. API routes are not content.
+# Thank-you, checkout, account, and login pages stay reachable so their noindex tags can be seen.
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://embersoullabs.com/sitemap.xml
