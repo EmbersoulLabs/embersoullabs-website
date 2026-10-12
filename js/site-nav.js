@@ -218,4 +218,11 @@
   }
 
   document.querySelectorAll(".site-header").forEach(setup);
+  var measure = document.createElement("script");
+  measure.src = "/js/measurement.js?v=20261012d";
+  measure.defer = true;
+  measure.onload = function () {
+    if (window.EmberSoulMeasure) window.EmberSoulMeasure.start();
+  };
+  document.head.appendChild(measure);
 })();

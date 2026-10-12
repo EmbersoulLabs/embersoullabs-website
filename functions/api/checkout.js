@@ -8,6 +8,7 @@
  *   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SITE_ORIGIN, PAYMENT_EVENTS
  * Success/cancel URLs always from configured SITE_ORIGIN (never Host header in prod).
  */
+import { sanitizeAttribution } from "../_shared/attribution.js";
 import { validateCheckoutBody } from "../_shared/checkout-validate.js";
 import {
   assertProductionCheckoutReady,
@@ -108,6 +109,7 @@ export async function onRequestPost(context) {
     }
 
     const { service, region, lookupKey, expected } = validated;
+    const attribution = sanitizeAttribution(body && body.attribution);
 
     if (body.dry_run === true) {
       const resolved = await resolvePriceByLookupKey(secret, lookupKey, expected);
@@ -190,6 +192,7 @@ export async function onRequestPost(context) {
       region,
       lookupKey,
       price: resolved.price,
+      attribution,
       stripeRequest,
     });
     return jsonResponse(

@@ -43,21 +43,26 @@ export async function readAuthorizedOrder(db, sessionId, accessToken) {
     return NOT_FOUND;
   }
   const order = await db.get(
-    `SELECT id, state, service, region, brief_status, access_token_hash
+    `SELECT id, state, service, region, brief_status, access_token_hash, currency, amount_total
      FROM orders WHERE checkout_session_id = ?`,
     [sessionId]
   );
   if (!order || !order.access_token_hash) return NOT_FOUND;
   const hash = await sha256Hex(accessToken);
   if (!timingSafeEqual(hash, order.access_token_hash)) return NOT_FOUND;
+  const amountTotal = Number.isInteger(order.amount_total) ? order.amount_total : null;
   return {
     status: 200,
     order,
     body: {
       ok: true,
+      order_id: order.id,
       state: order.state,
       service: order.service,
       region: order.region,
+      currency: String(order.currency || "").toUpperCase(),
+      amount_total: amountTotal,
+      value: amountTotal == null ? null : amountTotal / 100,
       confirmed: order.state === "PAID" || order.state === "READY_FOR_PRODUCTION",
       brief_status: order.brief_status,
       emberos_production: "not_connected",
