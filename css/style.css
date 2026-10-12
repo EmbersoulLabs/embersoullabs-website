@@ -1386,12 +1386,15 @@ button.btn:disabled {
 .platform-visual {
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
 .platform-visual img {
-  width: min(280px, 70%);
+  width: auto;
   height: auto;
-  filter: drop-shadow(0 12px 36px rgba(30, 144, 255, 0.22));
+  max-width: min(210px, 100%);
+  max-height: 200px;
+  object-fit: contain;
 }
 
 .benefit-list {
