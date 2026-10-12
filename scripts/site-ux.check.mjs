@@ -26,6 +26,8 @@ for (const label of ["Home", "Products & Services", "Login", "My Profile", "My O
   assert(nav.includes(`label: "${label}"`), `menu includes ${label}`);
 }
 assert(nav.includes('aria-expanded') && nav.includes('"Escape"') && nav.includes("/api/auth/session"), "menu is keyboard accessible and session aware");
+assert(nav.includes('label: "Light"') && nav.includes('label: "Dark"') && nav.includes('label: "Auto"'), "menu includes appearance choices");
+assert(nav.includes("es-appearance") && nav.includes("prefers-color-scheme"), "appearance is saved and follows the system in auto");
 assert(nav.includes('render(false)'), "private links wait for a confirmed session");
 assert(nav.includes('window.location.href = "/"'), "logout returns to the homepage");
 

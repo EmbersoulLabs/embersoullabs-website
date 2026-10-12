@@ -1,4 +1,30 @@
 (function () {
+  var APPEARANCE_KEY = "es-appearance";
+  var appearanceMedia = window.matchMedia("(prefers-color-scheme: dark)");
+  function readAppearance() {
+    try {
+      var saved = localStorage.getItem(APPEARANCE_KEY);
+      if (saved === "light" || saved === "dark" || saved === "auto") return saved;
+    } catch (err) {}
+    return "light";
+  }
+  function resolveTheme(pref) {
+    if (pref === "auto") return appearanceMedia.matches ? "dark" : "light";
+    return pref === "dark" ? "dark" : "light";
+  }
+  function applyAppearance(pref, persist) {
+    var choice = pref === "dark" || pref === "auto" ? pref : "light";
+    var theme = resolveTheme(choice);
+    document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.setAttribute("data-appearance", choice);
+    document.documentElement.style.colorScheme = theme;
+    if (persist) {
+      try { localStorage.setItem(APPEARANCE_KEY, choice); } catch (err) {}
+    }
+    Array.prototype.forEach.call(document.querySelectorAll("[data-appearance-option]"), function (button) {
+      button.setAttribute("aria-checked", button.getAttribute("data-appearance-option") === choice ? "true" : "false");
+    });
+  }
   function pathOnly() {
     return window.location.pathname.replace(/\/index\.html$/, "") || "/";
   }
@@ -124,6 +150,37 @@
         });
         panel.appendChild(group);
       }
+
+      var appearance = document.createElement("div");
+      appearance.className = "appearance";
+      appearance.setAttribute("role", "radiogroup");
+      appearance.setAttribute("aria-label", "Appearance");
+      var caption = document.createElement("p");
+      caption.className = "appearance-label";
+      caption.id = "appearance-label";
+      caption.textContent = "Appearance";
+      appearance.setAttribute("aria-labelledby", "appearance-label");
+      appearance.appendChild(caption);
+      [
+        { value: "light", icon: "\u2600\uFE0F", label: "Light" },
+        { value: "dark", icon: "\uD83C\uDF19", label: "Dark" },
+        { value: "auto", icon: "\uD83D\uDCBB", label: "Auto" }
+      ].forEach(function (option) {
+        var choice = document.createElement("button");
+        choice.type = "button";
+        choice.setAttribute("role", "radio");
+        choice.setAttribute("data-appearance-option", option.value);
+        choice.setAttribute("aria-checked", "false");
+        var icon = document.createElement("span");
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = option.icon + " ";
+        choice.appendChild(icon);
+        choice.appendChild(document.createTextNode(option.label));
+        choice.addEventListener("click", function () { applyAppearance(option.value, true); });
+        appearance.appendChild(choice);
+      });
+      panel.appendChild(appearance);
+      applyAppearance(readAppearance(), false);
       if (!wasOpen) panel.hidden = true;
     }
 
@@ -153,6 +210,7 @@
       closeMenu();
     });
     if (compact.addEventListener) compact.addEventListener("change", function () { render(signedIn); });
+    if (appearanceMedia.addEventListener) appearanceMedia.addEventListener("change", function () { if (readAppearance() === "auto") applyAppearance("auto", false); });
     fetch("/api/auth/session", { credentials: "same-origin", cache: "no-store" })
       .then(function (response) { return response.ok ? response.json() : null; })
       .then(function (data) { render(!!(data && data.ok)); })

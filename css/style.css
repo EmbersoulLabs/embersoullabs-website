@@ -1,16 +1,66 @@
 :root {
+  color-scheme: light;
   --blue: #1e90ff;
   --teal: #00d4b4;
   --gold: #ffb020;
   --orange: #f7941e;
+  --bg: #f5f7fb;
+  --bg-elevated: #ffffff;
+  --bg-card: #ffffff;
+  --border: rgba(18, 28, 45, 0.14);
+  --text: #121722;
+  --text-muted: #3e4a5c;
+  --accent: #0b6e62;
+  --gold-text: #8a5800;
+  --link: #0b5cab;
+  --header-bg: rgba(245, 247, 251, 0.92);
+  --hover: rgba(18, 28, 45, 0.06);
+  --nav-current: rgba(11, 110, 98, 0.12);
+  --shadow: 0 16px 40px rgba(18, 28, 45, 0.12);
+  --card-shadow: 0 10px 30px rgba(18, 28, 45, 0.08);
+  --focus: rgba(11, 92, 171, 0.28);
+  --focus-ring: #0b5cab;
+  --success: #067647;
+  --warning: #8a5800;
+  --danger: #b42318;
+  --media-bg: #e7edf5;
+  --band: #eef2f8;
+  --on-gradient: #050508;
+  --glow-blue: rgba(30, 144, 255, 0.14);
+  --glow-teal: rgba(0, 168, 150, 0.1);
+  --glow-gold: rgba(224, 148, 0, 0.1);
+  --gradient: linear-gradient(135deg, var(--blue) 0%, var(--teal) 45%, var(--gold) 100%);
+  --gradient-text: linear-gradient(135deg, #0b6ec4 0%, #0a7d6e 48%, #a56b00 100%);
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
   --bg: #050508;
   --bg-elevated: #0d0d12;
   --bg-card: #12121a;
   --border: rgba(255, 255, 255, 0.08);
   --text: #f4f4f6;
-  --text-muted: #9ca3af;
-  --gradient: linear-gradient(135deg, var(--blue) 0%, var(--teal) 45%, var(--gold) 100%);
-  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --text-muted: #b7c0cc;
+  --accent: #5ee0cb;
+  --gold-text: #ffc14d;
+  --link: #8ecbff;
+  --header-bg: rgba(5, 5, 8, 0.82);
+  --hover: rgba(255, 255, 255, 0.06);
+  --nav-current: rgba(0, 212, 180, 0.14);
+  --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --card-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --focus: rgba(0, 212, 180, 0.22);
+  --focus-ring: #5ee0cb;
+  --success: #5ee0cb;
+  --warning: #ffc14d;
+  --danger: #ffb4a8;
+  --media-bg: var(--media-bg);
+  --band: rgba(255, 255, 255, 0.02);
+  --glow-blue: rgba(30, 144, 255, 0.15);
+  --glow-teal: rgba(0, 212, 180, 0.06);
+  --glow-gold: rgba(255, 176, 32, 0.05);
+  --gradient-text: var(--gradient);
 }
 
 *,
@@ -39,9 +89,9 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(30, 144, 255, 0.15), transparent),
-    radial-gradient(ellipse 60% 40% at 100% 50%, rgba(0, 212, 180, 0.06), transparent),
-    radial-gradient(ellipse 50% 30% at 0% 80%, rgba(255, 176, 32, 0.05), transparent);
+    radial-gradient(ellipse 80% 50% at 50% -20%, var(--glow-blue), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 50%, var(--glow-teal), transparent),
+    radial-gradient(ellipse 50% 30% at 0% 80%, var(--glow-gold), transparent);
   pointer-events: none;
   z-index: -1;
 }
@@ -68,7 +118,7 @@ img {
   top: 0;
   z-index: 100;
   backdrop-filter: blur(16px);
-  background: rgba(5, 5, 8, 0.82);
+  background: var(--header-bg);
   border-bottom: 1px solid var(--border);
 }
 
@@ -81,9 +131,19 @@ img {
   gap: 1rem;
 }
 
+.logo-link {
+  display: inline-flex;
+  background: url("/assets/logo-horizontal-light.svg") center / contain no-repeat;
+}
+
+html[data-theme="dark"] .logo-link {
+  background-image: url("/assets/logo-horizontal.png");
+}
+
 .logo-link img {
   height: 40px;
   width: auto;
+  opacity: 0;
 }
 
 .nav {
@@ -125,7 +185,7 @@ img {
 
 .lang-toggle button.active {
   background: var(--gradient);
-  color: #050508;
+  color: var(--on-gradient);
 }
 
 .menu-btn {
@@ -147,7 +207,7 @@ img {
 .menu-btn:focus-visible,
 .customer-nav a:focus-visible,
 .customer-nav button:focus-visible {
-  outline: 2px solid var(--teal);
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 
@@ -176,7 +236,7 @@ img {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow);
 }
 
 .customer-nav[hidden] {
@@ -198,13 +258,13 @@ img {
 }
 
 .customer-nav a[aria-current="page"] {
-  background: rgba(0, 212, 180, 0.14);
-  color: var(--teal);
+  background: var(--nav-current);
+  color: var(--accent);
 }
 
 .customer-nav a:hover,
 .customer-nav button:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--hover);
 }
 
 .customer-nav-extra {
@@ -214,6 +274,30 @@ img {
   margin-top: 0.35rem;
   padding-top: 0.35rem;
   border-top: 1px solid var(--border);
+}
+
+.appearance {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+}
+
+.appearance-label {
+  margin: 0;
+  padding: 0.35rem 0.9rem 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.appearance button[aria-checked="true"] {
+  background: var(--nav-current);
+  color: var(--accent);
+  font-weight: 700;
 }
 
 /* Hero */
@@ -232,7 +316,7 @@ img {
   border-radius: 999px;
   border: 1px solid rgba(0, 212, 180, 0.35);
   background: rgba(0, 212, 180, 0.08);
-  color: var(--teal);
+  color: var(--accent);
   margin-bottom: 1.25rem;
 }
 
@@ -247,7 +331,7 @@ img {
   font-weight: 700;
   letter-spacing: -0.02em;
   margin-bottom: 1rem;
-  background: var(--gradient);
+  background: var(--gradient-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -286,7 +370,7 @@ img {
 
 .btn-primary {
   background: var(--gradient);
-  color: #050508;
+  color: var(--on-gradient);
   box-shadow: 0 4px 24px rgba(30, 144, 255, 0.3);
 }
 
@@ -314,7 +398,7 @@ section {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--accent);
   margin-bottom: 0.5rem;
 }
 
@@ -363,7 +447,7 @@ section {
 
 .product-card:hover {
   border-color: rgba(30, 144, 255, 0.35);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--card-shadow);
 }
 
 .product-header {
@@ -386,7 +470,7 @@ section {
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
   background: rgba(255, 176, 32, 0.12);
-  color: var(--gold);
+  color: var(--gold-text);
   border: 1px solid rgba(255, 176, 32, 0.25);
   white-space: nowrap;
 }
@@ -442,14 +526,14 @@ section {
 
 .product-badge.badge-open {
   background: rgba(0, 212, 180, 0.12);
-  color: var(--teal);
+  color: var(--accent);
   border-color: rgba(0, 212, 180, 0.3);
 }
 
 .stat-value span {
   font-size: 1.5rem;
   font-weight: 700;
-  background: var(--gradient);
+  background: var(--gradient-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -475,7 +559,7 @@ section {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--accent);
   margin-bottom: 0.5rem;
 }
 
@@ -490,7 +574,7 @@ section {
 }
 
 .promo-offer strong {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .form-intro {
@@ -511,7 +595,7 @@ section {
 .apply-form legend {
   font-weight: 700;
   font-size: 0.9rem;
-  color: var(--teal);
+  color: var(--accent);
   padding: 0 0.5rem;
 }
 
@@ -548,8 +632,8 @@ section {
 .apply-form select:focus,
 .apply-form textarea:focus {
   outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 2px rgba(0, 212, 180, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus);
 }
 
 .form-row {
@@ -582,7 +666,7 @@ section {
 
 .checkbox-label input {
   margin-top: 0.2rem;
-  accent-color: var(--teal);
+  accent-color: var(--accent);
 }
 
 .checkbox-label.consent {
@@ -591,7 +675,7 @@ section {
 }
 
 .checkbox-label a {
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .offer-box {
@@ -619,7 +703,7 @@ section {
   content: "✓";
   position: absolute;
   left: 0;
-  color: var(--gold);
+  color: var(--gold-text);
   font-weight: 700;
 }
 
@@ -644,7 +728,7 @@ section {
   margin: 0 auto 1.5rem;
   border-radius: 50%;
   background: rgba(0, 212, 180, 0.15);
-  color: var(--teal);
+  color: var(--accent);
   font-size: 2rem;
   line-height: 64px;
   font-weight: 700;
@@ -686,7 +770,7 @@ section {
 .stat-value {
   font-size: 1.5rem;
   font-weight: 700;
-  background: var(--gradient);
+  background: var(--gradient-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -720,12 +804,12 @@ section {
   gap: 0.5rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--teal);
+  color: var(--accent);
   transition: color 0.2s;
 }
 
 .contact-email:hover {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 /* Footer */
@@ -789,7 +873,7 @@ section {
 .legal-content h2 {
   font-size: 1.15rem;
   margin: 2rem 0 0.75rem;
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .legal-content p,
@@ -800,11 +884,11 @@ section {
 }
 
 .legal-content a {
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .legal-content a:hover {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .legal-content ul {
@@ -826,11 +910,11 @@ section {
   display: inline-block;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .back-link:hover {
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 /* Language visibility */
@@ -902,7 +986,7 @@ section {
 
 .video-frame {
   aspect-ratio: 9 / 16;
-  background: #0a0a10;
+  background: var(--media-bg);
   position: relative;
   overflow: hidden;
 }
@@ -926,14 +1010,14 @@ section {
   background:
     linear-gradient(160deg, rgba(30, 144, 255, 0.12), transparent 50%),
     linear-gradient(320deg, rgba(255, 176, 32, 0.1), transparent 45%),
-    #0a0a10;
+    var(--media-bg);
 }
 
 .play-hint {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: var(--teal);
+  color: var(--accent);
   border: 1px solid rgba(0, 212, 180, 0.35);
   border-radius: 999px;
   padding: 0.25rem 0.65rem;
@@ -957,7 +1041,7 @@ section {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .showcase-title {
@@ -974,12 +1058,12 @@ section {
 .showcase-cta {
   font-size: 0.88rem;
   font-weight: 600;
-  color: var(--gold);
+  color: var(--gold-text);
   margin-top: 0.5rem;
 }
 
 .showcase-cta:hover {
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .steps-grid {
@@ -1005,7 +1089,7 @@ section {
   height: 2rem;
   border-radius: 50%;
   background: var(--gradient);
-  color: #050508;
+  color: var(--on-gradient);
   font-weight: 700;
   font-size: 0.9rem;
   margin-bottom: 0.85rem;
@@ -1031,7 +1115,7 @@ section {
 
 .price-slot {
   font-size: 1.15rem;
-  color: var(--gold);
+  color: var(--gold-text);
   font-weight: 700;
   margin-top: auto;
 }
@@ -1072,15 +1156,15 @@ section {
 
 .pricing-region-select:focus {
   outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 2px rgba(0, 212, 180, 0.15);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--focus);
 }
 
 .order-price-preview {
   margin: 0.75rem 0 0;
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--gold-text);
 }
 
 .price-hint {
@@ -1105,7 +1189,7 @@ section {
 }
 
 .order-price-list strong {
-  color: var(--gold);
+  color: var(--gold-text);
   font-weight: 700;
 }
 
@@ -1160,7 +1244,7 @@ section {
 }
 
 .monthly-mode strong {
-  color: var(--teal);
+  color: var(--accent);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -1204,7 +1288,7 @@ section {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-  color: var(--teal);
+  color: var(--accent);
   background: rgba(0, 212, 180, 0.12);
   border: 1px solid rgba(0, 212, 180, 0.28);
   border-radius: 6px;
@@ -1278,7 +1362,7 @@ button.btn:disabled {
 }
 
 .portfolio-cta-line a {
-  color: var(--teal);
+  color: var(--accent);
   font-weight: 600;
   margin-left: 0.35rem;
   text-decoration: none;
@@ -1342,7 +1426,7 @@ button.btn:disabled {
 }
 
 .section-platform-alt {
-  background: rgba(255, 255, 255, 0.015);
+  background: var(--band);
 }
 
 .auto-grid {
@@ -1461,12 +1545,12 @@ button.btn:disabled {
 
 .progress-track li.done {
   border-color: rgba(0, 212, 180, 0.45);
-  color: var(--teal);
+  color: var(--accent);
 }
 
 .progress-track li.current {
-  background: rgba(0, 212, 180, 0.14);
-  border-color: var(--teal);
+  background: var(--nav-current);
+  border-color: var(--accent);
   color: var(--text);
   font-weight: 700;
 }
@@ -1593,3 +1677,31 @@ button.btn:disabled {
   color: var(--text);
 }
 
+
+.form-page input:focus,
+.form-page textarea:focus,
+.form-page select:focus,
+.portal-filters select:focus {
+  outline: none;
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 2px var(--focus);
+}
+
+#account-error,
+.note-error { color: var(--danger); }
+.note-success { color: var(--success); }
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn, .nav a, .product-card, .menu-btn, .contact-email, .footer-links a { transition: none; }
+  .btn:hover { transform: none; }
+}
