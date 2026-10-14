@@ -14,7 +14,7 @@ import { sha256Hex } from "../functions/_shared/order-access.js";
 import { sanitizeAttribution, purchaseValue } from "../functions/_shared/attribution.js";
 import { readMeasurementConfig } from "../functions/_shared/measurement-config.js";
 import { validateCheckoutBody } from "../functions/_shared/checkout-validate.js";
-import { claimInquiryConversion, claimPurchaseConversion, rememberAttribution } from "../functions/_shared/conversion.js";
+import { progressInquiryConversion, progressPurchaseConversion, rememberAttribution } from "../functions/_shared/conversion.js";
 import { acceptInquiry } from "../functions/_shared/inquiry.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -84,27 +84,42 @@ const storedClick = await db.get("SELECT gclid, gbraid FROM order_attribution WH
 assert(storedClick.gclid === "click.my_1", "gclid stored on the order");
 assert(!JSON.stringify(storedClick).includes("person@example.com"), "email is not stored as attribution");
 
-const first = await claimPurchaseConversion(db, "cs_my_paid", "token-my-paid", "2026-10-12T01:00:00.000Z");
-const second = await claimPurchaseConversion(db, "cs_my_paid", "token-my-paid", "2026-10-12T02:00:00.000Z");
-assert(first.body.emit === true && first.body.transaction_id === "ord_my_paid_0001", "first paid claim emits");
+const first = await progressPurchaseConversion(db, "cs_my_paid", "token-my-paid", "reserve", "2026-10-12T01:00:00.000Z");
+const held = await progressPurchaseConversion(db, "cs_my_paid", "token-my-paid", "reserve", "2026-10-12T01:00:30.000Z");
+assert(first.body.emit === true && first.body.phase === "reserved" && first.body.transaction_id === "ord_my_paid_0001", "first paid reservation emits");
 assert(first.body.value === 69 && first.body.currency === "MYR" && first.body.gclid === "click.my_1", "paid hit keeps MYR 69 and gclid");
 assert(!JSON.stringify(first.body).includes("token-my-paid"), "access token is not in the purchase hit");
-assert(second.body.emit === false && second.body.reason === "duplicate", "refresh does not emit again");
+assert(held.body.emit === false && held.body.reason === "reserved", "a second reserve during delivery does not emit again");
+const attempted = await progressPurchaseConversion(db, "cs_my_paid", "token-my-paid", "attempt", "2026-10-12T01:00:31.000Z");
+assert(attempted.body.emit === false && attempted.body.phase === "attempted", "attempt records delivery without emitting another hit");
+const retry = await progressPurchaseConversion(db, "cs_my_paid", "token-my-paid", "reserve", "2026-10-12T01:03:00.000Z");
+assert(retry.body.emit === true && retry.body.transaction_id === first.body.transaction_id, "a failed delivery can reserve the same transaction again");
+const acked = await progressPurchaseConversion(db, "cs_my_paid", "token-my-paid", "acknowledge", "2026-10-12T01:03:02.000Z");
+const afterAck = await progressPurchaseConversion(db, "cs_my_paid", "token-my-paid", "reserve", "2026-10-12T02:00:00.000Z");
+assert(acked.body.phase === "acknowledged" && afterAck.body.emit === false && afterAck.body.reason === "acknowledged", "acknowledgement deduplicates later visits");
 const money = await db.get("SELECT amount_total, currency, state FROM orders WHERE id = ?", ["ord_my_paid_0001"]);
-assert(money.amount_total === 6900 && money.currency === "myr" && money.state === "PAID", "claim does not change the ledger payment");
+assert(money.amount_total === 6900 && money.currency === "myr" && money.state === "PAID", "measurement does not change the ledger payment");
+
+await seedOrder(db, { id: "ord_historical_paid", session: "cs_historical", token: "token-historical", state: "PAID", region: "my", currency: "myr", amount: 6900 });
+const historical = await progressPurchaseConversion(db, "cs_historical", "token-historical", "reserve", "2026-10-12T01:00:00.000Z");
+const historicalRow = await db.get("SELECT order_id FROM order_attribution WHERE order_id = ?", ["ord_historical_paid"]);
+assert(historical.body.emit === false && historical.body.reason === "not_eligible" && !historicalRow, "historical paid orders are not backfilled");
 
 await seedOrder(db, { id: "ord_sg_pending_0001", session: "cs_sg_pending", token: "token-sg", state: "PENDING", region: "sg", currency: "sgd", amount: 2900 });
-const pending = await claimPurchaseConversion(db, "cs_sg_pending", "token-sg");
+await rememberAttribution(db, "ord_sg_pending_0001", null, "2026-10-12T00:00:00.000Z");
+const pending = await progressPurchaseConversion(db, "cs_sg_pending", "token-sg", "reserve");
 assert(pending.body.emit === false && pending.body.reason === "not_paid", "pending is not a purchase");
 await db.run("UPDATE orders SET state = 'FAILED' WHERE id = ?", ["ord_sg_pending_0001"]);
-const failedState = await claimPurchaseConversion(db, "cs_sg_pending", "token-sg");
+const failedState = await progressPurchaseConversion(db, "cs_sg_pending", "token-sg", "reserve");
 assert(failedState.body.emit === false && failedState.body.reason === "not_paid", "failed is not a purchase");
 
 await seedOrder(db, { id: "ord_usd_ready_0001", session: "cs_usd_ready", token: "token-usd", state: "READY_FOR_PRODUCTION", region: "intl", currency: "usd", amount: 1900 });
-const ready = await claimPurchaseConversion(db, "cs_usd_ready", "token-usd");
+await rememberAttribution(db, "ord_usd_ready_0001", null, "2026-10-12T00:00:00.000Z");
+const ready = await progressPurchaseConversion(db, "cs_usd_ready", "token-usd", "reserve", "2026-10-12T01:00:00.000Z");
 assert(ready.body.emit === true && ready.body.value === 19 && ready.body.currency === "USD", "ready production still reports the original USD amount");
-const readyAgain = await claimPurchaseConversion(db, "cs_usd_ready", "token-usd");
-assert(readyAgain.body.emit === false && readyAgain.body.reason === "duplicate", "repeat visit does not emit again");
+await progressPurchaseConversion(db, "cs_usd_ready", "token-usd", "acknowledge", "2026-10-12T01:00:05.000Z");
+const readyAgain = await progressPurchaseConversion(db, "cs_usd_ready", "token-usd", "reserve", "2026-10-12T01:00:06.000Z");
+assert(readyAgain.body.emit === false && readyAgain.body.reason === "acknowledged", "an acknowledged purchase does not emit again");
 
 const mailed = [];
 const inquiry = await acceptInquiry(db, {}, {
@@ -128,10 +143,15 @@ assert(inquiry.status === 200 && inquiry.body.inquiry_id && inquiry.body.inquiry
 assert(!JSON.stringify(inquiry.body).includes("buyer@example.com"), "inquiry response has no email");
 assert(!JSON.stringify(inquiry.body).includes("A Buyer"), "inquiry response has no name");
 assert(mailed.length === 1 && mailed[0].text.includes("buyer@example.com"), "support email still receives the inquiry");
-const inquiryClaim = await claimInquiryConversion(db, inquiry.body.inquiry_id);
-const inquiryRepeat = await claimInquiryConversion(db, inquiry.body.inquiry_id);
-assert(inquiryClaim.body.emit === true && inquiryClaim.body.transaction_id === inquiry.body.inquiry_id, "inquiry emits once");
-assert(inquiryRepeat.body.emit === false && inquiryRepeat.body.reason === "duplicate", "inquiry refresh does not emit again");
+const inquiryClaim = await progressInquiryConversion(db, inquiry.body.inquiry_id, "reserve", "2026-10-12T03:01:00.000Z");
+const inquiryHeld = await progressInquiryConversion(db, inquiry.body.inquiry_id, "reserve", "2026-10-12T03:01:10.000Z");
+assert(inquiryClaim.body.emit === true && inquiryClaim.body.transaction_id === inquiry.body.inquiry_id, "inquiry reserves once");
+assert(inquiryHeld.body.emit === false && inquiryHeld.body.reason === "reserved", "inquiry delivery is not double counted");
+const inquiryRetry = await progressInquiryConversion(db, inquiry.body.inquiry_id, "reserve", "2026-10-12T03:04:00.000Z");
+assert(inquiryRetry.body.emit === true && inquiryRetry.body.transaction_id === inquiryClaim.body.transaction_id, "a failed inquiry send can be reserved again");
+await progressInquiryConversion(db, inquiry.body.inquiry_id, "acknowledge", "2026-10-12T03:04:02.000Z");
+const inquiryRepeat = await progressInquiryConversion(db, inquiry.body.inquiry_id, "reserve", "2026-10-12T03:10:00.000Z");
+assert(inquiryRepeat.body.emit === false && inquiryRepeat.body.reason === "acknowledged", "an acknowledged inquiry does not emit again");
 assert(!JSON.stringify(inquiryClaim.body).includes("buyer@example.com"), "inquiry hit has no email");
 
 const unsent = await acceptInquiry(db, {}, {
@@ -188,7 +208,10 @@ assert(lead.deliver === true && JSON.stringify(lead.calls).includes("generate_le
 assert(!JSON.stringify(lead.calls).includes("purchase"), "inquiry call is not a purchase");
 
 const webhook = readFileSync(join(root, "functions/api/stripe-webhook.js"), "utf8");
-assert(!webhook.includes("claimPurchaseConversion"), "webhook retries do not claim purchases");
+assert(!webhook.includes("progressPurchaseConversion") && !webhook.includes("claimPurchaseConversion"), "webhook retries do not reserve purchases");
+const client = readFileSync(join(root, "js/measurement.js"), "utf8");
+assert(client.includes('phase: "acknowledge"') && client.includes("event_callback"), "the browser records acknowledgement only after the tag callback");
+assert(client.indexOf("if (!acknowledged)") < client.indexOf("markSent(transactionId)"), "a failed tag callback does not mark the event sent");
 const thanks = readFileSync(join(root, "ai-ads/thanks/index.html"), "utf8");
 assert(!thanks.includes("maybeInquiry"), "opening the thanks page does not count an inquiry");
 const robots = readFileSync(join(root, "robots.txt"), "utf8");

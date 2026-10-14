@@ -1,4 +1,4 @@
-import { claimInquiryConversion } from "../../_shared/conversion.js";
+import { progressInquiryConversion } from "../../_shared/conversion.js";
 import { d1Adapter } from "../../_shared/order-db.js";
 import { assertWebsiteOrdersDb } from "../../_shared/production-guard.js";
 import { jsonResponse } from "../../_shared/stripe.js";
@@ -15,9 +15,10 @@ export async function onRequestPost(context) {
     return jsonResponse({ ok: false, emit: false, code: "invalid_json" }, 400);
   }
   try {
-    const result = await claimInquiryConversion(
+    const result = await progressInquiryConversion(
       d1Adapter(context.env.WEBSITE_ORDERS),
-      body && body.inquiry_id
+      body && body.inquiry_id,
+      body && body.phase ? body.phase : "reserve"
     );
     return jsonResponse(result.body, result.status);
   } catch {

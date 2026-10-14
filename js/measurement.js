@@ -353,9 +353,66 @@
     global.__eslGtagLoaded = true;
   }
 
+  function postPhase(url, body) {
+    return fetch(url, {
+      method: "POST",
+      credentials: "omit",
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then(function (response) { return response.json(); });
+  }
+
   function dispatch(hit) {
-    if (!hit || !hit.deliver || !global.gtag) return;
-    hit.calls.forEach(function (call) { global.gtag.apply(null, call); });
+    return new Promise(function (resolve) {
+      if (!hit || !hit.deliver || !global.gtag) {
+        resolve(false);
+        return;
+      }
+      var pending = 0;
+      var settled = false;
+      function finish(acknowledged) {
+        if (settled) return;
+        settled = true;
+        resolve(acknowledged === true);
+      }
+      var timer = setTimeout(function () { finish(false); }, 1500);
+      hit.calls.forEach(function (call) {
+        if (call[0] !== "event") {
+          global.gtag.apply(null, call);
+          return;
+        }
+        pending += 1;
+        var params = {};
+        var source = call[2] || {};
+        Object.keys(source).forEach(function (key) { params[key] = source[key]; });
+        params.event_callback = function () {
+          pending -= 1;
+          if (pending === 0) {
+            clearTimeout(timer);
+            finish(true);
+          }
+        };
+        global.gtag(call[0], call[1], params);
+      });
+      if (pending === 0) {
+        clearTimeout(timer);
+        finish(false);
+      }
+    });
+  }
+
+  function deliverHit(url, identity, hit, transactionId) {
+    if (!hit.deliver) return Promise.resolve(hit);
+    return postPhase(url, Object.assign({ phase: "attempt" }, identity)).then(function () {
+      return dispatch(hit);
+    }).then(function (acknowledged) {
+      if (!acknowledged) return Object.assign({}, hit, { acknowledged: false });
+      return postPhase(url, Object.assign({ phase: "acknowledge" }, identity)).then(function () {
+        markSent(transactionId);
+        return Object.assign({}, hit, { acknowledged: true });
+      });
+    });
   }
 
   function maybePurchase(input) {
@@ -365,21 +422,14 @@
     return loadConfig().then(function (config) {
       var consent = readConsent();
       if (!canDeliver(config, consent)) return { deliver: false, reason: "disabled" };
-      return fetch("/api/measurement/purchase", {
-        method: "POST",
-        credentials: "omit",
-        cache: "no-store",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: sessionId, access_token: accessToken }),
-      }).then(function (response) { return response.json(); }).then(function (claim) {
+      var identity = { session_id: sessionId, access_token: accessToken };
+      return postPhase("/api/measurement/purchase", Object.assign({ phase: "reserve" }, identity)).then(function (claim) {
         loadGoogle(config, consent);
         var hit = purchaseHit(claim, config, consent, {
           origin: global.location.origin,
           pathname: global.location.pathname,
         });
-        if (hit.deliver) markSent(claim.transaction_id);
-        dispatch(hit);
-        return hit;
+        return deliverHit("/api/measurement/purchase", identity, hit, claim.transaction_id);
       });
     });
   }
@@ -388,22 +438,15 @@
     return loadConfig().then(function (config) {
       var consent = readConsent();
       if (!canDeliver(config, consent)) return { deliver: false, reason: "disabled" };
-      return fetch("/api/measurement/inquiry", {
-        method: "POST",
-        credentials: "omit",
-        cache: "no-store",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inquiry_id: inquiryId }),
-      }).then(function (response) { return response.json(); }).then(function (claim) {
+      var identity = { inquiry_id: inquiryId };
+      return postPhase("/api/measurement/inquiry", Object.assign({ phase: "reserve" }, identity)).then(function (claim) {
         loadGoogle(config, consent);
         var hit = inquiryHit(claim, config, consent, {
           origin: global.location.origin,
           pathname: global.location.pathname,
           gclid: (readClicks() || {}).gclid || null,
         });
-        if (hit.deliver) markSent(claim.transaction_id);
-        dispatch(hit);
-        return hit;
+        return deliverHit("/api/measurement/inquiry", identity, hit, claim.transaction_id);
       });
     });
   }
