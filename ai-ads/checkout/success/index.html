@@ -197,6 +197,18 @@
           done.hidden = false;
           done.setAttribute("href", "/account/orders/");
         }
+        if (token) {
+          var attempts = 0;
+          var timer = setInterval(function () {
+            attempts += 1;
+            if (window.EmberSoulMeasure) {
+              clearInterval(timer);
+              window.EmberSoulMeasure.maybePurchase({ sessionId: sid, accessToken: token });
+            } else if (attempts > 40) {
+              clearInterval(timer);
+            }
+          }, 50);
+        }
       }
 
       function showPending(msg) {

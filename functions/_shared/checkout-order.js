@@ -3,6 +3,7 @@
  * A persist failure returns a recovery handle and no URL.
  * Nothing here marks an order paid.
  */
+import { rememberAttribution } from "./conversion.js";
 import { SERVICE_LABELS } from "./catalog.js";
 import { PACKAGE_VERSION, createOrder, recoverUnappliedEvent } from "./order-state.js";
 import { randomToken, sha256Hex, timingSafeEqual } from "./order-access.js";
@@ -168,6 +169,7 @@ export async function persistCheckoutSession(options) {
     priceId: options.price.id,
     currency: options.price.currency,
     amountTotal: options.price.unit_amount,
+    attribution: options.attribution || null,
   };
   const form = checkoutForm({ ...draft, origin: options.origin });
   const idempotencyKey = `website_order_${draft.orderId}`;
@@ -207,6 +209,7 @@ export async function persistCheckoutSession(options) {
       currency: draft.currency,
       amountTotal: draft.amountTotal,
       origin: options.origin,
+      attribution: draft.attribution || null,
       exp: Date.now() + 15 * 60 * 1000,
     });
     return {
@@ -219,7 +222,18 @@ export async function persistCheckoutSession(options) {
       },
     };
   }
+  await storeAttribution(options.db, created.data.id, draft, now);
   return { status: 200, body: publicCheckout(created.data, draft) };
+}
+
+async function storeAttribution(db, sessionId, draft, now) {
+  try {
+    const row = await db.get("SELECT id FROM orders WHERE checkout_session_id = ?", [sessionId]);
+    if (!row) return;
+    await rememberAttribution(db, row.id, draft.attribution, now);
+  } catch {
+    // Checkout remains available when the measurement table is not migrated yet.
+  }
 }
 
 export async function recoverWebsiteCheckout(options) {
@@ -248,6 +262,7 @@ export async function recoverWebsiteCheckout(options) {
   if (!stored.ok) {
     return { status: 503, body: { ok: false, code: stored.code, emberos_production: "not_connected" } };
   }
+  await storeAttribution(options.db, created.data.id, draft, now);
   const order = await options.db.get(
     `SELECT state FROM orders WHERE checkout_session_id = ?`,
     [created.data.id]

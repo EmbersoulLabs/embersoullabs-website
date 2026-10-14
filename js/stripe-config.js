@@ -1,6 +1,7 @@
 /**
  * Stripe Checkout client boundary.
- * Sends ONLY { service, region }. Never amounts / price IDs / lookup keys.
+ * Sends service, region, and optional bounded Google click IDs.
+ * Never amounts, price IDs, lookup keys, names, or email addresses.
  *
  * Live catalog certified. checkoutEnabled=true locally — requires Pages Function
  * env STRIPE_SECRET_KEY before sessions can be created.
@@ -12,6 +13,29 @@ window.EmberSoulStripe = {
   sessionStatusEndpoint: "/api/checkout/session",
   recurringBillingEnabled: false,
   clientMaySubmitAmount: false,
+
+  clickIds: function () {
+    var clicks = window.EmberSoulMeasure && window.EmberSoulMeasure.readClicks && window.EmberSoulMeasure.readClicks();
+    if (clicks) {
+      return { gclid: clicks.gclid || undefined, gbraid: clicks.gbraid || undefined, wbraid: clicks.wbraid || undefined };
+    }
+    try {
+      var raw = localStorage.getItem("esl-click-v1");
+      if (!raw) return null;
+      var parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed.stored_at !== "number") return null;
+      if (Date.now() - parsed.stored_at > 90 * 24 * 60 * 60 * 1000) return null;
+      var out = {};
+      ["gclid", "gbraid", "wbraid"].forEach(function (key) {
+        var value = parsed[key];
+        if (typeof value === "string" && /^[A-Za-z0-9._-]{1,150}$/.test(value)) out[key] = value;
+      });
+      return out.gclid || out.gbraid || out.wbraid ? out : null;
+    } catch (err) {
+      return null;
+    }
+  },
+
   lookupKeys: {
     short: {
       my: "ai_short_ad_my",
@@ -83,11 +107,14 @@ window.EmberSoulStripe = {
     if (!allowedService[service] || !allowedRegion[region]) {
       return { ok: false, code: "invalid_input", error: "Invalid service or region" };
     }
+    var payload = { service: service, region: region };
+    var clicks = this.clickIds();
+    if (clicks) payload.attribution = clicks;
     try {
       var res = await fetch(this.checkoutEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ service: service, region: region }),
+        body: JSON.stringify(payload),
       });
       var data = await res.json();
       if (!data.ok || !data.url) {
@@ -140,3 +167,22 @@ document.addEventListener("click", function (ev) {
     window.EmberSoulStripe.getActiveRegion();
   window.EmberSoulStripe.redirectToCheckout(service, region, btn);
 });
+
+(function () {
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var existing = {};
+    try { existing = JSON.parse(localStorage.getItem("esl-click-v1") || "{}") || {}; } catch (err) { existing = {}; }
+    var found = false;
+    ["gclid", "gbraid", "wbraid"].forEach(function (key) {
+      var value = params.get(key);
+      if (typeof value === "string" && /^[A-Za-z0-9._-]{1,150}$/.test(value.trim())) {
+        existing[key] = value.trim();
+        found = true;
+      }
+    });
+    if (!found) return;
+    existing.stored_at = Date.now();
+    localStorage.setItem("esl-click-v1", JSON.stringify(existing));
+  } catch (err) {}
+})();

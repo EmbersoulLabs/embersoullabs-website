@@ -337,6 +337,72 @@
       const map = { short: "short", story: "story", monthly: "monthly" };
       if (map[type]) select.value = map[type];
     }
+
+    const inquiryForm = document.getElementById("ai-ad-form");
+    if (inquiryForm) {
+      inquiryForm.addEventListener("submit", function (event) {
+        if (!inquiryForm.checkValidity()) return;
+        var honey = inquiryForm.querySelector("[name='_honey']");
+        if (honey && honey.value) {
+          event.preventDefault();
+          return;
+        }
+        event.preventDefault();
+        var data = new FormData(inquiryForm);
+        var region = document.documentElement.getAttribute("data-pricing-region") || "";
+        var payload = {
+          ad_type: data.get("ad_type"),
+          contact_name: data.get("contact_name"),
+          business_name: data.get("business_name"),
+          email_or_contact: data.get("email_or_contact"),
+          product_brief: data.get("product_brief"),
+          has_assets: data.get("has_assets"),
+          preferred_language: data.get("preferred_language"),
+          additional_notes: data.get("additional_notes"),
+          monthly_content_format: data.get("monthly_content_format_ui"),
+          story_concept: data.get("story_concept"),
+          displayed_price: data.get("displayed_price"),
+          agree_privacy: data.get("agree_privacy"),
+          region: region,
+          _honey: data.get("_honey")
+        };
+        var submitButton = inquiryForm.querySelector("[type='submit']");
+        if (submitButton) submitButton.disabled = true;
+        fetch("/api/inquiries", {
+          method: "POST",
+          credentials: "omit",
+          cache: "no-store",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }).then(function (response) {
+          return response.json().then(function (body) {
+            return { status: response.status, body: body };
+          });
+        }).then(function (result) {
+          if (result.body && result.body.ok && result.body.inquiry_id && window.EmberSoulMeasure) {
+            return window.EmberSoulMeasure.maybeInquiry(result.body.inquiry_id).then(function () {
+              window.location.assign("/ai-ads/thanks/");
+            });
+          }
+          if (result.body && result.body.ok) {
+            window.location.assign("/ai-ads/thanks/");
+            return;
+          }
+          if (result.status === 503 || result.status === 502) {
+            inquiryForm.submit();
+            return;
+          }
+          if (submitButton) submitButton.disabled = false;
+          if (result.status === 429) {
+            window.alert("Please wait a little while before sending another inquiry.");
+          } else {
+            window.alert("The inquiry was not sent. Please check the form and try again.");
+          }
+        }).catch(function () {
+          inquiryForm.submit();
+        });
+      });
+    }
   </script>
   <script src="/js/pricing.js" defer></script>
   <script src="/js/stripe-config.js" defer></script>
