@@ -67,7 +67,7 @@
   </script>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
   <link rel="apple-touch-icon" href="/assets/logo-icon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261012c">
+  <link rel="stylesheet" href="/css/style.css?v=20261017a">
 </head>
 <body>
   <header class="site-header">
@@ -150,191 +150,49 @@
           <span class="lang-en">Our Work</span>
         </p>
         <h2 class="section-title">
-          <span class="lang-zh">看看 AI 能做出什么</span>
-          <span class="lang-en">See What AI Can Create</span>
+          <span class="lang-zh">你的照片，变成可投放的广告视频</span>
+          <span class="lang-en">Your Photos → Ready-to-Run Ad Videos</span>
         </h2>
         <p class="section-desc">
-          <span class="lang-zh">竖版 9:16 广告短视频，适合 TikTok、Instagram Reels 与短视频平台。正式作品将陆续上线。</span>
-          <span class="lang-en">Vertical 9:16 advertising videos for TikTok, Instagram Reels and short-form platforms. Real examples will be added here as campaigns go live.</span>
+          <span class="lang-zh">把产品、门店、角色或业务照片交给 EmberSoul Labs，我们做成竖版 9:16 商业广告视频。有原图的项目可查看 Before / After；正式成片将陆续上线。</span>
+          <span class="lang-en">Send product, restaurant, character or business photos — EmberSoul Labs turns them into vertical 9:16 commercial ads. Projects with verified originals show a Before / After comparison. Finished examples will publish here as campaigns go live.</span>
         </p>
 
-        <div class="category-chips" role="list">
-          <span class="chip" role="listitem">
-            <span class="lang-zh">餐饮</span><span class="lang-en">Food &amp; Beverage</span>
-          </span>
-          <span class="chip" role="listitem">
-            <span class="lang-zh">花店</span><span class="lang-en">Florist</span>
-          </span>
-          <span class="chip" role="listitem">
-            <span class="lang-zh">产品</span><span class="lang-en">Product</span>
-          </span>
-          <span class="chip" role="listitem">
-            <span class="lang-zh">故事广告</span><span class="lang-en">Story Ad</span>
-          </span>
-          <span class="chip" role="listitem">
-            <span class="lang-zh">AI 故事系列</span><span class="lang-en">AI Story Series</span>
-          </span>
+        <div class="category-chips" id="portfolio-filters" role="tablist" aria-label="Portfolio filters">
+          <button type="button" class="chip portfolio-filter" data-filter="all" role="tab" aria-selected="true">
+            <span class="lang-zh">全部</span><span class="lang-en">All</span>
+          </button>
+          <button type="button" class="chip portfolio-filter" data-filter="photo_to_product" role="tab" aria-selected="false">
+            <span class="lang-zh">产品广告</span><span class="lang-en">Product Ads</span>
+          </button>
+          <button type="button" class="chip portfolio-filter" data-filter="photos_to_story" role="tab" aria-selected="false">
+            <span class="lang-zh">故事广告</span><span class="lang-en">Story Commercials</span>
+          </button>
         </div>
 
         <div class="showcase-grid" id="showcase-grid">
-          <!-- Placeholder cards — replace poster/src when real assets are ready -->
-          <article class="showcase-card" data-category="food">
-            <div class="video-frame" data-video-slot>
-              <div class="video-placeholder">
-                <span class="play-hint">9:16</span>
-                <p>
-                  <span class="lang-zh">餐饮短广告示例位</span>
-                  <span class="lang-en">F&amp;B short ad slot</span>
-                </p>
-              </div>
-            </div>
-            <div class="showcase-meta">
-              <p class="showcase-cat">
-                <span class="lang-zh">餐饮</span><span class="lang-en">Food &amp; Beverage</span>
-              </p>
-              <h3 class="showcase-title">
-                <span class="lang-zh">产品短广告</span><span class="lang-en">Product Short Ad</span>
-              </h3>
-              <p class="showcase-desc">
-                <span class="lang-zh">适合菜单、招牌菜与促销活动的竖版短视频。</span>
-                <span class="lang-en">Vertical short ads for menus, signature dishes and promotions.</span>
-              </p>
-              <a href="/ai-ads/?type=short" class="showcase-cta">
-                <span class="lang-zh">做同款短广告 →</span>
-                <span class="lang-en">Create a Short Ad →</span>
-              </a>
-            </div>
-          </article>
-
-          <article class="showcase-card" data-category="florist">
-            <div class="video-frame" data-video-slot>
-              <div class="video-placeholder">
-                <span class="play-hint">9:16</span>
-                <p>
-                  <span class="lang-zh">花店示例位</span>
-                  <span class="lang-en">Florist slot</span>
-                </p>
-              </div>
-            </div>
-            <div class="showcase-meta">
-              <p class="showcase-cat">
-                <span class="lang-zh">花店</span><span class="lang-en">Florist</span>
-              </p>
-              <h3 class="showcase-title">
-                <span class="lang-zh">花艺推广广告</span>
-                <span class="lang-en">Floral Promo Ad</span>
-              </h3>
-              <p class="showcase-desc">
-                <span class="lang-zh">适合花束上新、节日档期与门店推广的竖版广告。</span>
-                <span class="lang-en">Vertical ads for bouquet launches, festive seasons and shop promos.</span>
-              </p>
-              <a href="/ai-ads/?type=short" class="showcase-cta">
-                <span class="lang-zh">做同款短广告 →</span>
-                <span class="lang-en">Create a Short Ad →</span>
-              </a>
-            </div>
-          </article>
-
-          <article class="showcase-card" data-category="products">
-            <div class="video-frame" data-video-slot>
-              <div class="video-placeholder">
-                <span class="play-hint">9:16</span>
-                <p>
-                  <span class="lang-zh">产品展示示例位</span>
-                  <span class="lang-en">Product showcase slot</span>
-                </p>
-              </div>
-            </div>
-            <div class="showcase-meta">
-              <p class="showcase-cat">
-                <span class="lang-zh">产品</span><span class="lang-en">Product</span>
-              </p>
-              <h3 class="showcase-title">
-                <span class="lang-zh">产品卖点广告</span><span class="lang-en">Product Highlight Ad</span>
-              </h3>
-              <p class="showcase-desc">
-                <span class="lang-zh">突出卖点与行动号召，适合电商与零售上新。</span>
-                <span class="lang-en">Highlight key benefits and CTAs for e-commerce and retail launches.</span>
-              </p>
-              <a href="/ai-ads/?type=short" class="showcase-cta">
-                <span class="lang-zh">做同款短广告 →</span>
-                <span class="lang-en">Create a Short Ad →</span>
-              </a>
-            </div>
-          </article>
-
-          <article class="showcase-card" data-category="story">
-            <div class="video-frame" data-video-slot>
-              <div class="video-placeholder">
-                <span class="play-hint">9:16</span>
-                <p>
-                  <span class="lang-zh">故事广告示例位</span>
-                  <span class="lang-en">Story ad slot</span>
-                </p>
-              </div>
-            </div>
-            <div class="showcase-meta">
-              <p class="showcase-cat">
-                <span class="lang-zh">故事广告</span><span class="lang-en">Story Ad</span>
-              </p>
-              <h3 class="showcase-title">
-                <span class="lang-zh">故事型营销片</span><span class="lang-en">Story-Driven Ad</span>
-              </h3>
-              <p class="showcase-desc">
-                <span class="lang-zh">角色、对白与产品结合，适合品牌故事与活动推广。</span>
-                <span class="lang-en">Characters, dialogue and product integration for brand stories and campaigns.</span>
-              </p>
-              <a href="/ai-ads/?type=story" class="showcase-cta">
-                <span class="lang-zh">做故事广告 →</span>
-                <span class="lang-en">Create a Story Ad →</span>
-              </a>
-            </div>
-          </article>
-
-          <article class="showcase-card" data-category="story-series">
-            <div class="video-frame" data-video-slot>
-              <div class="video-placeholder">
-                <span class="play-hint">AI STORY SERIES</span>
-                <div class="episode-flow episode-flow-compact" aria-hidden="true">
-                  <span class="ep-chip">EP01</span>
-                  <span class="ep-arrow">→</span>
-                  <span class="ep-chip">EP02</span>
-                  <span class="ep-arrow">→</span>
-                  <span class="ep-chip">EP03</span>
-                  <span class="ep-arrow">→</span>
-                  <span class="ep-chip">EP04</span>
+          <noscript>
+            <article class="showcase-card" data-category="food">
+              <div class="video-frame" data-video-slot>
+                <div class="video-placeholder">
+                  <span class="play-hint">9:16</span>
+                  <p><span class="lang-en">Enable JavaScript to browse the portfolio.</span></p>
                 </div>
-                <p>
-                  <span class="lang-zh">连续故事系列示例位</span>
-                  <span class="lang-en">Story series slot</span>
-                </p>
               </div>
-            </div>
-            <div class="showcase-meta">
-              <p class="showcase-cat">
-                <span class="lang-zh">AI 故事系列</span><span class="lang-en">AI Story Series</span>
-              </p>
-              <h3 class="showcase-title">
-                <span class="lang-zh">四集品牌故事</span><span class="lang-en">4-Episode Brand Series</span>
-              </h3>
-              <p class="showcase-desc">
-                <span class="lang-zh">固定角色、连贯剧情与产品植入 — 适合每月内容套餐。</span>
-                <span class="lang-en">Recurring characters, connected episodes and product presence — for Monthly packages.</span>
-              </p>
-              <a href="/ai-ads/?type=monthly" class="showcase-cta">
-                <span class="lang-zh">开始每月内容 →</span>
-                <span class="lang-en">Start Monthly Content →</span>
-              </a>
-            </div>
-          </article>
+              <div class="showcase-meta">
+                <h3 class="showcase-title"><span class="lang-en">Product Short Ad</span></h3>
+                <a href="/ai-ads/?type=short" class="showcase-cta"><span class="lang-en">Create a Video Like This →</span></a>
+              </div>
+            </article>
+          </noscript>
         </div>
 
         <p class="portfolio-cta-line">
-          <span class="lang-zh">想为自己的产品做类似广告？</span>
-          <span class="lang-en">Want an ad like this for your product?</span>
+          <span class="lang-zh">想用自己的照片做同款广告？</span>
+          <span class="lang-en">Want a video made from your own photos?</span>
           <a href="/ai-ads/">
             <span class="lang-zh">做一支 AI 广告 →</span>
-            <span class="lang-en">Create My AI Ad →</span>
+            <span class="lang-en">Create a Video Like This →</span>
           </a>
         </p>
       </div>
@@ -831,5 +689,8 @@
   <script src="/js/site-nav.js?v=20261011d" defer></script>
   <script src="/js/pricing.js" defer></script>
   <script src="/js/stripe-config.js" defer></script>
+  <script src="/js/portfolio-manifest.js?v=20261017c" defer></script>
+  <script src="/js/portfolio-data.js?v=20261017c" defer></script>
+  <script src="/js/portfolio.js?v=20261017c" defer></script>
 </body>
 </html>

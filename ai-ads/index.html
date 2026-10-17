@@ -23,7 +23,7 @@
   <meta name="description" content="Order an AI advertising video from EmberSoul Labs — AI short ads, story ads, or a 30-day monthly AI content package for small businesses in Singapore and Malaysia.">
   <link rel="canonical" href="https://embersoullabs.com/ai-ads/">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261012c">
+  <link rel="stylesheet" href="/css/style.css?v=20261017a">
 </head>
 <body>
   <header class="site-header">
@@ -332,10 +332,33 @@
 
     const params = new URLSearchParams(window.location.search);
     const type = params.get("type");
+    const style = params.get("style");
+    const ref = params.get("ref");
     const select = document.getElementById("ad_type");
     if (type && select) {
       const map = { short: "short", story: "story", monthly: "monthly" };
       if (map[type]) select.value = map[type];
+    }
+    const brief = document.querySelector("textarea[name='product_brief']");
+    if (brief && !brief.value) {
+      const styleLabels = {
+        food: "Food & Beverage product ad from my photos",
+        florist: "Florist / flowers & gifts ad from my photos",
+        products: "Product / ecommerce highlight ad from my photos",
+        story: "Story-driven commercial from my reference photos",
+        "story-series": "Multi-episode brand story series from my reference photos"
+      };
+      const parts = [];
+      if (style && styleLabels[style]) parts.push(styleLabels[style]);
+      if (ref) parts.push("Inspired by portfolio example: " + ref);
+      if (parts.length) brief.placeholder = parts.join(". ") + "…";
+    }
+    const notes = document.querySelector("textarea[name='additional_notes']");
+    if (notes && !notes.value && (style || ref)) {
+      notes.value = [
+        style ? "Preferred style: " + style : "",
+        ref ? "Portfolio reference: " + ref : ""
+      ].filter(Boolean).join("\n");
     }
   </script>
   <script src="/js/pricing.js" defer></script>
