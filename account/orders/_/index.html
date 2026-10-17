@@ -49,9 +49,21 @@
         <p id="delivery" class="form-intro"></p>
         <form id="brief-form" hidden>
           <h2>Creative brief</h2>
-          <p class="form-intro">Payment is already confirmed. One sentence in the promotion description is enough. The other fields are optional.</p>
+          <p class="form-intro">Payment is already confirmed. Add your promotion text plus product photo links. Private binary upload stays disabled — use shareable http/https links only.</p>
           <label>Product or business name (optional)<input name="business_name" maxlength="120"></label>
           <label>Promotion description<textarea name="promotion_text" maxlength="2000" required></textarea></label>
+          <label>Customer contact (optional)<input name="contact" maxlength="120" placeholder="email@… or WhatsApp +60…"></label>
+          <label>Product photos / assets
+            <select name="asset_status">
+              <option value="text_only" selected>Written brief only for now</option>
+              <option value="links_ready">I have photo / file links</option>
+              <option value="will_send_later">I will send photos later</option>
+            </select>
+          </label>
+          <label>Product photo / file links (http/https)
+            <textarea name="asset_links" maxlength="1000" rows="3" placeholder="https://drive.google.com/…&#10;https://www.dropbox.com/…"></textarea>
+          </label>
+          <p class="form-intro">Paste Google Drive, Dropbox, or direct image links (one per line). Sharing must allow “anyone with the link can view”. We store links with this paid order and do not download them here. Email attachments are not accepted on this path.</p>
           <label>Advertising objective (optional)<input name="objective" maxlength="500"></label>
           <label>Target audience (optional)<input name="audience" maxlength="500"></label>
           <label>Language
@@ -65,7 +77,6 @@
           <label>Visual style (optional)<input name="visual_style" maxlength="200"></label>
           <label>Story idea or script (optional)<textarea name="story_idea" maxlength="2000"></textarea></label>
           <label>Special instructions (optional)<textarea name="special_instructions" maxlength="2000"></textarea></label>
-          <label>Customer contact (optional)<input name="contact" maxlength="120"></label>
           <button class="btn btn-primary" type="submit">Submit brief</button>
         </form>
         <form id="revision-form" hidden>
@@ -77,7 +88,7 @@
         </form>
         <form id="upload-form">
           <h2>Optional files</h2>
-          <p class="form-intro">Product images, a logo, reference pictures, and videos can be added later. Private file upload is not available yet, so you can submit the written brief without any files.</p>
+          <p class="form-intro">Private binary upload remains disabled until secure storage and scanning are enabled. Submit product photos as shareable links in the creative brief above.</p>
           <button class="btn btn-ghost" type="button" disabled>Upload unavailable</button>
         </form>
       </div>

@@ -78,6 +78,9 @@ assert(!products.includes('id="ad_type"') && !products.includes("Selected Packag
 assert(!products.includes('class="order-price-list"'), "inquiry does not repeat the price list");
 assert(products.includes('name="inquiry_type"') && products.includes("agency_whitelabel"), "custom and agency inquiry types remain");
 assert(success.includes('name="asset_links"') && success.includes('name="asset_status"'), "paid success brief collects photo links securely");
+assert(success.includes("anyone with the link can view") && success.includes("Customer login"), "photo-link sharing + claim guidance");
+const orderDetail = readFileSync(join(root, "account/orders/_/index.html"), "utf8");
+assert(orderDetail.includes('name="asset_links"') && orderDetail.includes("Upload unavailable"), "portal order brief uses photo links");
 
 const sandbox = createContext({ window: {} });
 runInContext(readFileSync(join(root, "js/order-copy.js"), "utf8"), sandbox);

@@ -25,6 +25,7 @@ import {
   createDownloadGrant,
   getOwnedOrder,
   listOrders,
+  normalizeAssetLinks,
   readDeliveryObject,
   requestRevision,
   submitOwnedBrief,
@@ -400,6 +401,15 @@ async function run() {
   const success = readFileSync(join(root, "ai-ads/checkout/success/index.html"), "utf8");
   assert(success.includes("Payment received") && success.includes("/api/orders/status"), "success page payment confirmation remains");
   assert(success.includes("Complete Your Creative Brief"), "success page leads to the brief");
+  assert(success.includes("anyone with the link can view") && success.includes('name="asset_links"'), "success brief explains shareable photo links");
+  assert(!success.includes("reply with photos") && !success.includes("email attachments are accepted"), "no unverified email-attachment path");
+
+  assert(normalizeAssetLinks("").ok && normalizeAssetLinks("").value === null, "empty asset links ok");
+  assert(normalizeAssetLinks("https://drive.google.com/file/d/abc/view").ok, "https drive link accepted");
+  assert(!normalizeAssetLinks("javascript:alert(1)").ok, "javascript links rejected");
+  assert(!normalizeAssetLinks("file:///etc/passwd").ok, "file links rejected");
+  assert(!normalizeAssetLinks("https://user:pass@evil.example/a").ok, "credentialed URLs rejected");
+  assert(!normalizeAssetLinks("https://localhost/secret").ok, "localhost links rejected");
 
   await paidOrder(db, "ord_one_line", "cs_live_oneline001", "one-line-token-0000000000000000");
   const claimedLine = await claimOrder(db, ownerAgain.customer, {
@@ -420,6 +430,32 @@ async function run() {
     promotion_text: "Lunch set this weekend.",
   }, NOW);
   assert(strangerLine.status === 404, "another customer cannot submit the brief");
+
+  await paidOrder(db, "ord_links", "cs_live_portallinks01", "token_links_access_value_012345678");
+  const linkClaim = await claimOrder(db, ownerAgain.customer, {
+    sessionId: "cs_live_portallinks01",
+    accessToken: "token_links_access_value_012345678",
+    now: NOW,
+  });
+  assert(linkClaim.status === 200, "link order claimed");
+  const badLinks = await submitOwnedBrief(db, {}, ownerAgain.customer, "ord_links", {
+    promotion_text: "Need product photos",
+    asset_status: "links_ready",
+    asset_links: "javascript:alert(1)",
+  }, NOW);
+  assert(badLinks.status === 400 && badLinks.body.field === "asset_links", "unsafe asset links rejected");
+  const goodLinks = await submitOwnedBrief(db, {}, ownerAgain.customer, "ord_links", {
+    promotion_text: "Need product photos",
+    asset_status: "links_ready",
+    asset_links: "https://drive.google.com/file/d/abc/view\nhttps://www.dropbox.com/scl/fi/demo?dl=0",
+    contact: "buyer@example.com",
+  }, NOW);
+  assert(goodLinks.status === 200, "http(s) photo links accepted");
+  const savedLinks = await db.get("SELECT asset_links, asset_status FROM creative_briefs WHERE order_id = ?", ["ord_links"]);
+  assert(String(savedLinks.asset_links).includes("drive.google.com") && savedLinks.asset_status === "links_ready", "photo links stored on paid order");
+
+  const orderDetail = readFileSync(join(root, "account/orders/_/index.html"), "utf8");
+  assert(orderDetail.includes('name="asset_links"') && orderDetail.includes("Upload unavailable"), "portal brief collects links; upload stays disabled");
 
   return "";
 }

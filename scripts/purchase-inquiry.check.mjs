@@ -43,6 +43,7 @@ assert(!pricing.includes("toggleMonthlyFields"), "monthly package UI removed fro
 assert(stripe.includes("checkoutEnabled: true") && stripe.includes('clientMaySubmitAmount: false'), "checkout boundary intact");
 assert(success.includes("access_token") && success.includes("/api/orders/status"), "success is token-gated");
 assert(success.includes("/api/orders/brief") && success.includes('name="asset_links"'), "paid intake + photo links");
+assert(success.includes("anyone with the link can view"), "share permission instructions present");
 assert(!success.includes("File upload is not available yet, so a written brief is all we need."), "stale upload-only copy removed");
 assert(briefApi.includes("access_token") && orderAccess.includes("readAuthorizedOrder"), "brief requires auth token");
 assert(orderAccess.includes("not_paid") && orderAccess.includes("PAID"), "brief rejects unpaid orders");

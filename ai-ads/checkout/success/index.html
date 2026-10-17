@@ -54,8 +54,8 @@
           <span class="lang-zh">完成创意简报</span>
         </h2>
         <p class="form-intro">
-          <span class="lang-en">Payment is confirmed via Stripe and your order access token — reaching this URL alone is not enough. Share contact details, production needs, and photo links below. Private file upload stays disabled until secure storage is enabled; links are accepted.</span>
-          <span class="lang-zh">付款已通过 Stripe 与订单访问令牌确认 — 仅打开此链接不等于已付款。请填写联系方式、制作需求与照片链接。私密文件上传在安全存储启用前暂不可用，可先提供链接。</span>
+          <span class="lang-en">Payment is confirmed via Stripe and your order access token — opening this URL alone is not enough. Share contact details, production needs, and product photo links below. Private file upload is disabled; we do not accept email attachments on this path.</span>
+          <span class="lang-zh">付款已通过 Stripe 与订单访问令牌确认 — 仅打开此链接不等于已付款。请填写联系方式、制作需求与产品照片链接。私密文件上传未开放；此路径不接受邮件附件。</span>
         </p>
         <label>
           <span class="lang-en">Product or business name (optional)</span>
@@ -82,10 +82,14 @@
           </select>
         </label>
         <label>
-          <span class="lang-en">Photo or asset links (optional)</span>
-          <span class="lang-zh">照片或素材链接（可选）</span>
-          <textarea name="asset_links" maxlength="1000" rows="2" placeholder="Google Drive, Dropbox, or image URLs…"></textarea>
+          <span class="lang-en">Product photo / file links (http/https)</span>
+          <span class="lang-zh">产品照片 / 文件链接（http/https）</span>
+          <textarea name="asset_links" maxlength="1000" rows="3" placeholder="https://drive.google.com/…&#10;https://www.dropbox.com/…"></textarea>
         </label>
+        <p class="field-hint">
+          <span class="lang-en">Paste Google Drive, Dropbox, or direct image links (one per line). Set sharing to “anyone with the link can view”. We store the links with your paid order and do not download them from this website.</span>
+          <span class="lang-zh">粘贴 Google Drive、Dropbox 或图片直链（每行一个）。分享权限请设为「知道链接的人可查看」。链接会保存在已付款订单中；本站不会代为下载这些文件。</span>
+        </p>
         <label>
           <span class="lang-en">Advertising objective (optional)</span>
           <span class="lang-zh">广告目标（可选）</span>
@@ -136,8 +140,8 @@
           <li><span class="lang-zh">套餐</span><span class="lang-en">Package</span>: <strong id="paid-service">—</strong></li>
         </ul>
         <p class="form-intro" style="margin-top:1rem;">
-          <span class="lang-zh"><strong>下一步：</strong>提交创意简报 / 产品素材，我们好开始制作。</span>
-          <span class="lang-en"><strong>Next step:</strong> submit your creative brief / product assets so we can start production.</span>
+          <span class="lang-zh"><strong>下一步：</strong>提交创意简报与产品照片链接。建议先用下方「客户登录」把订单绑定到你的邮箱，以免丢失此确认链接后无法找回订单。</span>
+          <span class="lang-en"><strong>Next step:</strong> submit your creative brief and product photo links. Use Customer login below to claim this order to your email so you can recover it if you lose this confirmation link.</span>
         </p>
       </div>
 

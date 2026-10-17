@@ -31,6 +31,47 @@ const FIELD_LIMITS = Object.freeze({
   story_idea: 2000,
 });
 
+/**
+ * Accept http(s) photo/file share links only. Never fetched by this service
+ * (avoids SSRF). Rejects credentials, non-http schemes, and junk tokens.
+ */
+export function normalizeAssetLinks(raw) {
+  if (raw === undefined || raw === null || raw === "") return { ok: true, value: null };
+  if (typeof raw !== "string") {
+    return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+  }
+  const trimmed = raw.trim();
+  if (!trimmed) return { ok: true, value: null };
+  if (trimmed.length > FIELD_LIMITS.asset_links) {
+    return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+  }
+  const parts = trimmed.split(/[\n,]+/).map((part) => part.trim()).filter(Boolean);
+  if (!parts.length) return { ok: true, value: null };
+  if (parts.length > 12) {
+    return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+  }
+  const normalized = [];
+  for (const part of parts) {
+    let url;
+    try {
+      url = new URL(part);
+    } catch {
+      return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+    }
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+    }
+    if (url.username || url.password) {
+      return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+    }
+    if (!url.hostname || url.hostname === "localhost" || url.hostname.endsWith(".local")) {
+      return { ok: false, error: { status: 400, body: { ok: false, code: "invalid_brief", field: "asset_links" } } };
+    }
+    normalized.push(url.toString());
+  }
+  return { ok: true, value: normalized.join("\n") };
+}
+
 function money(amount, currency) {
   return `${String(currency || "").toUpperCase()} ${(Number(amount) / 100).toFixed(2)}`;
 }
@@ -219,6 +260,12 @@ function briefFields(input, { requireText }) {
   const values = {};
   for (const [key, max] of Object.entries(FIELD_LIMITS)) {
     if (input[key] === undefined) continue;
+    if (key === "asset_links") {
+      const links = normalizeAssetLinks(input[key]);
+      if (!links.ok) return { error: links.error };
+      values[key] = links.value;
+      continue;
+    }
     if (typeof input[key] !== "string") return { error: { status: 400, body: { ok: false, code: "invalid_brief", field: key } } };
     const trimmed = input[key].trim();
     if (!trimmed) {

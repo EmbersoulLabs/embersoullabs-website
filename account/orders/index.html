@@ -113,7 +113,7 @@
             signedIn.hidden = false;
             var orders = result.data.orders || [];
             if (!orders.length) {
-              state.textContent = "No orders are linked to this login yet. After checkout, open the payment confirmation while signed in.";
+              state.textContent = "No orders are linked to this login yet. Open your Stripe payment confirmation link while signed in to claim the order. Email alone cannot recover an unclaimed order.";
               return;
             }
             state.hidden = true;
