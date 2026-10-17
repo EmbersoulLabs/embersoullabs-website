@@ -23,6 +23,7 @@ const webhook = readFileSync(join(root, "functions/api/stripe-webhook.js"), "utf
 
 assert((aiAds.match(/data-checkout-service=/g) || []).length === 3, "three Buy Now actions");
 assert(aiAds.includes("Request a Quote") && aiAds.includes("Path A") && aiAds.includes("Path B"), "paths separated");
+assert(aiAds.includes("purchase-desc") && aiAds.includes("7–10s vertical") && aiAds.includes("EP01→EP04"), "package cards include explanations");
 assert(!aiAds.includes('id="ad_type"'), "no required package select in inquiry");
 assert(!aiAds.includes('class="order-price-list"'), "no duplicated price list in inquiry");
 assert(!aiAds.includes("Selected Package"), "no package fieldset in inquiry");

@@ -2094,6 +2094,22 @@ button.btn:disabled {
   margin-bottom: 0.2rem;
 }
 
+.purchase-desc {
+  margin: 0.2rem 0 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  max-width: 36rem;
+}
+
+.purchase-meta {
+  margin: 0 0 0.45rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  max-width: 36rem;
+}
+
 .purchase-row .price-slot {
   margin: 0;
 }
