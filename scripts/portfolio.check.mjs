@@ -20,8 +20,13 @@ assert(index.includes("Create a Video Like This"), "CTA copy is present");
 
 const css = readFileSync(join(root, "css/style.css"), "utf8");
 assert(css.includes(".portfolio-card"), "portfolio card styles exist");
-assert(css.includes(".portfolio-before"), "before pane styles exist");
-assert(css.includes("has-before-after"), "before/after expansion styles exist");
+assert(css.includes(".portfolio-media-compact"), "compact before/after preview exists");
+assert(css.includes(".portfolio-modal"), "comparison modal styles exist");
+assert(css.includes("object-fit: cover"), "thumbnails use object-fit cover");
+assert(css.includes("repeat(auto-fit, minmax(260px, 340px))"), "desktop cards stay compact with up to 3 per row");
+assert(css.includes("repeat(auto-fit, minmax(240px, 320px))"), "large tablet cards stay compact");
+assert(css.includes("repeat(auto-fit, minmax(220px, 300px))"), "tablet shows up to 2 compact cards per row");
+assert(css.includes("@media (max-width: 560px)"), "mobile collapses to one card per row");
 assert(css.includes(".portfolio-empty"), "empty portfolio state exists");
 assert(css.includes("@media (max-width: 768px)"), "mobile layout rules remain");
 
@@ -37,6 +42,10 @@ assert(scriptSource.includes("preload=\"none\""), "videos are not preloaded");
 assert(scriptSource.includes("pauseOthers") || scriptSource.includes("pause"), "only one video plays");
 assert(scriptSource.includes("Create a Video Like This"), "card CTA targets the order flow");
 assert(scriptSource.includes("portfolio-empty"), "empty state is rendered when no pairs exist");
+assert(scriptSource.includes("portfolio-modal"), "modal comparison is implemented");
+assert(scriptSource.includes("Escape"), "modal supports Escape to close");
+assert(scriptSource.includes("openModal"), "modal opens from compact cards");
+assert(!scriptSource.includes("is-expanded"), "cards no longer rely on oversized expanded layout");
 assert(manifestSource.includes("EmberSoulPortfolioManifest"), "manifest file is generated");
 
 const sandbox = { window: {}, globalThis: {} };

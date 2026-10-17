@@ -41,7 +41,7 @@ assert(pages.length >= 14, "expected the public pages");
 for (const page of pages) {
   const text = readFileSync(page, "utf8");
   assert(text.includes("es-appearance"), `${page} applies the theme before paint`);
-  assert(text.includes("/css/style.css?v=20261017a"), `${page} loads the themed stylesheet`);
+  assert(/\/css\/style\.css\?v=20261017[a-z]/.test(text), `${page} loads the themed stylesheet`);
   assert(text.indexOf("es-appearance") < text.indexOf("/css/style.css"), `${page} sets the theme before the stylesheet`);
 }
 
