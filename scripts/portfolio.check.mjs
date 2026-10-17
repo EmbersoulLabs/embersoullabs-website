@@ -45,7 +45,11 @@ const scriptSource = readFileSync(join(root, "js/portfolio.js"), "utf8");
 const manifestSource = readFileSync(join(root, "js/portfolio-manifest.js"), "utf8");
 assert(dataSource.includes("EmberSoulPortfolioManifest"), "runtime reads the auto manifest");
 assert(!/id:\s*"fnb-short"/.test(dataSource), "placeholder projects are not hard-coded");
-assert(scriptSource.includes("preload=\"none\""), "videos are not preloaded");
+assert(scriptSource.includes("preload=\"none\""), "modal videos are not fully preloaded");
+assert(scriptSource.includes("preload=\"metadata\""), "card after previews load metadata only");
+assert(scriptSource.includes("data-portfolio-preview"), "after preview uses native video");
+assert(!scriptSource.includes("afterPreviewSrc"), "after preview does not reuse before image helpers");
+assert(!/poster=\"\s*'\s*\+\s*escapeAttr\(project\.poster\)/.test(scriptSource), "before image is not used as video poster");
 assert(scriptSource.includes("pauseOthers") || scriptSource.includes("pause"), "only one video plays");
 assert(scriptSource.includes("Create a Video Like This"), "card CTA targets the order flow");
 assert(scriptSource.includes("portfolio-empty"), "empty state is rendered when no pairs exist");
@@ -53,6 +57,7 @@ assert(scriptSource.includes("portfolio-modal"), "modal comparison is implemente
 assert(scriptSource.includes("Escape"), "modal supports Escape to close");
 assert(scriptSource.includes("openModal"), "modal opens from compact cards");
 assert(!scriptSource.includes("is-expanded"), "cards no longer rely on oversized expanded layout");
+assert(css.includes("portfolio-after-preview"), "after preview video styles exist");
 assert(manifestSource.includes("EmberSoulPortfolioManifest"), "manifest file is generated");
 
 const sandbox = { window: {}, globalThis: {} };
