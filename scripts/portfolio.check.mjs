@@ -15,7 +15,14 @@ assert(index.includes("id=\"portfolio-filters\""), "product/story filters exist"
 assert(index.includes("/js/portfolio-manifest.js"), "auto manifest is loaded");
 assert(index.includes("/js/portfolio-data.js"), "portfolio data is loaded");
 assert(index.includes("/js/portfolio.js"), "portfolio script is loaded");
-assert(index.includes("Your Photos → Ready-to-Run Ad Videos") || index.includes("Your Photos"), "section explains photo to video");
+assert(
+  index.includes("Turn Your Product Photos Into AI Video Ads") ||
+    index.includes("Real Before / After Examples") ||
+    index.includes("Your Photos"),
+  "homepage explains photo to video"
+);
+assert(index.includes("White-label AI Video Production for Agencies"), "agency white-label CTA exists");
+assert(!index.includes("Finished examples will publish here as campaigns go live"), "outdated portfolio placeholder copy is removed");
 assert(index.includes("Create a Video Like This"), "CTA copy is present");
 
 const css = readFileSync(join(root, "css/style.css"), "utf8");

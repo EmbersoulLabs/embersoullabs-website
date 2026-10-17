@@ -2057,6 +2057,98 @@ button.btn:disabled {
   margin-bottom: 0.45rem;
 }
 
+.section-agency {
+  padding: 2.5rem 0 1rem;
+}
+
+.agency-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1.5rem 1.35rem 1.4rem;
+  max-width: 52rem;
+}
+
+.agency-points {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.agency-points li {
+  position: relative;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.agency-points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.inquiry-essentials {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+  border-radius: 12px;
+  padding: 0.85rem 0.9rem 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.inquiry-optional {
+  margin: 0 0 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.55rem 0.85rem 0.2rem;
+  background: var(--bg-elevated);
+}
+
+.inquiry-optional > summary {
+  cursor: pointer;
+  font-weight: 650;
+  font-size: 0.92rem;
+  padding: 0.35rem 0 0.55rem;
+  list-style: none;
+}
+
+.inquiry-optional > summary::-webkit-details-marker {
+  display: none;
+}
+
+.inquiry-optional > summary::after {
+  content: "▾";
+  float: right;
+  color: var(--text-muted);
+}
+
+.inquiry-optional[open] > summary::after {
+  content: "▴";
+}
+
+.inquiry-optional fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.section-work .showcase-grid {
+  justify-content: flex-start;
+}
+
+@media (min-width: 769px) {
+  .section-work .showcase-grid {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 640px) {
   .purchase-row {
     flex-direction: column;

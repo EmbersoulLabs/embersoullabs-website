@@ -23,7 +23,7 @@
   <meta name="description" content="Order an AI advertising video from EmberSoul Labs — AI short ads, story ads, or a 30-day monthly AI content package for small businesses in Singapore and Malaysia.">
   <link rel="canonical" href="https://embersoullabs.com/ai-ads/">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261017d">
+  <link rel="stylesheet" href="/css/style.css?v=20261017e">
 </head>
 <body>
   <header class="site-header">
@@ -127,8 +127,8 @@
           <span class="lang-en">Submit an inquiry</span>
         </h2>
         <p class="form-intro">
-          <span class="lang-zh">询盘可选。可以直接购买，不需要先填写这张表。提交后我们会在 1–2 个工作日内回复。</span>
-          <span class="lang-en">This inquiry is optional. Buy Now above checks out immediately and does not require this form. If you write to us, we reply within 1–2 business days.</span>
+          <span class="lang-zh">询盘可选。可以直接购买，不需要先填写这张表。提交后我们会在 1–2 个工作日内回复。优先填写姓名、邮箱、产品说明与是否已有照片即可。</span>
+          <span class="lang-en">This inquiry is optional. Buy Now above checks out immediately and does not require this form. We reply within 1–2 business days. Start with your name, email, what you sell, and whether you already have photos.</span>
         </p>
 
       <form class="apply-form" id="ai-ad-form" action="https://formsubmit.co/support@embersoullabs.com" method="POST">
@@ -145,6 +145,43 @@
         <input type="hidden" name="displayed_price" id="field_displayed_price" value="">
         <input type="hidden" name="monthly_content_format" id="field_monthly_content_format" value="n/a">
         <input type="hidden" name="stripe_lookup_key" id="field_stripe_lookup_key" value="">
+
+        <fieldset class="inquiry-essentials">
+          <legend>
+            <span class="lang-zh">基本信息</span>
+            <span class="lang-en">Essentials</span>
+          </legend>
+          <label>
+            <span class="lang-zh">姓名 *</span>
+            <span class="lang-en">Name *</span>
+            <input type="text" name="contact_name" required maxlength="80" autocomplete="name">
+          </label>
+          <label>
+            <span class="lang-zh">公司 / 品牌 *</span>
+            <span class="lang-en">Business / Brand *</span>
+            <input type="text" name="business_name" required maxlength="120" autocomplete="organization">
+          </label>
+          <label>
+            <span class="lang-zh">业务邮箱 / 联系方式 *</span>
+            <span class="lang-en">Business email / Contact *</span>
+            <input type="text" name="email_or_contact" required maxlength="120" placeholder="email@… or WhatsApp +60…" autocomplete="email">
+          </label>
+          <label>
+            <span class="lang-zh">产品或业务说明 *</span>
+            <span class="lang-en">Product or business description *</span>
+            <textarea name="product_brief" rows="4" required maxlength="2000" placeholder="What you sell, the offer, or the campaign idea…"></textarea>
+          </label>
+          <label>
+            <span class="lang-zh">是否已有产品照片？</span>
+            <span class="lang-en">Do you already have product photos?</span>
+            <select name="has_assets">
+              <option value="" disabled selected>—</option>
+              <option value="yes">Yes</option>
+              <option value="partial">Some / partial</option>
+              <option value="no">Not yet</option>
+            </select>
+          </label>
+        </fieldset>
 
         <fieldset>
           <legend>
@@ -208,65 +245,34 @@
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>
-            <span class="lang-zh">联系方式</span>
-            <span class="lang-en">Contact</span>
-          </legend>
-          <label>
-            <span class="lang-zh">姓名 *</span>
-            <span class="lang-en">Name *</span>
-            <input type="text" name="contact_name" required maxlength="80" autocomplete="name">
-          </label>
-          <label>
-            <span class="lang-zh">公司 / 品牌 *</span>
-            <span class="lang-en">Business / Brand *</span>
-            <input type="text" name="business_name" required maxlength="120" autocomplete="organization">
-          </label>
-          <label>
-            <span class="lang-zh">邮箱 / 联系方式 *</span>
-            <span class="lang-en">Email / Contact *</span>
-            <input type="text" name="email_or_contact" required maxlength="120" placeholder="email@… or WhatsApp +60…">
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>
-            <span class="lang-zh">关于你的产品</span>
-            <span class="lang-en">About your product</span>
-          </legend>
-          <label>
-            <span class="lang-zh">想推广什么？ *</span>
-            <span class="lang-en">What are you promoting? *</span>
-            <textarea name="product_brief" rows="4" required maxlength="2000" placeholder="Product name, offer, or campaign idea…"></textarea>
-          </label>
-          <label>
-            <span class="lang-zh">是否已有产品照片 / 视频？</span>
-            <span class="lang-en">Do you already have product photos/videos?</span>
-            <select name="has_assets">
-              <option value="" disabled selected>—</option>
-              <option value="yes">Yes</option>
-              <option value="partial">Some / partial</option>
-              <option value="no">Not yet</option>
-            </select>
-          </label>
-          <label>
-            <span class="lang-zh">偏好语言</span>
-            <span class="lang-en">Preferred Language</span>
-            <select name="preferred_language">
-              <option value="" disabled selected>—</option>
-              <option value="en">English</option>
-              <option value="zh">中文</option>
-              <option value="ms">Bahasa Melayu</option>
-              <option value="mix">Mix / bilingual</option>
-            </select>
-          </label>
-          <label>
-            <span class="lang-zh">补充说明（选填）</span>
-            <span class="lang-en">Additional Notes (optional)</span>
-            <textarea name="additional_notes" rows="3" maxlength="1500" placeholder="Tone, deadline, platform preference…"></textarea>
-          </label>
-        </fieldset>
+        <details class="inquiry-optional">
+          <summary>
+            <span class="lang-zh">更多选填信息</span>
+            <span class="lang-en">Optional details</span>
+          </summary>
+          <fieldset>
+            <legend class="visually-hidden">
+              <span class="lang-zh">选填信息</span>
+              <span class="lang-en">Optional details</span>
+            </legend>
+            <label>
+              <span class="lang-zh">偏好语言</span>
+              <span class="lang-en">Preferred Language</span>
+              <select name="preferred_language">
+                <option value="" disabled selected>—</option>
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+                <option value="ms">Bahasa Melayu</option>
+                <option value="mix">Mix / bilingual</option>
+              </select>
+            </label>
+            <label>
+              <span class="lang-zh">补充说明（选填）</span>
+              <span class="lang-en">Additional Notes (optional)</span>
+              <textarea name="additional_notes" rows="3" maxlength="1500" placeholder="Tone, deadline, platform preference, white-label needs…"></textarea>
+            </label>
+          </fieldset>
+        </details>
 
         <p class="policy-note policy-note-form">
           <span class="lang-zh">含最多 3 次修改（在已确认的创意方向内）。重大概念变更或整片重做可能需另计费用。每月套餐每支视频各自含最多 3 次修改。AI 生成内容可能存在自然的生成差异。</span>
@@ -346,19 +352,26 @@
         florist: "Florist / flowers & gifts ad from my photos",
         products: "Product / ecommerce highlight ad from my photos",
         story: "Story-driven commercial from my reference photos",
-        "story-series": "Multi-episode brand story series from my reference photos"
+        "story-series": "Multi-episode brand story series from my reference photos",
+        agency: "White-label AI video production for our agency clients"
       };
       const parts = [];
       if (style && styleLabels[style]) parts.push(styleLabels[style]);
-      if (ref) parts.push("Inspired by portfolio example: " + ref);
+      if (ref === "agency-whitelabel") parts.push("Agency partnership / white-label inquiry");
+      else if (ref) parts.push("Inspired by portfolio example: " + ref);
       if (parts.length) brief.placeholder = parts.join(". ") + "…";
     }
     const notes = document.querySelector("textarea[name='additional_notes']");
+    const optional = document.querySelector(".inquiry-optional");
     if (notes && !notes.value && (style || ref)) {
       notes.value = [
         style ? "Preferred style: " + style : "",
         ref ? "Portfolio reference: " + ref : ""
       ].filter(Boolean).join("\n");
+      if (optional) optional.open = true;
+    }
+    if (ref === "agency-whitelabel" && select && !select.value) {
+      select.value = "story";
     }
   </script>
   <script src="/js/pricing.js" defer></script>
