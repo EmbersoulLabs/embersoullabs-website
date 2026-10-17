@@ -56,6 +56,13 @@ for (const project of portfolio.projects) {
   }
 }
 
+const pair1 = portfolio.projects.find((project) => project.pairId === 1 || project.id === "pair-1");
+if (pair1) {
+  assert(pair1.generationType === "photos_to_story", "pair-1 is a Story Commercial");
+  assert(pair1.packageType === "story", "pair-1 CTA uses story package");
+  assert(pair1.category === "story", "pair-1 category is story");
+}
+
 const ads = readFileSync(join(root, "ai-ads/index.html"), "utf8");
 assert(ads.includes("params.get(\"style\")"), "ai-ads accepts style prefills");
 assert(ads.includes("params.get(\"ref\")"), "ai-ads accepts portfolio ref prefills");

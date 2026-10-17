@@ -16,8 +16,19 @@
 
   /** Optional overrides keyed by pair id (number) or project id ("pair-1"). */
   var META = {
-    // Example:
-    // 1: { title: { en: "Skincare Launch", zh: "护肤上新" }, category: "products" }
+    // pair-1: ~38.5s restaurant commercial — story package, not short product ad
+    1: {
+      title: { en: "Restaurant Story Commercial", zh: "餐厅故事广告" },
+      category: "story",
+      categoryLabel: { en: "Story Ad", zh: "故事广告" },
+      generationType: "photos_to_story",
+      packageType: "story",
+      duration: "~38s",
+      description: {
+        en: "A restaurant photo transformed into a story-driven advertisement.",
+        zh: "餐厅原图生成一支故事型广告。"
+      }
+    }
   };
 
   function applyMeta(project) {
