@@ -50,11 +50,11 @@
 
   function previewSrc(project) {
     if (hasOriginals(project)) return project.originalImages[0];
-    return project.poster || "";
+    return "";
   }
 
-  function afterPreviewSrc(project) {
-    return project.poster || previewSrc(project);
+  function videoTypeFor(url) {
+    return /\.webm(?:$|\?)/i.test(url) ? "video/webm" : "video/mp4";
   }
 
   function renderEmptyState() {
@@ -67,9 +67,29 @@
     return empty;
   }
 
+  function renderAfterPreview(project) {
+    if (!hasVideo(project)) {
+      return (
+        '<div class="portfolio-thumb-frame">' +
+          '<div class="portfolio-thumb-fallback" aria-hidden="true"></div>' +
+        "</div>"
+      );
+    }
+    // Native paused video with metadata preload so browsers can show the
+    // finished file's opening visual. Never reuse the Before image as poster.
+    return (
+      '<div class="portfolio-thumb-frame has-play has-video-preview">' +
+        '<video class="portfolio-after-preview" playsinline muted preload="metadata" tabindex="-1" aria-hidden="true"' +
+          ' data-portfolio-preview data-src="' + escapeAttr(project.videoUrl) + '">' +
+          '<source data-src="' + escapeAttr(project.videoUrl) + '" type="' + videoTypeFor(project.videoUrl) + '">' +
+        "</video>" +
+        '<span class="portfolio-play-hint" aria-hidden="true"><span class="portfolio-play-icon"></span></span>' +
+      "</div>"
+    );
+  }
+
   function renderCompactPreview(project) {
     var beforeSrc = previewSrc(project);
-    var afterSrc = afterPreviewSrc(project);
     var meta = [];
     if (project.duration) meta.push(escapeHtml(project.duration));
     if (project.language) meta.push(escapeHtml(String(project.language).toUpperCase()));
@@ -87,14 +107,7 @@
     var afterPane =
       '<div class="portfolio-pane portfolio-pane-after">' +
         '<span class="portfolio-pane-label"><span class="lang-zh">After</span><span class="lang-en">After</span></span>' +
-        '<div class="portfolio-thumb-frame' + (hasVideo(project) ? " has-play" : "") + '">' +
-          (afterSrc
-            ? '<img src="' + escapeAttr(afterSrc) + '" alt="" loading="lazy" decoding="async" width="320" height="180">'
-            : '<div class="portfolio-thumb-fallback" aria-hidden="true"></div>') +
-          (hasVideo(project)
-            ? '<span class="portfolio-play-hint" aria-hidden="true"><span class="portfolio-play-icon"></span></span>'
-            : "") +
-        "</div>" +
+        renderAfterPreview(project) +
       "</div>";
 
     return (
@@ -204,9 +217,12 @@
   }
 
   function pauseAllVideos() {
-    Array.prototype.forEach.call(document.querySelectorAll("video[data-portfolio-video]"), function (video) {
-      if (!video.paused) video.pause();
-    });
+    Array.prototype.forEach.call(
+      document.querySelectorAll("video[data-portfolio-video], video[data-portfolio-preview]"),
+      function (video) {
+        if (!video.paused) video.pause();
+      }
+    );
     playing = null;
   }
 
@@ -258,15 +274,13 @@
 
     var afterHtml = "";
     if (hasVideo(project)) {
-      var videoType = /\.webm(?:$|\?)/i.test(project.videoUrl) ? "video/webm" : "video/mp4";
       afterHtml =
         '<div class="portfolio-modal-pane">' +
           '<p class="portfolio-pane-label"><span class="lang-zh">After · AI 成片</span><span class="lang-en">After</span></p>' +
           '<div class="portfolio-modal-video">' +
             '<video playsinline preload="none" controls data-portfolio-video' +
-              (project.poster ? ' poster="' + escapeAttr(project.poster) + '"' : "") +
               ' src="' + escapeAttr(project.videoUrl) + '">' +
-              '<source src="' + escapeAttr(project.videoUrl) + '" type="' + videoType + '">' +
+              '<source src="' + escapeAttr(project.videoUrl) + '" type="' + videoTypeFor(project.videoUrl) + '">' +
             "</video>" +
           "</div>" +
         "</div>";
@@ -299,10 +313,55 @@
   }
 
   function pauseOthers(except) {
-    Array.prototype.forEach.call(document.querySelectorAll("video[data-portfolio-video]"), function (video) {
-      if (video !== except && !video.paused) video.pause();
-    });
+    Array.prototype.forEach.call(
+      document.querySelectorAll("video[data-portfolio-video], video[data-portfolio-preview]"),
+      function (video) {
+        if (video !== except && !video.paused) video.pause();
+      }
+    );
     playing = except || null;
+  }
+
+  function hydratePreviewVideos(root) {
+    var scope = root || grid;
+    Array.prototype.forEach.call(scope.querySelectorAll("video[data-portfolio-preview]"), function (video) {
+      if (video.dataset.hydrated === "1") return;
+      var src = video.getAttribute("data-src");
+      if (!src) return;
+      video.src = src;
+      Array.prototype.forEach.call(video.querySelectorAll("source[data-src]"), function (source) {
+        source.src = source.getAttribute("data-src");
+      });
+      video.dataset.hydrated = "1";
+      video.load();
+      video.addEventListener("play", function (event) {
+        // Card previews must stay paused; open the modal instead.
+        event.preventDefault();
+        video.pause();
+      });
+    });
+  }
+
+  function observePreviewVideos() {
+    var videos = grid.querySelectorAll("video[data-portfolio-preview]");
+    if (!videos.length) return;
+    if (!("IntersectionObserver" in window)) {
+      hydratePreviewVideos(grid);
+      return;
+    }
+    var observer = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          hydratePreviewVideos(entry.target.parentNode || entry.target);
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "120px 0px", threshold: 0.01 }
+    );
+    Array.prototype.forEach.call(videos, function (video) {
+      observer.observe(video);
+    });
   }
 
   function renderFilters() {
@@ -350,6 +409,7 @@
     if (!project) return;
     Array.prototype.forEach.call(card.querySelectorAll("[data-portfolio-open]"), function (trigger) {
       trigger.addEventListener("click", function () {
+        pauseOthers(null);
         ensureModal().dataset.openId = project.id;
         openModal(project, trigger);
       });
@@ -371,6 +431,7 @@
     });
     renderFilters();
     applyFilter();
+    observePreviewVideos();
   }
 
   mount();
