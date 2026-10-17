@@ -96,13 +96,6 @@
     },
   };
 
-  var SERVICE_NAMES = {
-    short: "AI Short Ad",
-    story: "AI Story Ad",
-    monthly: "Monthly AI Content",
-    unsure: "Not sure yet",
-  };
-
   function normalizeRegion(raw) {
     if (!raw) return null;
     var v = String(raw).toLowerCase().trim();
@@ -205,7 +198,6 @@
     });
 
     syncOrderForm(id);
-    toggleMonthlyFields();
 
     document.documentElement.setAttribute("data-pricing-region", id);
     try {
@@ -215,78 +207,32 @@
     } catch (e) {}
   }
 
-  function toggleMonthlyFields() {
-    var typeSelect = document.getElementById("ad_type");
-    var monthlyBlock = document.getElementById("monthly-format-block");
-    if (!monthlyBlock) return;
-    var isMonthly = typeSelect && typeSelect.value === "monthly";
-    monthlyBlock.hidden = !isMonthly;
-    var formatSelect = document.getElementById("monthly_content_format");
-    if (formatSelect) {
-      formatSelect.required = !!isMonthly;
-      if (!isMonthly) formatSelect.value = "";
-    }
-    toggleStoryConcept();
-  }
-
-  function toggleStoryConcept() {
-    var formatSelect = document.getElementById("monthly_content_format");
-    var conceptBlock = document.getElementById("story-concept-block");
-    if (!conceptBlock || !formatSelect) return;
-    var show =
-      formatSelect.value === "story_series" || formatSelect.value === "mix";
-    conceptBlock.hidden = !show;
-  }
-
+  /**
+   * Inquiry form is Path B (quote request). It must not carry package prices
+   * or Stripe lookup keys — those belong only to Buy Now checkout.
+   */
   function syncOrderForm(regionId) {
     var form = document.getElementById("ai-ad-form");
     if (!form) return;
     var id = normalizeRegion(regionId) || "intl";
     var meta = REGIONS[id];
-    var typeSelect = document.getElementById("ad_type");
-    var offer = typeSelect && typeSelect.value ? typeSelect.value : "";
-    var formatSelect = document.getElementById("monthly_content_format");
-
+    var inquiryType = document.getElementById("inquiry_type");
+    var offerLabels = {
+      custom_video: "Custom video project — no standard package",
+      agency_whitelabel: "Agency / white-label partnership — no standard package",
+      general: "General quote question — no standard package",
+    };
+    var typeVal = inquiryType && inquiryType.value ? inquiryType.value : "custom_video";
     var serviceName =
-      SERVICE_NAMES[offer] || (offer ? String(offer) : "Not selected");
-    var price = offer && offer !== "unsure" ? getPrice(id, offer) : null;
-    var formatVal =
-      offer === "monthly" && formatSelect && formatSelect.value
-        ? formatSelect.value
-        : "";
+      offerLabels[typeVal] || "Custom quote — no standard package";
 
     setHidden(form, "selected_service", serviceName);
     setHidden(form, "pricing_region", meta.regionName);
     setHidden(form, "currency", meta.currency);
-    setHidden(
-      form,
-      "displayed_price",
-      price ? price.display : "N/A — help me decide"
-    );
-    setHidden(form, "monthly_content_format", formatVal || "n/a");
-    setHidden(
-      form,
-      "stripe_lookup_key",
-      offer && offer !== "unsure" ? getStripeLookupKey(offer, id) || "" : ""
-    );
-    // Explicitly do NOT submit client-authored payment amounts for checkout.
-    // displayed_price is ops context only.
-
-    var preview = document.getElementById("displayed-price-preview");
-    if (preview) {
-      if (price) {
-        preview.textContent = price.display;
-        preview.hidden = false;
-      } else if (offer === "unsure") {
-        preview.textContent =
-          document.documentElement.getAttribute("data-lang") === "zh"
-            ? "价格待确认"
-            : "Price to be confirmed";
-        preview.hidden = false;
-      } else {
-        preview.hidden = true;
-      }
-    }
+    setHidden(form, "displayed_price", "N/A — quote request");
+    setHidden(form, "monthly_content_format", "n/a");
+    setHidden(form, "stripe_lookup_key", "");
+    // Explicitly do NOT submit client-authored payment amounts or package prices.
   }
 
   function setHidden(form, name, value) {
@@ -309,19 +255,9 @@
   }
 
   function bindFormType() {
-    var typeSelect = document.getElementById("ad_type");
-    if (typeSelect) {
-      typeSelect.addEventListener("change", function () {
-        var region =
-          document.documentElement.getAttribute("data-pricing-region") || "intl";
-        toggleMonthlyFields();
-        syncOrderForm(region);
-      });
-    }
-    var formatSelect = document.getElementById("monthly_content_format");
-    if (formatSelect) {
-      formatSelect.addEventListener("change", function () {
-        toggleStoryConcept();
+    var inquiryType = document.getElementById("inquiry_type");
+    if (inquiryType) {
+      inquiryType.addEventListener("change", function () {
         var region =
           document.documentElement.getAttribute("data-pricing-region") || "intl";
         syncOrderForm(region);

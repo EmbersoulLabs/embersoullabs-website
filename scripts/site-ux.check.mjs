@@ -66,12 +66,18 @@ assert(success.includes("Complete Your Creative Brief"), "paid success page offe
 
 const css = readFileSync(join(root, "css/style.css"), "utf8");
 assert(css.includes("[hidden]") && css.includes("display: none !important"), "hidden cards stay hidden");
-assert(home.includes("Submit Inquiry") && !home.includes("Enquire first"), "homepage inquiry is one secondary action");
+assert(home.includes("Request a Quote") && !home.includes("Enquire first"), "homepage quote CTA is one secondary action");
+assert(!home.includes("Submit Inquiry"), "homepage no longer uses submit-inquiry wording");
 assert((home.match(/data-checkout-service=/g) || []).length === 3, "homepage keeps three buy actions");
 const products = readFileSync(join(root, "ai-ads/index.html"), "utf8");
 assert((products.match(/data-checkout-service=/g) || []).length === 3, "product page has one buy action per package");
 assert((products.match(/id="ai-ad-form"/g) || []).length === 1, "inquiry form is not duplicated");
-assert(products.includes('id="inquiry"'), "inquiry sits with the packages");
+assert(products.includes('id="inquiry"') && products.includes("Request a Quote"), "quote path sits with the packages");
+assert(products.includes('id="packages"') && products.includes("Buy Now"), "standard buy path remains");
+assert(!products.includes('id="ad_type"') && !products.includes("Selected Package"), "inquiry no longer requires a package");
+assert(!products.includes('class="order-price-list"'), "inquiry does not repeat the price list");
+assert(products.includes('name="inquiry_type"') && products.includes("agency_whitelabel"), "custom and agency inquiry types remain");
+assert(success.includes('name="asset_links"') && success.includes('name="asset_status"'), "paid success brief collects photo links securely");
 
 const sandbox = createContext({ window: {} });
 runInContext(readFileSync(join(root, "js/order-copy.js"), "utf8"), sandbox);
