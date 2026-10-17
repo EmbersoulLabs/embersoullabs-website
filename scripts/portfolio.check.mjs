@@ -12,6 +12,7 @@ function assert(condition, message) {
 const index = readFileSync(join(root, "index.html"), "utf8");
 assert(index.includes("id=\"showcase-grid\""), "existing showcase grid is reused");
 assert(index.includes("id=\"portfolio-filters\""), "product/story filters exist");
+assert(index.includes("/js/portfolio-manifest.js"), "auto manifest is loaded");
 assert(index.includes("/js/portfolio-data.js"), "portfolio data is loaded");
 assert(index.includes("/js/portfolio.js"), "portfolio script is loaded");
 assert(index.includes("Your Photos → Ready-to-Run Ad Videos") || index.includes("Your Photos"), "section explains photo to video");
@@ -21,48 +22,43 @@ const css = readFileSync(join(root, "css/style.css"), "utf8");
 assert(css.includes(".portfolio-card"), "portfolio card styles exist");
 assert(css.includes(".portfolio-before"), "before pane styles exist");
 assert(css.includes("has-before-after"), "before/after expansion styles exist");
+assert(css.includes(".portfolio-empty"), "empty portfolio state exists");
 assert(css.includes("@media (max-width: 768px)"), "mobile layout rules remain");
+
+const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+assert(packageJson.scripts && packageJson.scripts.build === "node scripts/generate-portfolio.mjs", "build generates the portfolio manifest");
 
 const dataSource = readFileSync(join(root, "js/portfolio-data.js"), "utf8");
 const scriptSource = readFileSync(join(root, "js/portfolio.js"), "utf8");
-assert(dataSource.includes("originalImages"), "data model includes originalImages");
-assert(dataSource.includes("generationType"), "data model includes generationType");
-assert(dataSource.includes("videoUrl"), "data model includes videoUrl");
+const manifestSource = readFileSync(join(root, "js/portfolio-manifest.js"), "utf8");
+assert(dataSource.includes("EmberSoulPortfolioManifest"), "runtime reads the auto manifest");
+assert(!/id:\s*"fnb-short"/.test(dataSource), "placeholder projects are not hard-coded");
 assert(scriptSource.includes("preload=\"none\""), "videos are not preloaded");
 assert(scriptSource.includes("pauseOthers") || scriptSource.includes("pause"), "only one video plays");
 assert(scriptSource.includes("Create a Video Like This"), "card CTA targets the order flow");
-assert(scriptSource.includes("/ai-ads/?"), "CTA routes into existing ai-ads flow");
+assert(scriptSource.includes("portfolio-empty"), "empty state is rendered when no pairs exist");
+assert(manifestSource.includes("EmberSoulPortfolioManifest"), "manifest file is generated");
 
 const sandbox = { window: {}, globalThis: {} };
 sandbox.globalThis = sandbox;
 sandbox.window = sandbox;
+vm.runInNewContext(manifestSource, sandbox);
 vm.runInNewContext(dataSource, sandbox);
 const portfolio = sandbox.window.EmberSoulPortfolio || sandbox.EmberSoulPortfolio;
-assert(portfolio && Array.isArray(portfolio.projects) && portfolio.projects.length >= 5, "projects are available");
+assert(portfolio && Array.isArray(portfolio.projects), "projects array exists");
+assert(portfolio.source === "auto-manifest", "projects come from auto discovery");
 
 for (const project of portfolio.projects) {
-  assert(project.id && project.title && project.category, `${project.id || "project"} keeps identity fields`);
-  assert(Array.isArray(project.originalImages), `${project.id} keeps originalImages array`);
-  assert(project.generationType === "photo_to_product" || project.generationType === "photos_to_story", `${project.id} has a known generation type`);
-  if (!project.videoUrl) {
-    assert(project.originalImages.length === 0, `${project.id} does not invent originals without a video`);
-  }
-}
-
-for (const project of portfolio.projects) {
+  assert(project.videoUrl && project.originalImages.length, `${project.id} is a complete pair`);
+  assert(String(project.videoUrl).startsWith("/assets/portfolio/after/"), `${project.id} video path is local`);
   for (const src of project.originalImages) {
-    assert(String(src).startsWith("/assets/"), `${project.id} originals must be local verified assets`);
-  }
-  if (project.videoUrl) {
-    assert(String(project.videoUrl).startsWith("/assets/"), `${project.id} video must be a local verified asset`);
+    assert(String(src).startsWith("/assets/portfolio/before/"), `${project.id} before path is local`);
   }
 }
-
-const missingMedia = portfolio.projects.filter((project) => !project.videoUrl && project.originalImages.length === 0);
 
 const ads = readFileSync(join(root, "ai-ads/index.html"), "utf8");
 assert(ads.includes("params.get(\"style\")"), "ai-ads accepts style prefills");
 assert(ads.includes("params.get(\"ref\")"), "ai-ads accepts portfolio ref prefills");
 
 console.log("portfolio ok");
-console.log("MISSING_MEDIA_PROJECTS=" + missingMedia.map((p) => p.id).join(","));
+console.log("AUTO_PROJECT_COUNT=" + portfolio.projects.length);

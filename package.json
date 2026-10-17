@@ -1,0 +1,8 @@
+{
+  "name": "embersoullabs-website",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/generate-portfolio.mjs",
+    "test:portfolio": "node scripts/generate-portfolio.check.mjs && node scripts/portfolio.check.mjs"
+  }
+}

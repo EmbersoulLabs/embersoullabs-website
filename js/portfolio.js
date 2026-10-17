@@ -44,8 +44,8 @@
     if (!hasOriginals(project)) return "";
     var multi = project.originalImages.length > 1;
     var label = multi
-      ? '<span class="lang-zh">参考照片</span><span class="lang-en">Reference photos</span>'
-      : '<span class="lang-zh">原图</span><span class="lang-en">Original photo</span>';
+      ? '<span class="lang-zh">Before · 参考照片</span><span class="lang-en">Before · Reference photos</span>'
+      : '<span class="lang-zh">Before · 原图</span><span class="lang-en">Before</span>';
     var thumbs = project.originalImages.map(function (src, index) {
       return (
         '<button type="button" class="portfolio-thumb" data-original-index="' + index + '" aria-label="Original photo ' + (index + 1) + '">' +
@@ -68,14 +68,15 @@
     var metaHtml = meta.length ? '<p class="portfolio-pane-meta">' + meta.join(" · ") + "</p>" : "";
 
     if (hasVideo(project)) {
+      var videoType = /\.webm(?:$|\?)/i.test(project.videoUrl) ? "video/webm" : "video/mp4";
       return (
         '<div class="portfolio-after">' +
-          '<p class="portfolio-pane-label"><span class="lang-zh">AI 成片</span><span class="lang-en">AI video</span></p>' +
+          '<p class="portfolio-pane-label"><span class="lang-zh">After · AI 成片</span><span class="lang-en">After</span></p>' +
           '<div class="video-frame portfolio-video-frame">' +
             '<video playsinline preload="none" controls' +
               (project.poster ? ' poster="' + escapeAttr(project.poster) + '"' : "") +
               ' data-portfolio-video src="' + escapeAttr(project.videoUrl) + '">' +
-              "<source src=\"" + escapeAttr(project.videoUrl) + "\" type=\"video/mp4\">" +
+              "<source src=\"" + escapeAttr(project.videoUrl) + "\" type=\"" + videoType + "\">" +
             "</video>" +
           "</div>" +
           metaHtml +
@@ -113,6 +114,16 @@
     return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  function renderEmptyState() {
+    var empty = document.createElement("div");
+    empty.className = "portfolio-empty";
+    empty.innerHTML =
+      '<p class="portfolio-empty-title"><span class="lang-zh">作品即将上线</span><span class="lang-en">Examples coming soon</span></p>' +
+      '<p class="portfolio-empty-copy"><span class="lang-zh">上传配对的 before / after 素材并部署后，这里会自动显示原图与 AI 成片对比。</span><span class="lang-en">After paired before/after media is uploaded and deployed, original photos and AI videos appear here automatically.</span></p>' +
+      '<a class="showcase-cta portfolio-cta" href="/ai-ads/"><span class="lang-zh">先做一支 AI 广告 →</span><span class="lang-en">Create a Video Like This →</span></a>';
+    return empty;
+  }
+
   function renderCard(project) {
     var compare = hasOriginals(project);
     var article = document.createElement("article");
@@ -120,7 +131,10 @@
     article.dataset.category = project.category || "";
     article.dataset.generationType = project.generationType || "";
     article.dataset.portfolioId = project.id;
-    if (compare) article.classList.add("has-before-after");
+    if (compare) {
+      article.classList.add("has-before-after");
+      article.classList.add("is-expanded");
+    }
     if (hasVideo(project)) article.classList.add("has-video");
 
     var media =
@@ -130,8 +144,8 @@
       "</div>";
 
     var expandControl = compare
-      ? '<button type="button" class="portfolio-expand" aria-expanded="false">' +
-          '<span class="lang-zh">查看原图对比</span><span class="lang-en">Compare original photos</span>' +
+      ? '<button type="button" class="portfolio-expand" aria-expanded="true">' +
+          '<span class="lang-zh">收起 / 展开对比</span><span class="lang-en">Collapse / expand comparison</span>' +
         "</button>"
       : "";
 
@@ -228,6 +242,12 @@
 
   function mount() {
     grid.innerHTML = "";
+    if (!data.projects.length) {
+      grid.appendChild(renderEmptyState());
+      if (filterHost) filterHost.hidden = true;
+      return;
+    }
+    if (filterHost) filterHost.hidden = false;
     data.projects.forEach(function (project) {
       var card = renderCard(project);
       grid.appendChild(card);
