@@ -29,11 +29,11 @@ await check("home", async () => {
   const t = await r.text();
   return {
     status: r.status,
-    buy: t.includes("Buy AI Short Ad"),
-    story: t.includes("Buy AI Story Ad"),
-    monthly: t.includes("Buy Monthly Package"),
+    buy: t.includes("Buy Now") && t.includes('data-checkout-service="short"'),
+    story: t.includes('data-checkout-service="story"'),
+    monthly: t.includes('data-checkout-service="monthly"'),
     oneTime: /One-time payment/i.test(t),
-    enquire: t.includes("Enquire first"),
+    enquire: t.includes("Request a Quote") && !t.includes("Enquire first"),
     revisions3: t.includes("Up to 3 revisions included"),
     no149: !t.includes("USD 149") && !t.includes("149/month"),
   };

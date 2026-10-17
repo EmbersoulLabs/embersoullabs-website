@@ -115,34 +115,33 @@ assertIncludes(stripeSrc, "/ai-ads/checkout/success/", "stripe-config");
 assertIncludes(stripeSrc, "/ai-ads/checkout/cancel/", "stripe-config");
 assertIncludes(stripeSrc, "allLookupKeysOk: true", "stripe-config catalog certified");
 assertIncludes(stripeSrc, "recurringBillingEnabled: false", "stripe-config no subscriptions");
-assertIncludes(homeSrc, "Buy AI Short Ad", "homepage buy CTA");
-assertIncludes(homeSrc, "Buy AI Story Ad", "homepage buy CTA");
-assertIncludes(homeSrc, "Buy Monthly Package", "homepage buy CTA");
+assertIncludes(homeSrc, "Buy Now", "homepage buy CTA");
 assertIncludes(homeSrc, "data-checkout-service", "homepage checkout wiring");
 assertIncludes(homeSrc, "One-time payment", "homepage one-time note");
-assertIncludes(formSrc, "btn-buy-now", "ai-ads buy panel");
+assertIncludes(formSrc, 'data-checkout-service="short"', "ai-ads buy panel");
+assertIncludes(formSrc, "Request a Quote", "ai-ads quote path");
 
-// Form fields
+// Inquiry is Path B — no package prices / required package select
 [
-  'id="ad_type"',
-  'id="monthly-format-block"',
-  'id="monthly_content_format"',
-  'id="story-concept-block"',
   'name="selected_service"',
   'name="pricing_region"',
   'name="currency"',
   'name="displayed_price"',
-  'name="monthly_content_format"',
-  "Standalone Ads",
-  "Continuous AI Story Series",
-  "Mix of Both",
+  'id="inquiry_type"',
+  'name="inquiry_path"',
+  "custom_quote",
+  "agree_privacy",
 ].forEach((s) => assertIncludes(formSrc, s, "ai-ads form"));
 
+assertNotIncludes(formSrc, 'id="ad_type"', "ai-ads inquiry has no package select");
+assertNotIncludes(formSrc, "order-price-list", "ai-ads inquiry has no duplicated price list");
+assertNotIncludes(formSrc, "Selected Package", "ai-ads inquiry has no package fieldset");
+assertIncludes(pricingSrc, "N/A — quote request", "pricing.js inquiry sync clears package price");
+
 assertIncludes(homeSrc, "EP01", "homepage story series");
-assertIncludes(homeSrc, "Buy Monthly Package", "homepage monthly buy CTA");
-assertIncludes(homeSrc, "Buy AI Short Ad", "homepage short buy present");
-assertIncludes(homeSrc, "Buy AI Story Ad", "homepage story buy present");
-assertIncludes(homeSrc, "Enquire first", "homepage enquire option preserved");
+assertIncludes(homeSrc, "Request a Quote", "homepage quote CTA");
+assertNotIncludes(homeSrc, "Enquire first", "homepage no stale enquire CTA");
+assertNotIncludes(homeSrc, "Submit Inquiry", "homepage uses Request a Quote");
 
 function countryToRegion(cc) {
   if (!cc) return "intl";
@@ -165,7 +164,7 @@ function countryToRegion(cc) {
 assertIncludes(homeSrc, "Up to 3 revisions included", "homepage short/story revisions");
 assertIncludes(homeSrc, "Up to 3 revisions per video included", "homepage monthly revisions");
 assertIncludes(homeSrc, "Includes up to 3 revisions within the approved creative direction", "homepage revision policy");
-assertIncludes(formSrc, "Includes up to 3 revisions within the approved creative direction", "ai-ads revision policy");
+assertIncludes(formSrc, "A quote request is not a payment", "ai-ads quote is not payment");
 assert(!/1 revision included/.test(homeSrc + formSrc), "no stale 1-revision copy");
 assert(!/1 revision per video/.test(homeSrc + formSrc), "no stale 1-revision-per-video copy");
 assert(!/含 1 次修改/.test(homeSrc + formSrc), "no stale Chinese 1-revision copy");

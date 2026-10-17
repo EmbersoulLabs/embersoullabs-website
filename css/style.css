@@ -2018,10 +2018,63 @@ button.btn:disabled {
   display: none !important;
 }
 
+.path-split {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.35rem;
+}
+
+@media (min-width: 720px) {
+  .path-split {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.path-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-card);
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+}
+
+.path-card-buy {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.path-label {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.path-copy {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
 .purchase-stack {
   display: grid;
   gap: 0.75rem;
   margin: 1.25rem 0 0.5rem;
+}
+
+.purchase-heading {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.purchase-note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
 .purchase-row {
@@ -2035,9 +2088,26 @@ button.btn:disabled {
   border-radius: 16px;
 }
 
-.purchase-row h2 {
+.purchase-row h2,
+.purchase-row h3 {
   font-size: 1.05rem;
   margin-bottom: 0.2rem;
+}
+
+.purchase-desc {
+  margin: 0.2rem 0 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+  max-width: 36rem;
+}
+
+.purchase-meta {
+  margin: 0 0 0.45rem;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  color: var(--text-muted);
+  max-width: 36rem;
 }
 
 .purchase-row .price-slot {

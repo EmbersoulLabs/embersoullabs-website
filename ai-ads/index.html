@@ -23,7 +23,7 @@
   <meta name="description" content="Order an AI advertising video from EmberSoul Labs — AI short ads, story ads, or a 30-day monthly AI content package for small businesses in Singapore and Malaysia.">
   <link rel="canonical" href="https://embersoullabs.com/ai-ads/">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
-  <link rel="stylesheet" href="/css/style.css?v=20261017e">
+  <link rel="stylesheet" href="/css/style.css?v=20261017h">
 </head>
 <body>
   <header class="site-header">
@@ -62,9 +62,40 @@
           <span class="lang-en">Create My AI Ad</span>
         </h1>
         <p class="promo-offer">
-          <span class="lang-zh">可在线购买（一次性付款），或先提交询盘。价格由服务器按地区套餐确定，浏览器不能改价。</span>
-          <span class="lang-en">Buy online (one-time payment) or send an enquiry first. Prices are set server-side by package + region — the browser cannot change the charge.</span>
+          <span class="lang-zh">标准套餐可直接在线购买。定制项目或机构合作请提交报价申请 — 无需先选套餐。价格由服务器按地区确定，浏览器不能改价。</span>
+          <span class="lang-en">Buy a standard package online, or request a quote for custom work and agency partnerships — no package selection required. Prices are set server-side by region — the browser cannot change the charge.</span>
         </p>
+      </div>
+
+      <div class="path-split" aria-label="Customer paths">
+        <div class="path-card path-card-buy">
+          <p class="path-label">
+            <span class="lang-zh">路径 A · 标准套餐</span>
+            <span class="lang-en">Path A · Standard package</span>
+          </p>
+          <p class="path-copy">
+            <span class="lang-zh">选套餐 → 立即购买 → Stripe 付款 → 付款成功后提交制作简报。</span>
+            <span class="lang-en">Select a package → Buy Now → Stripe Checkout → submit your production brief after payment.</span>
+          </p>
+          <a class="btn btn-primary" href="#packages">
+            <span class="lang-zh">查看套餐并购买</span>
+            <span class="lang-en">View packages &amp; buy</span>
+          </a>
+        </div>
+        <div class="path-card path-card-quote">
+          <p class="path-label">
+            <span class="lang-zh">路径 B · 定制 / 机构</span>
+            <span class="lang-en">Path B · Custom / Agency</span>
+          </p>
+          <p class="path-copy">
+            <span class="lang-zh">申请报价 → 简短询盘 → 人工跟进。不必选择标准套餐。</span>
+            <span class="lang-en">Request a quote → short inquiry → human follow-up. No standard package required.</span>
+          </p>
+          <a class="btn btn-ghost" href="#inquiry">
+            <span class="lang-zh">申请报价</span>
+            <span class="lang-en">Request a Quote</span>
+          </a>
+        </div>
       </div>
 
       <div class="pricing-region-bar" data-pricing-region-bar>
@@ -79,13 +110,29 @@
         </select>
       </div>
 
-      <div class="purchase-stack" id="packages">
+      <section class="purchase-stack" id="packages" aria-labelledby="packages-heading">
+        <h2 id="packages-heading" class="purchase-heading">
+          <span class="lang-zh">标准套餐（在线购买）</span>
+          <span class="lang-en">Standard packages (buy online)</span>
+        </h2>
+        <p class="purchase-note">
+          <span class="lang-zh">价格只在这里显示一次。点击立即购买直接进入结账，无需填写询盘。</span>
+          <span class="lang-en">Prices appear once here. Buy Now goes straight to checkout — no inquiry form required.</span>
+        </p>
         <article class="purchase-row">
           <div>
-            <h2>
+            <h3>
               <span class="lang-zh">AI 短广告</span>
               <span class="lang-en">AI Short Ad</span>
-            </h2>
+            </h3>
+            <p class="purchase-desc">
+              <span class="lang-zh">面向社媒的快速产品广告，突出卖点、适合马上发布。</span>
+              <span class="lang-en">A fast product-focused AI ad for social media.</span>
+            </p>
+            <p class="purchase-meta">
+              <span class="lang-zh">7–10 秒竖版 · 单一产品 · 可发布 MP4 · 最多 3 次修改</span>
+              <span class="lang-en">7–10s vertical · one product · ready-to-post MP4 · up to 3 revisions</span>
+            </p>
             <p class="price-slot" data-price-offer="short">USD 19</p>
           </div>
           <button type="button" class="btn btn-primary" data-checkout-service="short">
@@ -95,10 +142,18 @@
         </article>
         <article class="purchase-row">
           <div>
-            <h2>
+            <h3>
               <span class="lang-zh">AI 故事广告</span>
               <span class="lang-en">AI Story Ad</span>
-            </h2>
+            </h3>
+            <p class="purchase-desc">
+              <span class="lang-zh">故事驱动的 AI 广告：产品、角色与对白结合。</span>
+              <span class="lang-en">A story-driven AI ad with product, characters and dialogue.</span>
+            </p>
+            <p class="purchase-meta">
+              <span class="lang-zh">约 45–48 秒竖版 · 故事创意 · 可发布 MP4 · 最多 3 次修改</span>
+              <span class="lang-en">~45–48s vertical · story creative · ready-to-post MP4 · up to 3 revisions</span>
+            </p>
             <p class="price-slot" data-price-offer="story">USD 59</p>
           </div>
           <button type="button" class="btn btn-primary" data-checkout-service="story">
@@ -108,10 +163,18 @@
         </article>
         <article class="purchase-row">
           <div>
-            <h2>
+            <h3>
               <span class="lang-zh">每月 AI 内容</span>
               <span class="lang-en">Monthly AI Content</span>
-            </h2>
+            </h3>
+            <p class="purchase-desc">
+              <span class="lang-zh">四支独立广告，或做成 EP01→EP04 连续故事系列。一次性 30 天套餐，非自动续订。</span>
+              <span class="lang-en">Four standalone ads, or an EP01→EP04 story series. One-time 30-day package, not auto-renewing.</span>
+            </p>
+            <p class="purchase-meta">
+              <span class="lang-zh">4 支视频 · 内容规划 · 竖版交付 · 每支最多 3 次修改</span>
+              <span class="lang-en">4 videos · planning included · vertical delivery · up to 3 revisions per video</span>
+            </p>
             <p class="price-slot" data-price-offer="monthly">USD 129 / 30-day package</p>
           </div>
           <button type="button" class="btn btn-primary" data-checkout-service="monthly">
@@ -119,32 +182,35 @@
             <span class="lang-en">Buy Now</span>
           </button>
         </article>
-      </div>
+      </section>
 
-      <section class="inquiry-panel" id="inquiry">
-        <h2>
-          <span class="lang-zh">提交询盘</span>
-          <span class="lang-en">Submit an inquiry</span>
+      <section class="inquiry-panel" id="inquiry" aria-labelledby="inquiry-heading">
+        <h2 id="inquiry-heading">
+          <span class="lang-zh">申请报价</span>
+          <span class="lang-en">Request a Quote</span>
         </h2>
         <p class="form-intro">
-          <span class="lang-zh">询盘可选。可以直接购买，不需要先填写这张表。提交后我们会在 1–2 个工作日内回复。优先填写姓名、邮箱、产品说明与是否已有照片即可。</span>
-          <span class="lang-en">This inquiry is optional. Buy Now above checks out immediately and does not require this form. We reply within 1–2 business days. Start with your name, email, what you sell, and whether you already have photos.</span>
+          <span class="lang-zh">用于定制视频、白标机构合作或其他非标准需求。这不是结账步骤 — 标准套餐请用上方「立即购买」。我们会在 1–2 个工作日内人工回复。</span>
+          <span class="lang-en">For custom videos, white-label agency partnerships, or other non-standard work. This is not checkout — use Buy Now above for standard packages. We reply within 1–2 business days.</span>
         </p>
 
       <form class="apply-form" id="ai-ad-form" action="https://formsubmit.co/support@embersoullabs.com" method="POST">
-        <input type="hidden" name="_subject" value="AI Ad enquiry / AI 广告咨询 — EmberSoul Labs">
+        <input type="hidden" name="_subject" value="AI Ad quote request / AI 广告报价申请 — EmberSoul Labs">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="https://embersoullabs.com/ai-ads/thanks/">
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
         <!-- Ops context only. Browser is NEVER authoritative for payment amount. -->
-        <input type="hidden" name="selected_service" id="field_selected_service" value="">
+        <input type="hidden" name="inquiry_path" value="custom_quote">
+        <input type="hidden" name="selected_service" id="field_selected_service" value="Custom quote — no standard package">
         <input type="hidden" name="pricing_region" id="field_pricing_region" value="International">
         <input type="hidden" name="currency" id="field_currency" value="USD">
-        <input type="hidden" name="displayed_price" id="field_displayed_price" value="">
+        <input type="hidden" name="displayed_price" id="field_displayed_price" value="N/A — quote request">
         <input type="hidden" name="monthly_content_format" id="field_monthly_content_format" value="n/a">
         <input type="hidden" name="stripe_lookup_key" id="field_stripe_lookup_key" value="">
+        <input type="hidden" name="portfolio_reference" id="field_portfolio_reference" value="">
+        <input type="hidden" name="preferred_style" id="field_preferred_style" value="">
 
         <fieldset class="inquiry-essentials">
           <legend>
@@ -181,68 +247,15 @@
               <option value="no">Not yet</option>
             </select>
           </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>
-            <span class="lang-zh">套餐</span>
-            <span class="lang-en">Selected Package</span>
-          </legend>
           <label>
-            <span class="lang-zh">套餐 *</span>
-            <span class="lang-en">Package *</span>
-            <select name="ad_type" id="ad_type" required>
-              <option value="" disabled selected>—</option>
-              <option value="short">AI Short Ad (7–10s)</option>
-              <option value="story">AI Story Ad (~45–48s)</option>
-              <option value="monthly">Monthly AI Content (30-day package)</option>
-              <option value="unsure">Not sure yet — help me decide</option>
+            <span class="lang-zh">询盘类型</span>
+            <span class="lang-en">Inquiry type</span>
+            <select name="inquiry_type" id="inquiry_type">
+              <option value="custom_video" selected>Custom video project</option>
+              <option value="agency_whitelabel">Agency / white-label partnership</option>
+              <option value="general">General question</option>
             </select>
           </label>
-          <p class="order-price-preview" id="displayed-price-preview" hidden></p>
-          <p class="price-hint">
-            <span class="lang-zh">当前市场报价（可在上方切换地区）：</span>
-            <span class="lang-en">Listed offer for your selected market (change region above):</span>
-          </p>
-          <ul class="order-price-list">
-            <li><span class="lang-zh">短广告</span><span class="lang-en">Short Ad</span>: <strong data-price-offer="short">USD 19</strong></li>
-            <li><span class="lang-zh">故事广告</span><span class="lang-en">Story Ad</span>: <strong data-price-offer="story">USD 59</strong></li>
-            <li><span class="lang-zh">每月内容</span><span class="lang-en">Monthly</span>: <strong data-price-offer="monthly">USD 129 / 30-day package</strong></li>
-          </ul>
-
-          <div id="monthly-format-block" hidden>
-            <label>
-              <span class="lang-zh">内容形式 *</span>
-              <span class="lang-en">Content Format *</span>
-              <select name="monthly_content_format_ui" id="monthly_content_format">
-                <option value="" disabled selected>—</option>
-                <option value="not_sure">Not sure</option>
-                <option value="standalone">Standalone Ads</option>
-                <option value="story_series">Continuous AI Story Series</option>
-                <option value="mix">Mix of Both</option>
-              </select>
-            </label>
-            <p class="field-hint">
-              <span class="lang-zh">可做四支独立广告，或 EP01→EP02→EP03→EP04 连续故事系列。一次性 30 天套餐，非自动续订。</span>
-              <span class="lang-en">Four standalone ads — or an EP01→EP02→EP03→EP04 story series. One-time 30-day package, not auto-renewing.</span>
-            </p>
-            <div class="episode-flow episode-flow-form" aria-hidden="true">
-              <span class="ep-chip">EP01</span>
-              <span class="ep-arrow">→</span>
-              <span class="ep-chip">EP02</span>
-              <span class="ep-arrow">→</span>
-              <span class="ep-chip">EP03</span>
-              <span class="ep-arrow">→</span>
-              <span class="ep-chip">EP04</span>
-            </div>
-            <div id="story-concept-block" hidden>
-              <label>
-                <span class="lang-zh">故事或品牌概念（选填）</span>
-                <span class="lang-en">What kind of story or brand concept do you have in mind? (optional)</span>
-                <textarea name="story_concept" rows="3" maxlength="1500" placeholder="Recurring characters, campaign idea, tone…"></textarea>
-              </label>
-            </div>
-          </div>
         </fieldset>
 
         <details class="inquiry-optional">
@@ -267,6 +280,11 @@
               </select>
             </label>
             <label>
+              <span class="lang-zh">照片或素材链接（选填）</span>
+              <span class="lang-en">Photo or asset links (optional)</span>
+              <textarea name="asset_links" rows="2" maxlength="1000" placeholder="Google Drive, Dropbox, or image URLs…"></textarea>
+            </label>
+            <label>
               <span class="lang-zh">补充说明（选填）</span>
               <span class="lang-en">Additional Notes (optional)</span>
               <textarea name="additional_notes" rows="3" maxlength="1500" placeholder="Tone, deadline, platform preference, white-label needs…"></textarea>
@@ -275,8 +293,8 @@
         </details>
 
         <p class="policy-note policy-note-form">
-          <span class="lang-zh">含最多 3 次修改（在已确认的创意方向内）。重大概念变更或整片重做可能需另计费用。每月套餐每支视频各自含最多 3 次修改。AI 生成内容可能存在自然的生成差异。</span>
-          <span class="lang-en">Includes up to 3 revisions within the approved creative direction. Major concept changes or complete remakes may require an additional fee. Monthly: up to 3 revisions per video. AI-generated content may contain natural generative variations.</span>
+          <span class="lang-zh">报价申请不是付款。标准套餐价格见上方套餐区。AI 生成内容可能存在自然的生成差异。</span>
+          <span class="lang-en">A quote request is not a payment. Standard package prices are listed only in the package area above. AI-generated content may contain natural generative variations.</span>
         </p>
 
         <label class="checkbox-label consent">
@@ -286,8 +304,8 @@
         </label>
 
         <button type="submit" class="btn btn-ghost btn-full">
-          <span class="lang-zh">提交询盘</span>
-          <span class="lang-en">Submit Inquiry</span>
+          <span class="lang-zh">提交报价申请</span>
+          <span class="lang-en">Submit Quote Request</span>
         </button>
       </form>
       </section>
@@ -340,29 +358,37 @@
     const type = params.get("type");
     const style = params.get("style");
     const ref = params.get("ref");
-    const select = document.getElementById("ad_type");
-    if (type && select) {
-      const map = { short: "short", story: "story", monthly: "monthly" };
-      if (map[type]) select.value = map[type];
-    }
+    const inquiryType = document.getElementById("inquiry_type");
     const brief = document.querySelector("textarea[name='product_brief']");
+    const notes = document.querySelector("textarea[name='additional_notes']");
+    const optional = document.querySelector(".inquiry-optional");
+    const portfolioRef = document.getElementById("field_portfolio_reference");
+    const preferredStyle = document.getElementById("field_preferred_style");
+    const selectedService = document.getElementById("field_selected_service");
+
+    const styleLabels = {
+      food: "Food & Beverage product ad from my photos",
+      florist: "Florist / flowers & gifts ad from my photos",
+      products: "Product / ecommerce highlight ad from my photos",
+      story: "Story-driven commercial from my reference photos",
+      "story-series": "Multi-episode brand story series from my reference photos",
+      agency: "White-label AI video production for our agency clients"
+    };
+
+    if (preferredStyle && style) preferredStyle.value = style;
+    if (portfolioRef && ref) portfolioRef.value = ref;
+
     if (brief && !brief.value) {
-      const styleLabels = {
-        food: "Food & Beverage product ad from my photos",
-        florist: "Florist / flowers & gifts ad from my photos",
-        products: "Product / ecommerce highlight ad from my photos",
-        story: "Story-driven commercial from my reference photos",
-        "story-series": "Multi-episode brand story series from my reference photos",
-        agency: "White-label AI video production for our agency clients"
-      };
       const parts = [];
       if (style && styleLabels[style]) parts.push(styleLabels[style]);
       if (ref === "agency-whitelabel") parts.push("Agency partnership / white-label inquiry");
       else if (ref) parts.push("Inspired by portfolio example: " + ref);
+      if (type === "short" || type === "story" || type === "monthly") {
+        parts.push("Context from package interest: " + type + " (quote request — not a purchase)");
+      }
       if (parts.length) brief.placeholder = parts.join(". ") + "…";
     }
-    const notes = document.querySelector("textarea[name='additional_notes']");
-    const optional = document.querySelector(".inquiry-optional");
+
     if (notes && !notes.value && (style || ref)) {
       notes.value = [
         style ? "Preferred style: " + style : "",
@@ -370,8 +396,32 @@
       ].filter(Boolean).join("\n");
       if (optional) optional.open = true;
     }
-    if (ref === "agency-whitelabel" && select && !select.value) {
-      select.value = "story";
+
+    if (inquiryType) {
+      if (ref === "agency-whitelabel" || style === "agency") {
+        inquiryType.value = "agency_whitelabel";
+      } else if (type || style || ref) {
+        inquiryType.value = "custom_video";
+      }
+    }
+
+    function syncInquiryServiceLabel() {
+      if (!selectedService || !inquiryType) return;
+      const labels = {
+        custom_video: "Custom video project — no standard package",
+        agency_whitelabel: "Agency / white-label partnership — no standard package",
+        general: "General quote question — no standard package"
+      };
+      selectedService.value = labels[inquiryType.value] || labels.custom_video;
+    }
+    if (inquiryType) {
+      inquiryType.addEventListener("change", syncInquiryServiceLabel);
+      syncInquiryServiceLabel();
+    }
+
+    if (window.location.hash === "#inquiry" || ref || style) {
+      const panel = document.getElementById("inquiry");
+      if (panel) panel.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   </script>
   <script src="/js/pricing.js" defer></script>

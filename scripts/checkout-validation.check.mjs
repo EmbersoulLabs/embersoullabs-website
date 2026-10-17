@@ -107,9 +107,10 @@ assert(stripeConfig.includes("checkoutEnabled: true"), "checkoutEnabled true");
 assert(stripeConfig.includes("clientMaySubmitAmount: false"), "client amount false");
 
 const checkoutFn = readFileSync(join(root, "functions/api/checkout.js"), "utf8");
-assert(checkoutFn.includes('mode: "payment"'), "payment mode");
-assert(checkoutFn.includes("package_version"), "package_version metadata");
-assert(!/mode:\s*"subscription"/.test(checkoutFn), "no subscription checkout");
+const checkoutOrder = readFileSync(join(root, "functions/_shared/checkout-order.js"), "utf8");
+assert(checkoutOrder.includes('mode: "payment"'), "payment mode");
+assert(checkoutOrder.includes("package_version"), "package_version metadata");
+assert(!/mode:\s*"subscription"/.test(checkoutFn + checkoutOrder), "no subscription checkout");
 
 const success = readFileSync(
   join(root, "ai-ads/checkout/success/index.html"),
@@ -117,7 +118,8 @@ const success = readFileSync(
 );
 assert(success.includes("We're verifying your payment"), "success verifying copy");
 assert(success.includes("Payment received"), "success paid copy");
-assert(success.includes("/api/checkout/session"), "success verifies via API");
+assert(success.includes("/api/orders/status") && success.includes("access_token"), "success verifies via authorized order API");
+assert(success.includes('name="asset_links"') && success.includes('name="asset_status"'), "paid brief collects photo links");
 
 const cancel = readFileSync(
   join(root, "ai-ads/checkout/cancel/index.html"),
