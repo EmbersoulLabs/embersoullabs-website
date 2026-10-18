@@ -2,7 +2,13 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { pairPortfolioFiles, parseBeforeName, parseAfterName } from "./lib/portfolio-pairing.mjs";
+import {
+  pairPortfolioFiles,
+  parseBeforeName,
+  parseAfterName,
+  mergePortfolioProjects
+} from "./lib/portfolio-pairing.mjs";
+import { discoverSeries } from "./lib/portfolio-series.mjs";
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -53,7 +59,7 @@ assert(dupBefore.errors.some((e) => /Duplicate before id 5/.test(e)), "duplicate
 const empty = pairPortfolioFiles([], []);
 assert(empty.projects.length === 0 && empty.errors.length === 0, "empty folders are valid");
 
-const fixtureRoot = mkdtempSync(join(tmpdir(), "portfolio-fix-"));
+const fixtureRoot = mkdtempSync(join(tmpdir(), "portfolio-gen-"));
 try {
   mkdirSync(join(fixtureRoot, "assets", "portfolio", "before"), { recursive: true });
   mkdirSync(join(fixtureRoot, "assets", "portfolio", "after"), { recursive: true });
@@ -63,6 +69,59 @@ try {
   const discovered = discoverPortfolio(fixtureRoot);
   assert(discovered.projects.length === 1, "discovers pairs from disk");
   assert(discovered.projects[0].pairId === 9, "discovers pair 9");
+
+  // Empty series folder + metadata-only series must not publish.
+  const seriesRoot = join(fixtureRoot, "assets", "portfolio", "series");
+  mkdirSync(join(seriesRoot, "empty-series"), { recursive: true });
+  mkdirSync(join(seriesRoot, "meta-only"), { recursive: true });
+  writeFileSync(
+    join(seriesRoot, "meta-only", "series.json"),
+    JSON.stringify({
+      title: { en: "Meta Only", zh: "仅元数据" },
+      episodes: { ep01: { title: { en: "EP01", zh: "EP01" } } }
+    })
+  );
+  const emptySeries = discoverSeries(fixtureRoot);
+  assert(emptySeries.projects.length === 0, "series without videos are not published");
+  assert(emptySeries.warnings.some((w) => /no episode videos/.test(w)), "warns about unpublished series");
+
+  // Partial series: only ep01 + ep03 present → publish those two, sorted.
+  mkdirSync(join(seriesRoot, "demo-story"), { recursive: true });
+  writeFileSync(
+    join(seriesRoot, "demo-story", "series.json"),
+    JSON.stringify({
+      title: { en: "Demo Story", zh: "示范故事" },
+      sortOrder: 1,
+      episodes: {
+        ep01: { title: { en: "EP01 — Start", zh: "EP01｜开始" }, duration: "40s" },
+        ep03: { title: { en: "EP03", zh: "EP03" } }
+      }
+    })
+  );
+  writeFileSync(join(seriesRoot, "demo-story", "ep01.mp4"), "fake");
+  writeFileSync(join(seriesRoot, "demo-story", "ep03.mp4"), "fake");
+  writeFileSync(join(seriesRoot, "demo-story", "cover.jpg"), "fake");
+  const partial = discoverSeries(fixtureRoot);
+  assert(partial.projects.length === 1, "partial series publishes one card");
+  assert(partial.projects[0].episodes.length === 2, "partial series keeps available episodes only");
+  assert(partial.projects[0].episodes.map((e) => e.id).join(",") === "ep01,ep03", "episodes sorted and incomplete-safe");
+  assert(partial.projects[0].coverUrl.includes("cover.jpg"), "optional cover discovered");
+  assert(partial.projects[0].format === "story_series", "series format flag");
+
+  // Duplicate episode videos fail.
+  mkdirSync(join(seriesRoot, "dup-ep"), { recursive: true });
+  writeFileSync(join(seriesRoot, "dup-ep", "ep01.mp4"), "a");
+  writeFileSync(join(seriesRoot, "dup-ep", "ep01.webm"), "b");
+  const dupEp = discoverSeries(fixtureRoot);
+  assert(dupEp.errors.some((e) => /Duplicate episode 1/.test(e)), "duplicate episodes fail");
+
+  const merged = mergePortfolioProjects(discovered, {
+    projects: partial.projects,
+    warnings: [],
+    errors: []
+  });
+  assert(merged.projects.length === 2, "merge keeps commercials + series");
+  assert(merged.projects[0].format === "story_series", "series can sort ahead via sortOrder");
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });
 }

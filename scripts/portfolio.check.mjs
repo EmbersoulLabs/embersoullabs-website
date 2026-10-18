@@ -12,6 +12,7 @@ function assert(condition, message) {
 const index = readFileSync(join(root, "index.html"), "utf8");
 assert(index.includes("id=\"showcase-grid\""), "existing showcase grid is reused");
 assert(index.includes("id=\"portfolio-filters\""), "product/story filters exist");
+assert(index.includes("story_series") || index.includes("Story Series"), "story series filter exists");
 assert(index.includes("/js/portfolio-manifest.js"), "auto manifest is loaded");
 assert(index.includes("/js/portfolio-data.js"), "portfolio data is loaded");
 assert(index.includes("/js/portfolio.js"), "portfolio script is loaded");
@@ -29,6 +30,7 @@ const css = readFileSync(join(root, "css/style.css"), "utf8");
 assert(css.includes(".portfolio-card"), "portfolio card styles exist");
 assert(css.includes(".portfolio-media-compact"), "compact before/after preview exists");
 assert(css.includes(".portfolio-modal"), "comparison modal styles exist");
+assert(css.includes(".series-viewer"), "series viewer styles exist");
 assert(css.includes("object-fit: cover"), "thumbnails use object-fit cover");
 assert(css.includes("repeat(auto-fit, minmax(260px, 340px))"), "desktop cards stay compact with up to 3 per row");
 assert(css.includes("repeat(auto-fit, minmax(240px, 320px))"), "large tablet cards stay compact");
@@ -44,10 +46,17 @@ const dataSource = readFileSync(join(root, "js/portfolio-data.js"), "utf8");
 const scriptSource = readFileSync(join(root, "js/portfolio.js"), "utf8");
 const manifestSource = readFileSync(join(root, "js/portfolio-manifest.js"), "utf8");
 assert(dataSource.includes("EmberSoulPortfolioManifest"), "runtime reads the auto manifest");
+assert(dataSource.includes("Luxury Rose Bouquet Commercial"), "floral title overlay exists");
+assert(dataSource.includes("Beauty Product Commercial"), "beauty title overlay exists");
+assert(dataSource.includes("Not an official brand partnership"), "beauty concept disclaimer exists");
+assert(dataSource.includes("story_series"), "story series filter is defined");
 assert(!/id:\s*"fnb-short"/.test(dataSource), "placeholder projects are not hard-coded");
 assert(scriptSource.includes("preload=\"none\""), "modal videos are not fully preloaded");
 assert(scriptSource.includes("preload=\"metadata\""), "card after previews load metadata only");
 assert(scriptSource.includes("data-portfolio-preview"), "after preview uses native video");
+assert(scriptSource.includes("Request a Story Campaign"), "series CTA exists");
+assert(scriptSource.includes("selectEpisode"), "episode navigation exists");
+assert(scriptSource.includes("ArrowLeft"), "series keyboard navigation exists");
 assert(!scriptSource.includes("afterPreviewSrc"), "after preview does not reuse before image helpers");
 assert(!/poster=\"\s*'\s*\+\s*escapeAttr\(project\.poster\)/.test(scriptSource), "before image is not used as video poster");
 assert(scriptSource.includes("pauseOthers") || scriptSource.includes("pause"), "only one video plays");
@@ -68,8 +77,10 @@ vm.runInNewContext(dataSource, sandbox);
 const portfolio = sandbox.window.EmberSoulPortfolio || sandbox.EmberSoulPortfolio;
 assert(portfolio && Array.isArray(portfolio.projects), "projects array exists");
 assert(portfolio.source === "auto-manifest", "projects come from auto discovery");
+assert(portfolio.filters.some((f) => f.id === "story_series"), "runtime exposes story series filter");
 
-for (const project of portfolio.projects) {
+const commercials = portfolio.projects.filter((p) => p.format !== "story_series");
+for (const project of commercials) {
   assert(project.videoUrl && project.originalImages.length, `${project.id} is a complete pair`);
   assert(String(project.videoUrl).startsWith("/assets/portfolio/after/"), `${project.id} video path is local`);
   for (const src of project.originalImages) {
@@ -77,16 +88,37 @@ for (const project of portfolio.projects) {
   }
 }
 
+assert(!portfolio.projects.some((p) => p.id === "series-feisao-popiah"), "unpublished Fei Sao series has no public card");
+
 const pair1 = portfolio.projects.find((project) => project.pairId === 1 || project.id === "pair-1");
 if (pair1) {
   assert(pair1.generationType === "photos_to_story", "pair-1 is a Story Commercial");
   assert(pair1.packageType === "story", "pair-1 CTA uses story package");
   assert(pair1.category === "story", "pair-1 category is story");
+  assert(pair1.title.en === "Restaurant Story Commercial", "pair-1 title");
+}
+
+const floral = portfolio.projects.find((project) => project.pairId === 3 || project.id === "pair-3");
+if (floral) {
+  assert(floral.title.en === "Luxury Rose Bouquet Commercial", "floral title");
+  assert(portfolio.projects[0].id === floral.id || floral.sortOrder <= portfolio.projects[0].sortOrder, "floral is prioritized");
+}
+
+const beauty = portfolio.projects.find((project) => project.pairId === 2 || project.id === "pair-2");
+if (beauty) {
+  assert(beauty.title.en === "Beauty Product Commercial", "beauty title");
+  assert(/not an official brand partnership/i.test(beauty.description.en), "beauty disclaimer");
 }
 
 const ads = readFileSync(join(root, "ai-ads/index.html"), "utf8");
 assert(ads.includes("params.get(\"style\")"), "ai-ads accepts style prefills");
 assert(ads.includes("params.get(\"ref\")"), "ai-ads accepts portfolio ref prefills");
+assert(ads.includes("story-series"), "ai-ads accepts story series style");
+
+const seriesReadme = readFileSync(join(root, "assets/portfolio/series/README.md"), "utf8");
+assert(seriesReadme.includes("ep01.mp4"), "series upload docs exist");
 
 console.log("portfolio ok");
 console.log("AUTO_PROJECT_COUNT=" + portfolio.projects.length);
+console.log("COMMERCIAL_COUNT=" + commercials.length);
+console.log("SERIES_COUNT=" + portfolio.projects.filter((p) => p.format === "story_series").length);

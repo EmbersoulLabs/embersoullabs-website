@@ -400,6 +400,8 @@
     if (inquiryType) {
       if (ref === "agency-whitelabel" || style === "agency") {
         inquiryType.value = "agency_whitelabel";
+      } else if (style === "story-series" || (ref && String(ref).indexOf("series-") === 0)) {
+        inquiryType.value = "custom_video";
       } else if (type || style || ref) {
         inquiryType.value = "custom_video";
       }

@@ -1,22 +1,27 @@
 #!/usr/bin/env node
 /**
- * Discovers assets/portfolio/before + after pairs and writes js/portfolio-manifest.js.
+ * Discovers portfolio commercials + story series and writes js/portfolio-manifest.js.
  * Run during Cloudflare Pages build: `npm run build`
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { discoverPortfolio } from "./lib/portfolio-pairing.mjs";
+import { discoverPortfolio, mergePortfolioProjects } from "./lib/portfolio-pairing.mjs";
+import { discoverSeries } from "./lib/portfolio-series.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const beforeDir = join(root, "assets", "portfolio", "before");
 const afterDir = join(root, "assets", "portfolio", "after");
+const seriesDir = join(root, "assets", "portfolio", "series");
 const outFile = join(root, "js", "portfolio-manifest.js");
 
 mkdirSync(beforeDir, { recursive: true });
 mkdirSync(afterDir, { recursive: true });
+mkdirSync(seriesDir, { recursive: true });
 
-const result = discoverPortfolio(root);
+const pairs = discoverPortfolio(root);
+const series = discoverSeries(root);
+const result = mergePortfolioProjects(pairs, series);
 
 for (const warning of result.warnings) {
   console.warn(`[portfolio] ${warning}`);
@@ -39,4 +44,8 @@ const source =
   "})(typeof window !== \"undefined\" ? window : globalThis);\n";
 
 writeFileSync(outFile, source, "utf8");
-console.log(`[portfolio] Wrote ${result.projects.length} project(s) to js/portfolio-manifest.js`);
+const commercialCount = result.projects.filter((p) => p.format !== "story_series").length;
+const seriesCount = result.projects.filter((p) => p.format === "story_series").length;
+console.log(
+  `[portfolio] Wrote ${result.projects.length} project(s) (${commercialCount} commercial, ${seriesCount} series) to js/portfolio-manifest.js`
+);
