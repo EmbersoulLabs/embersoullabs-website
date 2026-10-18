@@ -140,5 +140,27 @@ export function listFilenames(dir) {
 export function discoverPortfolio(root) {
   const beforeDir = join(root, "assets", "portfolio", "before");
   const afterDir = join(root, "assets", "portfolio", "after");
-  return pairPortfolioFiles(listFilenames(beforeDir), listFilenames(afterDir));
+  const pairs = pairPortfolioFiles(listFilenames(beforeDir), listFilenames(afterDir));
+
+  // Lazy import avoided — series discovery lives beside this module.
+  return pairs;
+}
+
+export function mergePortfolioProjects(pairResult, seriesResult) {
+  const warnings = [...(pairResult.warnings || []), ...(seriesResult.warnings || [])];
+  const errors = [...(pairResult.errors || []), ...(seriesResult.errors || [])];
+  const commercials = (pairResult.projects || []).map((project) => ({
+    ...project,
+    format: project.format || "commercial",
+    sortOrder: project.sortOrder ?? 100 + (project.pairId || 0),
+    cta: project.cta || "video_like_this"
+  }));
+  const series = seriesResult.projects || [];
+  const projects = [...commercials, ...series].sort((a, b) => {
+    const ao = a.sortOrder ?? 999;
+    const bo = b.sortOrder ?? 999;
+    if (ao !== bo) return ao - bo;
+    return String(a.id).localeCompare(String(b.id));
+  });
+  return { projects, warnings, errors };
 }

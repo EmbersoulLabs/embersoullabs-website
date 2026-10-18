@@ -1,0 +1,26 @@
+{
+  "title": {
+    "en": "Fei Sao Popiah — A Family Food Story",
+    "zh": "肥嫂 Popiah｜一份传承的味道"
+  },
+  "description": {
+    "en": "A multi-episode AI brand story series. Episodes appear automatically as finished videos are uploaded — no code changes required.",
+    "zh": "多集 AI 品牌故事系列。成片上传后自动上线，无需改代码。"
+  },
+  "language": "zh",
+  "sortOrder": 5,
+  "episodes": {
+    "ep01": {
+      "title": { "en": "EP01", "zh": "EP01" }
+    },
+    "ep02": {
+      "title": { "en": "EP02", "zh": "EP02" }
+    },
+    "ep03": {
+      "title": { "en": "EP03", "zh": "EP03" }
+    },
+    "ep04": {
+      "title": { "en": "EP04", "zh": "EP04" }
+    }
+  }
+}

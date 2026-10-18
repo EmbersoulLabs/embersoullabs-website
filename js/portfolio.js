@@ -11,10 +11,15 @@
   var projectsById = {};
   var modal = null;
   var lastFocus = null;
+  var seriesState = null;
 
   data.projects.forEach(function (project) {
     if (project && project.id) projectsById[project.id] = project;
   });
+
+  function isSeries(project) {
+    return !!(project && (project.format === "story_series" || project.generationType === "story_series"));
+  }
 
   function hasVideo(project) {
     return !!(project && project.videoUrl);
@@ -25,15 +30,43 @@
   }
 
   function ctaHref(project) {
-    var type = project.packageType || "short";
     var params = new URLSearchParams();
+    if (isSeries(project)) {
+      params.set("style", "story-series");
+      if (project.slug) params.set("ref", "series-" + project.slug);
+      else if (project.id) params.set("ref", project.id);
+      return "/ai-ads/?" + params.toString() + "#inquiry";
+    }
+    var type = project.packageType || "short";
     params.set("type", type);
     if (project.category) params.set("style", project.category);
     if (project.id) params.set("ref", project.id);
     return "/ai-ads/?" + params.toString();
   }
 
+  function ctaLabel(project) {
+    if (isSeries(project)) {
+      return {
+        zh: "申请故事系列企划 →",
+        en: "Request a Story Campaign →"
+      };
+    }
+    return {
+      zh: "做同款视频 →",
+      en: "Create a Video Like This →"
+    };
+  }
+
   function generationBadge(project) {
+    if (isSeries(project)) {
+      var count = project.episodeCount || (project.episodes && project.episodes.length) || 0;
+      return (
+        '<span class="portfolio-badge" data-badge="series">' +
+          '<span class="lang-zh">故事系列 · ' + escapeHtml(String(count)) + " 集</span>" +
+          '<span class="lang-en">Story Series · ' + escapeHtml(String(count)) + " EP</span>" +
+        "</span>"
+      );
+    }
     if (project.generationType === "photos_to_story") {
       return '<span class="portfolio-badge" data-badge="story"><span class="lang-zh">多图 → 故事广告</span><span class="lang-en">Photos → Story Ad</span></span>';
     }
@@ -45,12 +78,18 @@
   }
 
   function escapeHtml(value) {
-    return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return String(value == null ? "" : value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   function previewSrc(project) {
+    if (isSeries(project) && project.coverUrl) return project.coverUrl;
     if (hasOriginals(project)) return project.originalImages[0];
     return "";
+  }
+
+  function previewVideoUrl(project) {
+    if (isSeries(project) && project.episodes && project.episodes.length) return project.episodes[0].videoUrl;
+    return project.videoUrl || "";
   }
 
   function videoTypeFor(url) {
@@ -62,26 +101,25 @@
     empty.className = "portfolio-empty";
     empty.innerHTML =
       '<p class="portfolio-empty-title"><span class="lang-zh">作品即将上线</span><span class="lang-en">Examples coming soon</span></p>' +
-      '<p class="portfolio-empty-copy"><span class="lang-zh">上传配对的 before / after 素材并部署后，这里会自动显示原图与 AI 成片对比。</span><span class="lang-en">After paired before/after media is uploaded and deployed, original photos and AI videos appear here automatically.</span></p>' +
+      '<p class="portfolio-empty-copy"><span class="lang-zh">上传配对的 before / after 素材，或系列成片到 assets/portfolio/series/ 后，这里会自动显示。</span><span class="lang-en">After paired before/after media or story-series episodes are uploaded, examples appear here automatically.</span></p>' +
       '<a class="showcase-cta portfolio-cta" href="/ai-ads/"><span class="lang-zh">先做一支 AI 广告 →</span><span class="lang-en">Create a Video Like This →</span></a>';
     return empty;
   }
 
   function renderAfterPreview(project) {
-    if (!hasVideo(project)) {
+    var url = previewVideoUrl(project);
+    if (!url) {
       return (
         '<div class="portfolio-thumb-frame">' +
           '<div class="portfolio-thumb-fallback" aria-hidden="true"></div>' +
         "</div>"
       );
     }
-    // Native paused video with metadata preload so browsers can show the
-    // finished file's opening visual. Never reuse the Before image as poster.
     return (
       '<div class="portfolio-thumb-frame has-play has-video-preview">' +
         '<video class="portfolio-after-preview" playsinline muted preload="metadata" tabindex="-1" aria-hidden="true"' +
-          ' data-portfolio-preview data-src="' + escapeAttr(project.videoUrl) + '">' +
-          '<source data-src="' + escapeAttr(project.videoUrl) + '" type="' + videoTypeFor(project.videoUrl) + '">' +
+          ' data-portfolio-preview data-src="' + escapeAttr(url) + '">' +
+          '<source data-src="' + escapeAttr(url) + '" type="' + videoTypeFor(url) + '">' +
         "</video>" +
         '<span class="portfolio-play-hint" aria-hidden="true"><span class="portfolio-play-icon"></span></span>' +
       "</div>"
@@ -89,11 +127,41 @@
   }
 
   function renderCompactPreview(project) {
+    if (isSeries(project)) {
+      var cover = previewSrc(project);
+      var meta = [];
+      var epCount = project.episodeCount || (project.episodes && project.episodes.length) || 0;
+      if (epCount) meta.push(epCount + " EP");
+      if (project.language) meta.push(escapeHtml(String(project.language).toUpperCase()));
+      var metaHtml = meta.length ? '<span class="portfolio-preview-meta">' + meta.join(" · ") + "</span>" : "";
+      var media =
+        cover
+          ? '<div class="portfolio-pane portfolio-pane-series-cover">' +
+              '<div class="portfolio-thumb-frame">' +
+                '<img src="' + escapeAttr(cover) + '" alt="" loading="lazy" decoding="async" width="320" height="180">' +
+              "</div>" +
+            "</div>" +
+            '<span class="portfolio-arrow" aria-hidden="true">→</span>'
+          : "";
+      return (
+        '<button type="button" class="portfolio-preview" data-portfolio-open aria-haspopup="dialog" aria-label="Open story series">' +
+          '<div class="portfolio-media-compact portfolio-media-series">' +
+            media +
+            '<div class="portfolio-pane portfolio-pane-after">' +
+              '<span class="portfolio-pane-label"><span class="lang-zh">系列预览</span><span class="lang-en">Series</span></span>' +
+              renderAfterPreview(project) +
+            "</div>" +
+          "</div>" +
+          metaHtml +
+        "</button>"
+      );
+    }
+
     var beforeSrc = previewSrc(project);
-    var meta = [];
-    if (project.duration) meta.push(escapeHtml(project.duration));
-    if (project.language) meta.push(escapeHtml(String(project.language).toUpperCase()));
-    var metaHtml = meta.length ? '<span class="portfolio-preview-meta">' + meta.join(" · ") + "</span>" : "";
+    var metaBits = [];
+    if (project.duration) metaBits.push(escapeHtml(project.duration));
+    if (project.language) metaBits.push(escapeHtml(String(project.language).toUpperCase()));
+    var metaLine = metaBits.length ? '<span class="portfolio-preview-meta">' + metaBits.join(" · ") + "</span>" : "";
 
     var beforePane = beforeSrc
       ? '<div class="portfolio-pane portfolio-pane-before">' +
@@ -117,7 +185,7 @@
           (beforeSrc ? '<span class="portfolio-arrow" aria-hidden="true">→</span>' : "") +
           afterPane +
         "</div>" +
-        metaHtml +
+        metaLine +
       "</button>"
     );
   }
@@ -128,8 +196,14 @@
     article.dataset.category = project.category || "";
     article.dataset.generationType = project.generationType || "";
     article.dataset.portfolioId = project.id;
-    if (hasOriginals(project)) article.classList.add("has-before-after");
-    if (hasVideo(project)) article.classList.add("has-video");
+    article.dataset.format = project.format || "commercial";
+    if (isSeries(project)) article.classList.add("is-series");
+    if (hasOriginals(project) || project.coverUrl) article.classList.add("has-before-after");
+    if (hasVideo(project) || previewVideoUrl(project)) article.classList.add("has-video");
+
+    var cta = ctaLabel(project);
+    var expandZh = isSeries(project) ? "查看系列" : "查看完整对比";
+    var expandEn = isSeries(project) ? "View series" : "View full comparison";
 
     article.innerHTML =
       generationBadge(project) +
@@ -143,10 +217,10 @@
           '</span><span class="lang-en">' + escapeHtml(project.description && project.description.en || "") + "</span></p>" +
         '<div class="portfolio-card-actions">' +
           '<button type="button" class="portfolio-expand" data-portfolio-open>' +
-            '<span class="lang-zh">查看完整对比</span><span class="lang-en">View full comparison</span>' +
+            '<span class="lang-zh">' + expandZh + '</span><span class="lang-en">' + expandEn + "</span>" +
           "</button>" +
           '<a href="' + ctaHref(project) + '" class="showcase-cta portfolio-cta">' +
-            '<span class="lang-zh">做同款视频 →</span><span class="lang-en">Create a Video Like This →</span>' +
+            '<span class="lang-zh">' + escapeHtml(cta.zh) + '</span><span class="lang-en">' + escapeHtml(cta.en) + "</span>" +
           "</a>" +
         "</div>" +
       "</div>";
@@ -162,7 +236,7 @@
     modal.innerHTML =
       '<div class="portfolio-modal-backdrop" data-portfolio-close tabindex="-1"></div>' +
       '<div class="portfolio-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="portfolio-modal-title" tabindex="-1">' +
-        '<button type="button" class="portfolio-modal-close" data-portfolio-close aria-label="Close comparison">' +
+        '<button type="button" class="portfolio-modal-close" data-portfolio-close aria-label="Close">' +
           '<span aria-hidden="true">×</span>' +
         "</button>" +
         '<div class="portfolio-modal-header">' +
@@ -176,6 +250,16 @@
 
     modal.addEventListener("click", function (event) {
       if (event.target.closest("[data-portfolio-close]")) closeModal();
+      var epBtn = event.target.closest("[data-series-ep]");
+      if (epBtn && seriesState) {
+        selectEpisode(Number(epBtn.getAttribute("data-series-ep")));
+      }
+      if (event.target.closest("[data-series-prev]") && seriesState) {
+        selectEpisode(seriesState.index - 1);
+      }
+      if (event.target.closest("[data-series-next]") && seriesState) {
+        selectEpisode(seriesState.index + 1);
+      }
     });
 
     document.addEventListener("keydown", function (event) {
@@ -184,6 +268,18 @@
         event.preventDefault();
         closeModal();
         return;
+      }
+      if (seriesState) {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          selectEpisode(seriesState.index - 1);
+          return;
+        }
+        if (event.key === "ArrowRight") {
+          event.preventDefault();
+          selectEpisode(seriesState.index + 1);
+          return;
+        }
       }
       if (event.key === "Tab") trapFocus(event);
     });
@@ -218,7 +314,7 @@
 
   function pauseAllVideos() {
     Array.prototype.forEach.call(
-      document.querySelectorAll("video[data-portfolio-video], video[data-portfolio-preview]"),
+      document.querySelectorAll("video[data-portfolio-video], video[data-portfolio-preview], video[data-series-video]"),
       function (video) {
         if (!video.paused) video.pause();
       }
@@ -229,6 +325,7 @@
   function closeModal() {
     if (!modal || modal.hidden) return;
     pauseAllVideos();
+    seriesState = null;
     modal.hidden = true;
     modal.classList.remove("is-open");
     document.body.classList.remove("portfolio-modal-open");
@@ -236,15 +333,12 @@
     lastFocus = null;
   }
 
-  function openModal(project, opener) {
-    ensureModal();
-    lastFocus = opener || document.activeElement;
-    pauseAllVideos();
-
+  function openCommercialModal(project) {
     var kicker = modal.querySelector("#portfolio-modal-kicker");
     var title = modal.querySelector("#portfolio-modal-title");
     var body = modal.querySelector("#portfolio-modal-body");
     var footer = modal.querySelector("#portfolio-modal-footer");
+    var cta = ctaLabel(project);
 
     kicker.innerHTML =
       '<span class="lang-zh">' + escapeHtml(project.categoryLabel && project.categoryLabel.zh || "") +
@@ -295,7 +389,7 @@
 
     footer.innerHTML =
       '<a href="' + ctaHref(project) + '" class="showcase-cta portfolio-cta">' +
-        '<span class="lang-zh">做同款视频 →</span><span class="lang-en">Create a Video Like This →</span>' +
+        '<span class="lang-zh">' + escapeHtml(cta.zh) + '</span><span class="lang-en">' + escapeHtml(cta.en) + "</span>" +
       "</a>";
 
     var modalVideo = body.querySelector("video[data-portfolio-video]");
@@ -304,6 +398,127 @@
         pauseOthers(modalVideo);
       });
     }
+  }
+
+  function renderSeriesEpisodeNav(project, index) {
+    return (
+      '<div class="series-ep-nav" role="tablist" aria-label="Episodes">' +
+        project.episodes.map(function (ep, i) {
+          var selected = i === index;
+          return (
+            '<button type="button" class="series-ep-chip" role="tab" data-series-ep="' + i + '"' +
+              ' aria-selected="' + (selected ? "true" : "false") + '"' +
+              (selected ? ' aria-current="true"' : "") + ">" +
+              '<span class="lang-zh">' + escapeHtml(ep.title && ep.title.zh || ep.id) + "</span>" +
+              '<span class="lang-en">' + escapeHtml(ep.title && ep.title.en || ep.id) + "</span>" +
+            "</button>"
+          );
+        }).join("") +
+      "</div>"
+    );
+  }
+
+  function renderSeriesBody(project, index) {
+    var ep = project.episodes[index];
+    if (!ep) return "";
+    var progress = (index + 1) + " / " + project.episodes.length;
+    var duration = ep.duration ? escapeHtml(ep.duration) : "";
+    var refs = Array.isArray(ep.references) && ep.references.length
+      ? '<div class="series-refs">' +
+          '<p class="portfolio-pane-label"><span class="lang-zh">参考图</span><span class="lang-en">References</span></p>' +
+          '<div class="portfolio-modal-thumbs is-multi">' +
+            ep.references.map(function (src, i) {
+              return (
+                '<figure class="portfolio-modal-figure">' +
+                  '<img src="' + escapeAttr(src) + '" alt="Episode reference ' + (i + 1) + '" loading="lazy" decoding="async">' +
+                "</figure>"
+              );
+            }).join("") +
+          "</div>" +
+        "</div>"
+      : "";
+
+    return (
+      '<div class="series-viewer">' +
+        '<p class="series-progress">' +
+          '<span class="lang-zh">进度 ' + progress + (duration ? " · " + duration : "") + "</span>" +
+          '<span class="lang-en">Episode ' + progress + (duration ? " · " + duration : "") + "</span>" +
+        "</p>" +
+        renderSeriesEpisodeNav(project, index) +
+        '<div class="portfolio-modal-video series-video-wrap">' +
+          '<video playsinline preload="metadata" controls data-series-video data-portfolio-video' +
+            ' src="' + escapeAttr(ep.videoUrl) + '">' +
+            '<source src="' + escapeAttr(ep.videoUrl) + '" type="' + videoTypeFor(ep.videoUrl) + '">' +
+          "</video>" +
+        "</div>" +
+        '<p class="series-ep-desc"><span class="lang-zh">' + escapeHtml(ep.description && ep.description.zh || "") +
+          '</span><span class="lang-en">' + escapeHtml(ep.description && ep.description.en || "") + "</span></p>" +
+        refs +
+        '<div class="series-controls">' +
+          '<button type="button" class="btn btn-ghost" data-series-prev' + (index <= 0 ? " disabled" : "") + ">" +
+            '<span class="lang-zh">上一集</span><span class="lang-en">Previous</span>' +
+          "</button>" +
+          '<button type="button" class="btn btn-ghost" data-series-next' + (index >= project.episodes.length - 1 ? " disabled" : "") + ">" +
+            '<span class="lang-zh">下一集</span><span class="lang-en">Next</span>' +
+          "</button>" +
+        "</div>" +
+      "</div>"
+    );
+  }
+
+  function openSeriesModal(project) {
+    seriesState = { project: project, index: 0 };
+    var kicker = modal.querySelector("#portfolio-modal-kicker");
+    var title = modal.querySelector("#portfolio-modal-title");
+    var body = modal.querySelector("#portfolio-modal-body");
+    var footer = modal.querySelector("#portfolio-modal-footer");
+    var cta = ctaLabel(project);
+
+    kicker.innerHTML =
+      '<span class="lang-zh">' + escapeHtml(project.categoryLabel && project.categoryLabel.zh || "故事系列") +
+      '</span><span class="lang-en">' + escapeHtml(project.categoryLabel && project.categoryLabel.en || "Story Series") + "</span>";
+    title.innerHTML =
+      '<span class="lang-zh">' + escapeHtml(project.title && project.title.zh || "") +
+      '</span><span class="lang-en">' + escapeHtml(project.title && project.title.en || "") + "</span>";
+
+    body.innerHTML = renderSeriesBody(project, 0);
+    footer.innerHTML =
+      '<a href="' + ctaHref(project) + '" class="showcase-cta portfolio-cta">' +
+        '<span class="lang-zh">' + escapeHtml(cta.zh) + '</span><span class="lang-en">' + escapeHtml(cta.en) + "</span>" +
+      "</a>";
+
+    bindSeriesVideo();
+  }
+
+  function bindSeriesVideo() {
+    var video = modal.querySelector("video[data-series-video]");
+    if (!video) return;
+    video.addEventListener("play", function () {
+      pauseOthers(video);
+    });
+  }
+
+  function selectEpisode(index) {
+    if (!seriesState || !modal) return;
+    var project = seriesState.project;
+    if (!project.episodes || index < 0 || index >= project.episodes.length) return;
+    pauseAllVideos();
+    seriesState.index = index;
+    var body = modal.querySelector("#portfolio-modal-body");
+    body.innerHTML = renderSeriesBody(project, index);
+    bindSeriesVideo();
+    var chip = body.querySelector('[data-series-ep="' + index + '"]');
+    if (chip) chip.focus();
+  }
+
+  function openModal(project, opener) {
+    ensureModal();
+    lastFocus = opener || document.activeElement;
+    pauseAllVideos();
+    seriesState = null;
+
+    if (isSeries(project)) openSeriesModal(project);
+    else openCommercialModal(project);
 
     modal.hidden = false;
     modal.classList.add("is-open");
@@ -314,7 +529,7 @@
 
   function pauseOthers(except) {
     Array.prototype.forEach.call(
-      document.querySelectorAll("video[data-portfolio-video], video[data-portfolio-preview]"),
+      document.querySelectorAll("video[data-portfolio-video], video[data-portfolio-preview], video[data-series-video]"),
       function (video) {
         if (video !== except && !video.paused) video.pause();
       }
@@ -335,7 +550,6 @@
       video.dataset.hydrated = "1";
       video.load();
       video.addEventListener("play", function (event) {
-        // Card previews must stay paused; open the modal instead.
         event.preventDefault();
         video.pause();
       });

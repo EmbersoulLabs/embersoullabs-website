@@ -47,13 +47,24 @@ after 4.mp4
 
 All before images with the same number become one project matched to `after 4.mp4`.
 
-## 5. How the website updates
+## 5. Brand Story Series (multi-episode)
+
+For multi-episode campaigns, use:
+
+`assets/portfolio/series/<series-slug>/`
+
+See `assets/portfolio/series/README.md`.
+
+Example upcoming project folder: `series/feisao-popiah/`  
+(Metadata may exist before videos. The site only publishes series that have at least one episode file.)
+
+## 6. How the website updates
 
 1. Add the media files to the folders above.
 2. Commit and push (or run the Pages build).
 3. Build runs `npm run build` → `node scripts/generate-portfolio.mjs`.
 4. That script writes `js/portfolio-manifest.js`.
-5. The homepage reads the manifest and shows Before / After cards.
+5. The homepage reads the manifest and shows Before / After cards and story series.
 
 Cloudflare Pages build command should be:
 
@@ -69,7 +80,7 @@ Locally you can regenerate anytime:
 npm run build
 ```
 
-## 6. File recommendations
+## 7. File recommendations
 
 - Prefer vertical 9:16 product imagery when possible.
 - Keep photos under ~2 MB each (compressed JPG/WebP).
