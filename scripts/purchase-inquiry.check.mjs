@@ -28,10 +28,14 @@ assert(!aiAds.includes('id="ad_type"'), "no required package select in inquiry")
 assert(!aiAds.includes('class="order-price-list"'), "no duplicated price list in inquiry");
 assert(!aiAds.includes("Selected Package"), "no package fieldset in inquiry");
 assert(aiAds.includes('name="inquiry_type"') && aiAds.includes("agency_whitelabel"), "custom + agency inquiry");
+assert(aiAds.includes("custom_product_commercial") && aiAds.includes("brand_story_campaign"), "contextual custom inquiry types");
 assert(aiAds.includes("agree_privacy") && aiAds.includes("product_brief"), "privacy + product essentials");
 assert(aiAds.includes('name="inquiry_path"') && aiAds.includes("custom_quote"), "inquiry marked as quote path");
 assert(aiAds.includes("portfolio_reference") && aiAds.includes("preferred_style"), "portfolio metadata preserved");
 assert((aiAds.match(/data-price-offer="/g) || []).length === 3, "prices appear once in package cards only");
+const formOnly = aiAds.slice(aiAds.indexOf('<form class="apply-form"'), aiAds.indexOf("</form>"));
+assert(!formOnly.includes("From USD 149") && !formOnly.includes("From USD 399") && !formOnly.includes("data-price-offer"), "inquiry form does not repeat prices");
+assert(aiAds.includes("Discuss Agency Partnership") && home.includes("From USD 149") && home.includes("From USD 399"), "custom quote offers are visible");
 
 assert(home.includes("Request a Quote") && home.includes('href="/ai-ads/#inquiry"'), "home quote CTA");
 assert(home.includes('ref=agency-whitelabel') && home.includes("#inquiry"), "agency CTA to inquiry");

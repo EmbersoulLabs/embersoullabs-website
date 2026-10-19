@@ -46,6 +46,8 @@ function assertNotIncludes(src, s, label) {
 ].forEach((s) => assertIncludes(pricingSrc, s, "pricing.js"));
 
 assertIncludes(pricingSrc, "embersoul_pricing_region", "pricing.js");
+assertIncludes(pricingSrc, "history.replaceState", "pricing.js keeps a manual market in the URL");
+assertIncludes(pricingSrc, "if (getManualRegion()) return;", "pricing.js does not let detection override a manual market");
 assertIncludes(pricingSrc, "/cdn-cgi/trace", "pricing.js");
 assertIncludes(pricingSrc, 'amount: 129', "pricing.js monthly USD amount");
 assertIncludes(pricingSrc, "one_time_30_day", "pricing.js monthly billing");
@@ -74,13 +76,17 @@ assert(hasAmount("intl", "short", 19), "INTL short = 19");
 assert(hasAmount("intl", "story", 59), "INTL story = 59");
 assert(hasAmount("intl", "monthly", 129), "INTL monthly = 129");
 
-// Stale / forbidden values
-[pricingSrc, homeSrc, formSrc, stripeSrc].forEach((src, i) => {
-  const label = ["pricing.js", "index.html", "ai-ads", "stripe-config"][i];
+// Standard package tables must not absorb custom starting quotes.
+[pricingSrc, stripeSrc].forEach((src, i) => {
+  const label = ["pricing.js", "stripe-config"][i];
   assertNotIncludes(src, "USD 149", label);
   assertNotIncludes(src, "From USD 149", label);
+  assertNotIncludes(src, "USD 399", label);
+});
+
+[pricingSrc, homeSrc, formSrc, stripeSrc].forEach((src, i) => {
+  const label = ["pricing.js", "index.html", "ai-ads", "stripe-config"][i];
   assertNotIncludes(src, "Automatically renews", label);
-  // Comments may mention price_xxxxx — forbid assigned fake IDs only
   assert(
     !/price_[A-Za-z0-9]{8,}/.test(src) ||
       /DO NOT invent|price_xxxxx|price_xxx\b/.test(src),
@@ -89,6 +95,18 @@ assert(hasAmount("intl", "monthly", 129), "INTL monthly = 129");
 });
 
 assert(!/\b149\b/.test(pricingSrc.replace(/\/\*[\s\S]*?\*\//g, "")), "pricing.js has no 149 amount");
+assert(!/\b399\b/.test(pricingSrc.replace(/\/\*[\s\S]*?\*\//g, "")), "pricing.js has no 399 amount");
+
+["From USD 149", "From USD 399", "Custom Quote", "custom_product_commercial", "brand_story_campaign", "agency_whitelabel"].forEach((s) => {
+  assertIncludes(homeSrc, s, "homepage custom production");
+  assertIncludes(formSrc, s, "ai-ads custom production");
+});
+assert((homeSrc.match(/data-price-offer="/g) || []).length === 3, "homepage standard prices only");
+assert((formSrc.match(/data-price-offer="/g) || []).length === 3, "ai-ads standard prices only");
+assert((homeSrc.match(/data-checkout-service=/g) || []).length === 3, "homepage buy actions stay on standard packages");
+assert((formSrc.match(/data-checkout-service=/g) || []).length === 3, "ai-ads buy actions stay on standard packages");
+assert(!formSrc.includes('data-checkout-service="custom'), "custom services have no checkout");
+assertIncludes(formSrc, "Discuss Agency Partnership", "ai-ads agency CTA");
 
 // Lookup keys
 [
@@ -155,6 +173,7 @@ function countryToRegion(cc) {
   ["SG", "sg"],
   ["MY", "my"],
   ["US", "intl"],
+  ["AU", "intl"],
   ["GB", "intl"],
   [null, "intl"],
 ].forEach(([cc, expect]) => {
