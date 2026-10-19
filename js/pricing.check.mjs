@@ -107,6 +107,8 @@ assert((homeSrc.match(/data-checkout-service=/g) || []).length === 3, "homepage 
 assert((formSrc.match(/data-checkout-service=/g) || []).length === 3, "ai-ads buy actions stay on standard packages");
 assert(!formSrc.includes('data-checkout-service="custom'), "custom services have no checkout");
 assertIncludes(formSrc, "Discuss Agency Partnership", "ai-ads agency CTA");
+assert((homeSrc.match(/Quoted in USD, including for Malaysia and Singapore/g) || []).length === 3, "homepage custom quotes name USD for MY/SG");
+assert((formSrc.match(/Quoted in USD, including for Malaysia and Singapore/g) || []).length === 3, "ai-ads custom quotes name USD for MY/SG");
 
 // Lookup keys
 [

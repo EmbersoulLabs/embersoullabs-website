@@ -2161,6 +2161,14 @@ button.btn:disabled {
 
 .custom-card .price-slot {
   margin-top: 0.35rem;
+  margin-bottom: 0;
+}
+
+.quote-currency {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--text-muted);
 }
 
 .custom-card .btn {
