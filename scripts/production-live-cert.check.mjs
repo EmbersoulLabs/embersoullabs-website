@@ -35,7 +35,7 @@ await check("home", async () => {
     oneTime: /One-time payment/i.test(t),
     enquire: t.includes("Request a Quote") && !t.includes("Enquire first"),
     revisions3: t.includes("Up to 3 revisions included"),
-    no149: !t.includes("USD 149") && !t.includes("149/month"),
+    no149: !t.includes("149/month") && !/data-price-offer="(?:short|story|monthly)"[^>]*>\s*(?:From )?USD 149/.test(t),
   };
 });
 

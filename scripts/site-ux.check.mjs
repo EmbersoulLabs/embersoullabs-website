@@ -77,6 +77,7 @@ assert(products.includes('id="packages"') && products.includes("Buy Now"), "stan
 assert(!products.includes('id="ad_type"') && !products.includes("Selected Package"), "inquiry no longer requires a package");
 assert(!products.includes('class="order-price-list"'), "inquiry does not repeat the price list");
 assert(products.includes('name="inquiry_type"') && products.includes("agency_whitelabel"), "custom and agency inquiry types remain");
+assert(products.includes("custom_product_commercial") && products.includes("brand_story_campaign"), "custom inquiry types are selectable");
 assert(success.includes('name="asset_links"') && success.includes('name="asset_status"'), "paid success brief collects photo links securely");
 assert(success.includes("anyone with the link can view") && success.includes("Customer login"), "photo-link sharing + claim guidance");
 const orderDetail = readFileSync(join(root, "account/orders/_/index.html"), "utf8");

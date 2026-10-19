@@ -111,6 +111,8 @@
     var c = String(cc).toUpperCase();
     if (c === "SG") return "sg";
     if (c === "MY") return "my";
+    // United States, Australia, and every other market stay on USD.
+    // Manual selection is stored separately and is not overwritten here.
     return "intl";
   }
 
@@ -218,13 +220,14 @@
     var meta = REGIONS[id];
     var inquiryType = document.getElementById("inquiry_type");
     var offerLabels = {
-      custom_video: "Custom video project — no standard package",
-      agency_whitelabel: "Agency / white-label partnership — no standard package",
+      custom_product_commercial: "Custom Product Commercial — quote, no standard package",
+      brand_story_campaign: "Brand Story / Campaign — quote, no standard package",
+      agency_whitelabel: "White-label agency partnership — quote, no standard package",
       general: "General quote question — no standard package",
     };
-    var typeVal = inquiryType && inquiryType.value ? inquiryType.value : "custom_video";
+    var typeVal = inquiryType && inquiryType.value ? inquiryType.value : "custom_product_commercial";
     var serviceName =
-      offerLabels[typeVal] || "Custom quote — no standard package";
+      offerLabels[typeVal] || offerLabels.custom_product_commercial;
 
     setHidden(form, "selected_service", serviceName);
     setHidden(form, "pricing_region", meta.regionName);
@@ -249,7 +252,13 @@
   function bindSelectors() {
     document.querySelectorAll("[data-region-select]").forEach(function (sel) {
       sel.addEventListener("change", function () {
-        applyPrices(setManualRegion(sel.value));
+        var id = setManualRegion(sel.value);
+        try {
+          var url = new URL(window.location.href);
+          url.searchParams.set("region", id);
+          history.replaceState(null, "", url.pathname + url.search + url.hash);
+        } catch (e) {}
+        applyPrices(id);
       });
     });
   }
