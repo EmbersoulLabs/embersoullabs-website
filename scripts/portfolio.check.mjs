@@ -78,7 +78,8 @@ assert(portfolio.source === "auto-manifest", "projects come from auto discovery"
 
 for (const project of portfolio.projects) {
   assert(project.videoUrl && project.originalImages.length, `${project.id} is a complete pair`);
-  assert(String(project.videoUrl).startsWith("/assets/portfolio/after/"), `${project.id} video path is local`);
+  assert(String(project.videoUrl).startsWith("/assets/portfolio/preview/"), `${project.id} video path is the watermarked preview`);
+  assert(!String(project.videoUrl).includes("/assets/portfolio/after/"), `${project.id} does not publish the clean master`);
   for (const src of project.originalImages) {
     assert(String(src).startsWith("/assets/portfolio/before/"), `${project.id} before path is local`);
   }

@@ -10,15 +10,31 @@ Put source photos in:
 
 Supported formats: `.jpg` `.jpeg` `.png` `.webp`
 
-## 2. Upload AI-generated videos
+## 2. Keep clean masters private to the project folder
 
-Put finished ads in:
+Put the clean, watermark-free masters in:
 
 `assets/portfolio/after/`
 
 Supported formats: `.mp4` `.webm`
 
-## 3. Filename matching
+These files are the paid-delivery masters. Do not overwrite or re-encode them. The website does not link to this folder. The files are still inside the published site, so their existing URLs stay reachable until the masters are moved out of the Pages project.
+
+## 3. Publish watermarked previews
+
+Put a watermarked copy with the same filename in:
+
+`assets/portfolio/preview/`
+
+Example: `after/after 1.mp4` stays clean, and `preview/after 1.mp4` is what visitors play. Regenerate previews with:
+
+```bash
+node scripts/watermark-portfolio-previews.mjs
+```
+
+A pair with no preview is not published. The build fails instead of linking the clean master.
+
+## 4. Filename matching
 
 Match files by number. Extensions do not need to match. Spaces are allowed.
 
@@ -34,7 +50,7 @@ Only complete pairs are published. A lone before or lone after is skipped and re
 
 Duplicate numbers (for example two `after 3.*` files) fail the build with a clear error.
 
-## 4. Multiple reference photos (story commercials)
+## 5. Multiple reference photos (story commercials)
 
 For one story video with several references:
 
@@ -47,7 +63,7 @@ after 4.mp4
 
 All before images with the same number become one project matched to `after 4.mp4`.
 
-## 5. How the website updates
+## 6. How the website updates
 
 1. Add the media files to the folders above.
 2. Commit and push (or run the Pages build).
@@ -69,7 +85,7 @@ Locally you can regenerate anytime:
 npm run build
 ```
 
-## 6. File recommendations
+## 7. File recommendations
 
 - Prefer vertical 9:16 product imagery when possible.
 - Keep photos under ~2 MB each (compressed JPG/WebP).
