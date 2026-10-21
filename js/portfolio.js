@@ -24,6 +24,22 @@
     return !!(project && Array.isArray(project.originalImages) && project.originalImages.length);
   }
 
+  function protectPortfolioVideo(video) {
+    if (!video || video.getAttribute("data-portfolio-protected") === "1") return;
+    video.setAttribute("data-portfolio-protected", "1");
+    video.setAttribute("controlsList", "nodownload");
+    if (video.controlsList && typeof video.controlsList.add === "function") {
+      try { video.controlsList.add("nodownload"); } catch (error) { /* unsupported */ }
+    }
+    video.draggable = false;
+    video.addEventListener("contextmenu", function (event) {
+      event.preventDefault();
+    });
+    video.addEventListener("dragstart", function (event) {
+      event.preventDefault();
+    });
+  }
+
   function visiblePackage(raw) {
     if (raw === "narrative" || raw === "story") return "narrative";
     if (raw === "series" || raw === "monthly") return "series";
@@ -85,6 +101,7 @@
     return (
       '<div class="portfolio-thumb-frame has-play has-video-preview">' +
         '<video class="portfolio-after-preview" playsinline muted preload="metadata" tabindex="-1" aria-hidden="true"' +
+          ' controlsList="nodownload" draggable="false"' +
           ' data-portfolio-preview data-src="' + escapeAttr(project.videoUrl) + '">' +
           '<source data-src="' + escapeAttr(project.videoUrl) + '" type="' + videoTypeFor(project.videoUrl) + '">' +
         "</video>" +
@@ -283,7 +300,7 @@
         '<div class="portfolio-modal-pane">' +
           '<p class="portfolio-pane-label"><span class="lang-zh">After · AI 成片</span><span class="lang-en">After</span></p>' +
           '<div class="portfolio-modal-video">' +
-            '<video playsinline preload="none" controls data-portfolio-video' +
+            '<video playsinline preload="none" controls controlsList="nodownload" draggable="false" data-portfolio-video' +
               ' src="' + escapeAttr(project.videoUrl) + '">' +
               '<source src="' + escapeAttr(project.videoUrl) + '" type="' + videoTypeFor(project.videoUrl) + '">' +
             "</video>" +
@@ -305,6 +322,7 @@
 
     var modalVideo = body.querySelector("video[data-portfolio-video]");
     if (modalVideo) {
+      protectPortfolioVideo(modalVideo);
       modalVideo.addEventListener("play", function () {
         pauseOthers(modalVideo);
       });
@@ -338,6 +356,7 @@
         source.src = source.getAttribute("data-src");
       });
       video.dataset.hydrated = "1";
+      protectPortfolioVideo(video);
       video.load();
       video.addEventListener("play", function (event) {
         // Card previews must stay paused; open the modal instead.

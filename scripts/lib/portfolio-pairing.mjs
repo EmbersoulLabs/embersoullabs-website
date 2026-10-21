@@ -27,7 +27,7 @@ export function parseAfterName(name) {
   };
 }
 
-function publicPath(folder, filename) {
+export function publicPath(folder, filename) {
   return `/assets/portfolio/${folder}/${encodeURIComponent(filename).replace(/%20/g, "%20")}`;
 }
 
@@ -140,5 +140,21 @@ export function listFilenames(dir) {
 export function discoverPortfolio(root) {
   const beforeDir = join(root, "assets", "portfolio", "before");
   const afterDir = join(root, "assets", "portfolio", "after");
-  return pairPortfolioFiles(listFilenames(beforeDir), listFilenames(afterDir));
+  const previewDir = join(root, "assets", "portfolio", "preview");
+  const result = pairPortfolioFiles(listFilenames(beforeDir), listFilenames(afterDir));
+  const previews = new Set(listFilenames(previewDir));
+  const published = [];
+
+  for (const project of result.projects) {
+    const filename = decodeURIComponent(String(project.videoUrl).split("/").pop());
+    if (!previews.has(filename)) {
+      result.errors.push(`Missing watermarked preview for ${filename}. The clean master is not published.`);
+      continue;
+    }
+    project.videoUrl = publicPath("preview", filename);
+    published.push(project);
+  }
+
+  result.projects = published;
+  return result;
 }

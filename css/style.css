@@ -1100,6 +1100,7 @@ button.chip.portfolio-filter[aria-selected="true"] {
 .portfolio-thumb-frame video.portfolio-after-preview {
   pointer-events: none;
   background: #0b0f16;
+  -webkit-user-drag: none;
 }
 
 .portfolio-thumb-fallback {
@@ -1429,6 +1430,7 @@ body.portfolio-modal-open {
   object-fit: contain;
   display: block;
   background: #000;
+  -webkit-user-drag: none;
 }
 
 .portfolio-modal-arrow {

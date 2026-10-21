@@ -2,7 +2,7 @@
  * Portfolio runtime data.
  *
  * Projects come from the auto-generated manifest (js/portfolio-manifest.js),
- * which is built from assets/portfolio/before + assets/portfolio/after.
+ * which is built from before photos, clean after masters, and watermarked preview videos.
  *
  * Optional metadata overlays can refine titles/categories by pair id without
  * editing filenames. Adding new media does not require editing this file.

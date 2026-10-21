@@ -57,12 +57,27 @@ const fixtureRoot = mkdtempSync(join(tmpdir(), "portfolio-fix-"));
 try {
   mkdirSync(join(fixtureRoot, "assets", "portfolio", "before"), { recursive: true });
   mkdirSync(join(fixtureRoot, "assets", "portfolio", "after"), { recursive: true });
+  mkdirSync(join(fixtureRoot, "assets", "portfolio", "preview"), { recursive: true });
   writeFileSync(join(fixtureRoot, "assets", "portfolio", "before", "before 9.jpg"), "fake");
   writeFileSync(join(fixtureRoot, "assets", "portfolio", "after", "after 9.mp4"), "fake");
+  writeFileSync(join(fixtureRoot, "assets", "portfolio", "preview", "after 9.mp4"), "fake");
   const { discoverPortfolio } = await import("./lib/portfolio-pairing.mjs");
   const discovered = discoverPortfolio(fixtureRoot);
   assert(discovered.projects.length === 1, "discovers pairs from disk");
   assert(discovered.projects[0].pairId === 9, "discovers pair 9");
+  assert(discovered.projects[0].videoUrl.startsWith("/assets/portfolio/preview/"), "public video is the preview");
+  assert(!discovered.projects[0].videoUrl.includes("/assets/portfolio/after/"), "public video is not the master");
+
+  const masterOnly = mkdtempSync(join(tmpdir(), "portfolio-master-"));
+  mkdirSync(join(masterOnly, "assets", "portfolio", "before"), { recursive: true });
+  mkdirSync(join(masterOnly, "assets", "portfolio", "after"), { recursive: true });
+  mkdirSync(join(masterOnly, "assets", "portfolio", "preview"), { recursive: true });
+  writeFileSync(join(masterOnly, "assets", "portfolio", "before", "before 11.jpg"), "fake");
+  writeFileSync(join(masterOnly, "assets", "portfolio", "after", "after 11.mp4"), "fake");
+  const hidden = discoverPortfolio(masterOnly);
+  assert(hidden.projects.length === 0, "a clean master without a preview is not published");
+  assert(hidden.errors.some((error) => /Missing watermarked preview/.test(error)), "missing preview is an error");
+  rmSync(masterOnly, { recursive: true, force: true });
 } finally {
   rmSync(fixtureRoot, { recursive: true, force: true });
 }
