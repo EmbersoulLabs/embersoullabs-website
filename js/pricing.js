@@ -46,29 +46,29 @@
    */
   var PRICES = {
     my: {
-      short: { amount: 69, display: "RM 69", billing: "one_time" },
-      story: { amount: 189, display: "RM 189", billing: "one_time" },
-      monthly: {
-        amount: 499,
-        display: "RM 499 / 30-day package",
+      product: { amount: 189, display: "RM 189", billing: "one_time" },
+      narrative: { amount: 399, display: "RM 399", billing: "one_time" },
+      series: {
+        amount: 699,
+        display: "RM 699 / 30-day package",
         billing: "one_time_30_day",
       },
     },
     sg: {
-      short: { amount: 29, display: "SGD 29", billing: "one_time" },
-      story: { amount: 79, display: "SGD 79", billing: "one_time" },
-      monthly: {
-        amount: 199,
-        display: "SGD 199 / 30-day package",
+      product: { amount: 79, display: "SGD 79", billing: "one_time" },
+      narrative: { amount: 169, display: "SGD 169", billing: "one_time" },
+      series: {
+        amount: 299,
+        display: "SGD 299 / 30-day package",
         billing: "one_time_30_day",
       },
     },
     intl: {
-      short: { amount: 19, display: "USD 19", billing: "one_time" },
-      story: { amount: 59, display: "USD 59", billing: "one_time" },
-      monthly: {
-        amount: 129,
-        display: "USD 129 / 30-day package",
+      product: { amount: 59, display: "USD 59", billing: "one_time" },
+      narrative: { amount: 129, display: "USD 129", billing: "one_time" },
+      series: {
+        amount: 229,
+        display: "USD 229 / 30-day package",
         billing: "one_time_30_day",
       },
     },
@@ -79,20 +79,20 @@
    * DO NOT invent Price IDs (price_xxx). Fill priceId only when provided securely.
    */
   var STRIPE_LOOKUP_KEYS = {
-    short: {
-      my: "ai_short_ad_my",
-      sg: "ai_short_ad_sg",
-      intl: "ai_short_ad_intl",
+    product: {
+      my: "product_commercial_my_v2",
+      sg: "product_commercial_sg_v2",
+      intl: "product_commercial_intl_v2",
     },
-    story: {
-      my: "ai_story_ad_my",
-      sg: "ai_story_ad_sg",
-      intl: "ai_story_ad_intl",
+    narrative: {
+      my: "story_commercial_my_v2",
+      sg: "story_commercial_sg_v2",
+      intl: "story_commercial_intl_v2",
     },
-    monthly: {
-      my: "monthly_ai_content_my",
-      sg: "monthly_ai_content_sg",
-      intl: "monthly_ai_content_intl",
+    series: {
+      my: "story_series_my_v2",
+      sg: "story_series_sg_v2",
+      intl: "story_series_intl_v2",
     },
   };
 

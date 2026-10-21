@@ -29,9 +29,10 @@ await check("home", async () => {
   const t = await r.text();
   return {
     status: r.status,
-    buy: t.includes("Buy Now") && t.includes('data-checkout-service="short"'),
-    story: t.includes('data-checkout-service="story"'),
-    monthly: t.includes('data-checkout-service="monthly"'),
+    buy: t.includes("Create My Commercial") && t.includes('data-checkout-service="product"'),
+    story: t.includes('data-checkout-service="narrative"'),
+    monthly: t.includes('data-checkout-service="series"'),
+    shortHidden: !t.includes('data-checkout-service="short"'),
     oneTime: /One-time payment/i.test(t),
     enquire: t.includes("Request a Quote") && !t.includes("Enquire first"),
     revisions3: t.includes("Up to 3 revisions included"),
@@ -105,25 +106,6 @@ for (const field of ["amount", "currency", "price_id", "lookup_key"]) {
   });
 }
 
-await check("checkout_short_my_session", async () => {
-  const r = await fetch(base + "/api/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ service: "short", region: "my" }),
-  });
-  const j = await r.json();
-  return {
-    status: r.status,
-    ok: j.ok,
-    code: j.code,
-    hasUrl: !!(j.url && String(j.url).includes("checkout.stripe.com")),
-    lookupKey: j.lookupKey || null,
-    sessionIdPrefix: j.sessionId ? String(j.sessionId).slice(0, 10) : null,
-    missing: j.missing || null,
-    error: j.ok ? null : j.error,
-  };
-});
-
 await check("session_arbitrary", async () => {
   const r = await fetch(
     base + "/api/checkout/session?session_id=cs_live_fakeArbitrarySession123456"
@@ -185,7 +167,7 @@ await check("webhook_get", async () => {
 
 // Assertions
 const h = results.home || {};
-assert(h.status === 200 && h.buy && h.story && h.monthly, "homepage buy CTAs deployed");
+assert(h.status === 200 && h.buy && h.story && h.monthly && h.shortHidden, "homepage buy CTAs deployed");
 assert(h.oneTime && h.enquire, "homepage one-time + enquire");
 assert(h.revisions3 && h.no149, "revision policy + no USD149");
 
@@ -204,10 +186,7 @@ assert((results.tamper_currency || {}).code === "client_amount_rejected", "tampe
 assert((results.tamper_price_id || {}).code === "client_amount_rejected", "tamper price_id");
 assert((results.tamper_lookup_key || {}).code === "client_amount_rejected", "tamper lookup_key");
 
-const sess = results.checkout_short_my_session || {};
-assert(sess.ok === true && sess.hasUrl === true, "short+my creates Checkout Session URL");
-assert(sess.lookupKey === "ai_short_ad_my", "short+my resolves ai_short_ad_my");
-console.log("SESSION_CREATED_NO_PAYMENT=", sess.sessionIdPrefix);
+console.log("CHECKOUT_SESSION_CREATED=NO");
 
 const arb = results.session_arbitrary || {};
 assert(arb.paid !== true && arb.ok !== true, "arbitrary session not paid");

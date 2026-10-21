@@ -17,7 +17,7 @@ const root = join(__dirname, "..");
 const { validateCheckoutBody } = await import(
   pathToFileURL(join(root, "functions/_shared/checkout-validate.js")).href
 );
-const { getLookupKey } = await import(
+const { getLookupKey, getExpectedAmount, getPackageFacts } = await import(
   pathToFileURL(join(root, "functions/_shared/catalog.js")).href
 );
 
@@ -32,6 +32,17 @@ function assert(cond, msg) {
 }
 
 const expectedMap = [
+  ["product", "my", "product_commercial_my_v2"],
+  ["product", "sg", "product_commercial_sg_v2"],
+  ["product", "intl", "product_commercial_intl_v2"],
+  ["narrative", "my", "story_commercial_my_v2"],
+  ["narrative", "sg", "story_commercial_sg_v2"],
+  ["narrative", "intl", "story_commercial_intl_v2"],
+  ["series", "my", "story_series_my_v2"],
+  ["series", "sg", "story_series_sg_v2"],
+  ["series", "intl", "story_series_intl_v2"],
+];
+const legacyMap = [
   ["short", "my", "ai_short_ad_my"],
   ["short", "sg", "ai_short_ad_sg"],
   ["short", "intl", "ai_short_ad_intl"],
@@ -50,20 +61,25 @@ for (const [s, r, key] of expectedMap) {
 }
 
 assert(validateCheckoutBody({ service: "hack", region: "my" }).ok === false, "reject bad service");
-assert(validateCheckoutBody({ service: "short", region: "jp" }).ok === false, "reject bad region");
+assert(validateCheckoutBody({ service: "product", region: "jp" }).ok === false, "reject bad region");
+for (const [s, r, key] of legacyMap) {
+  assert(getLookupKey(s, r) === key, `historical map ${s}+${r}`);
+  const hidden = validateCheckoutBody({ service: s, region: r });
+  assert(hidden.ok === false && hidden.code === "legacy_package_hidden", `hide ${s}+${r}`);
+}
 assert(
-  validateCheckoutBody({ service: "short", region: "my", amount: 1 }).code ===
+  validateCheckoutBody({ service: "product", region: "my", amount: 1 }).code ===
     "client_amount_rejected",
   "reject client amount"
 );
 assert(
-  validateCheckoutBody({ service: "short", region: "my", currency: "USD" }).code ===
+  validateCheckoutBody({ service: "product", region: "my", currency: "USD" }).code ===
     "client_amount_rejected",
   "reject client currency"
 );
 assert(
   validateCheckoutBody({
-    service: "short",
+    service: "product",
     region: "my",
     price_id: "price_fake",
   }).code === "client_amount_rejected",
@@ -71,15 +87,15 @@ assert(
 );
 assert(
   validateCheckoutBody({
-    service: "short",
+    service: "product",
     region: "my",
-    lookup_key: "ai_short_ad_intl",
+    lookup_key: "product_commercial_intl_v2",
   }).code === "client_amount_rejected",
   "reject client lookup_key"
 );
 assert(
   validateCheckoutBody({
-    service: "short",
+    service: "product",
     region: "my",
     displayed_price: "RM 1",
   }).code === "client_amount_rejected",
@@ -128,7 +144,62 @@ const cancel = readFileSync(
 assert(cancel.includes("Payment was not completed"), "cancel copy");
 assert(cancel.includes("No order has been started"), "cancel no order");
 
-// Live dry-run price resolve (NO session / NO charge)
+const seriesFacts = getPackageFacts("series");
+assert(seriesFacts && seriesFacts.episodes === "4", "series is four episodes");
+assert(seriesFacts.continuity === "connected", "series continuity");
+assert(seriesFacts.duration === "30-45s", "series episode duration");
+assert(getPackageFacts("product").duration === "15-20s", "product duration");
+assert(getPackageFacts("narrative").duration === "48-60s", "narrative duration");
+assert(getPackageFacts("short") === null, "hidden short has no new facts");
+
+const { resolvePriceByLookupKey } = await import(
+  pathToFileURL(join(root, "functions/_shared/stripe.js")).href
+);
+const realFetch = globalThis.fetch;
+globalThis.fetch = async (url) => {
+  const text = String(url);
+  const key = decodeURIComponent((text.match(/lookup_keys(?:%5B%5D|\[\])=([^&]+)/) || [])[1] || "");
+  if (key === "story_series_my_v2_missing") {
+    return new Response(JSON.stringify({ data: [] }), { status: 200 });
+  }
+  if (key === "story_series_my_v2_recurring") {
+    return new Response(
+      JSON.stringify({ data: [{ id: "price_mock", type: "recurring", currency: "myr", unit_amount: 69900 }] }),
+      { status: 200 }
+    );
+  }
+  const expected = getExpectedAmount(key);
+  if (!expected) return new Response(JSON.stringify({ data: [] }), { status: 200 });
+  const amount = key.endsWith("_mismatch") ? 1 : expected.unit_amount;
+  return new Response(
+    JSON.stringify({
+      data: [{ id: "price_mock_" + key, type: "one_time", currency: expected.currency, unit_amount: amount, lookup_key: key }],
+    }),
+    { status: 200 }
+  );
+};
+for (const [, , key] of expectedMap) {
+  const resolved = await resolvePriceByLookupKey("sk_test_mock", key, getExpectedAmount(key));
+  assert(resolved.ok === true && resolved.price && resolved.price.id === "price_mock_" + key, `mock resolve ${key}`);
+}
+const mismatch = await resolvePriceByLookupKey(
+  "sk_test_mock",
+  "story_series_my_v2",
+  { currency: "myr", unit_amount: 1 }
+);
+assert(mismatch.ok === false && mismatch.code === "amount_mismatch", "mock amount mismatch");
+const recurring = await resolvePriceByLookupKey(
+  "sk_test_mock",
+  "story_series_my_v2_recurring",
+  { currency: "myr", unit_amount: 69900 }
+);
+assert(recurring.ok === false && recurring.code === "not_one_time", "mock reject recurring");
+const missing = await resolvePriceByLookupKey("sk_test_mock", "story_series_my_v2_missing", null);
+assert(missing.ok === false && missing.code === "lookup_key_missing", "mock missing key fails closed");
+globalThis.fetch = realFetch;
+console.log("STRIPE_TEST_MODE=mock");
+
+// Live dry-run of historical prices only (NO session / NO charge / NO v2 create)
 const secretFile = join(root, "..", "stripe.local.txt");
 let secretRaw = "";
 try {
@@ -142,20 +213,23 @@ const secret = rk || sk;
 
 if (secret) {
   console.log("DRY_RUN_PRICE_RESOLVE=start SECRET_PRINTED=NO");
-  const { resolvePriceByLookupKey } = await import(
-    pathToFileURL(join(root, "functions/_shared/stripe.js")).href
-  );
-  const { getExpectedAmount } = await import(
-    pathToFileURL(join(root, "functions/_shared/catalog.js")).href
-  );
-  for (const [s, r, key] of expectedMap) {
+  for (const [, , key] of legacyMap) {
     const expected = getExpectedAmount(key);
     const resolved = await resolvePriceByLookupKey(secret, key, expected);
     assert(
       resolved.ok === true,
-      `dry_run resolve ${key}` + (resolved.ok ? "" : " :: " + resolved.error)
+      `historical dry_run ${key}` + (resolved.ok ? "" : " :: " + resolved.error)
     );
   }
+  for (const [, , key] of expectedMap) {
+    const expected = getExpectedAmount(key);
+    const resolved = await resolvePriceByLookupKey(secret, key, expected);
+    assert(
+      resolved.ok === true && resolved.price && resolved.price.type === "one_time" && resolved.price.active === true,
+      `v2 dry_run ${key}` + (resolved.ok ? "" : " :: " + resolved.error)
+    );
+  }
+  console.log("V2_LIVE_PRICES_VALID=9");
   console.log("DRY_RUN_SESSIONS_CREATED=0");
   console.log("LIVE_CHARGE_CREATED=NO");
 } else {

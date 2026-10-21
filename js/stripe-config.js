@@ -13,20 +13,20 @@ window.EmberSoulStripe = {
   recurringBillingEnabled: false,
   clientMaySubmitAmount: false,
   lookupKeys: {
-    short: {
-      my: "ai_short_ad_my",
-      sg: "ai_short_ad_sg",
-      intl: "ai_short_ad_intl",
+    product: {
+      my: "product_commercial_my_v2",
+      sg: "product_commercial_sg_v2",
+      intl: "product_commercial_intl_v2",
     },
-    story: {
-      my: "ai_story_ad_my",
-      sg: "ai_story_ad_sg",
-      intl: "ai_story_ad_intl",
+    narrative: {
+      my: "story_commercial_my_v2",
+      sg: "story_commercial_sg_v2",
+      intl: "story_commercial_intl_v2",
     },
-    monthly: {
-      my: "monthly_ai_content_my",
-      sg: "monthly_ai_content_sg",
-      intl: "monthly_ai_content_intl",
+    series: {
+      my: "story_series_my_v2",
+      sg: "story_series_sg_v2",
+      intl: "story_series_intl_v2",
     },
   },
   priceIds: {},
@@ -36,10 +36,21 @@ window.EmberSoulStripe = {
     webhook: "/api/stripe-webhook",
   },
   catalogStatus: {
-    lastAudit: "live_rk_2026-10-01_recheck",
+    lastAudit: "live_v2_prices_2026-10-21",
     account: "acct_1TlBCeH5ZiMpbPaM",
     allLookupKeysOk: true,
     okLookupKeys: [
+      "product_commercial_my_v2",
+      "product_commercial_sg_v2",
+      "product_commercial_intl_v2",
+      "story_commercial_my_v2",
+      "story_commercial_sg_v2",
+      "story_commercial_intl_v2",
+      "story_series_my_v2",
+      "story_series_sg_v2",
+      "story_series_intl_v2",
+    ],
+    legacyLookupKeysPreserved: [
       "ai_short_ad_my",
       "ai_short_ad_sg",
       "ai_short_ad_intl",
@@ -78,7 +89,7 @@ window.EmberSoulStripe = {
     if (!this.checkoutEnabled) {
       return { ok: false, code: "checkout_disabled", error: "Checkout is disabled" };
     }
-    var allowedService = { short: 1, story: 1, monthly: 1 };
+    var allowedService = { product: 1, narrative: 1, series: 1 };
     var allowedRegion = { my: 1, sg: 1, intl: 1 };
     if (!allowedService[service] || !allowedRegion[region]) {
       return { ok: false, code: "invalid_input", error: "Invalid service or region" };

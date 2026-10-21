@@ -73,7 +73,7 @@ const products = readFileSync(join(root, "ai-ads/index.html"), "utf8");
 assert((products.match(/data-checkout-service=/g) || []).length === 3, "product page has one buy action per package");
 assert((products.match(/id="ai-ad-form"/g) || []).length === 1, "inquiry form is not duplicated");
 assert(products.includes('id="inquiry"') && products.includes("Request a Quote"), "quote path sits with the packages");
-assert(products.includes('id="packages"') && products.includes("Buy Now"), "standard buy path remains");
+assert(products.includes('id="packages"') && products.includes("Create My Commercial"), "standard buy path remains");
 assert(!products.includes('id="ad_type"') && !products.includes("Selected Package"), "inquiry no longer requires a package");
 assert(!products.includes('class="order-price-list"'), "inquiry does not repeat the price list");
 assert(products.includes('name="inquiry_type"') && products.includes("agency_whitelabel"), "custom and agency inquiry types remain");

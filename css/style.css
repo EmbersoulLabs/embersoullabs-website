@@ -2124,6 +2124,10 @@ button.btn:disabled {
   margin: 0;
 }
 
+.purchase-row-featured {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
 .offer-group-title {
   font-size: 1.2rem;
   margin: 0 0 0.35rem;

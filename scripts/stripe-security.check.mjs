@@ -27,9 +27,12 @@ function assert(cond, msg) {
 }
 
 // Catalog mapping
-assert(getLookupKey("short", "my") === "ai_short_ad_my", "map short+my");
-assert(getLookupKey("story", "sg") === "ai_story_ad_sg", "map story+sg");
-assert(getLookupKey("monthly", "intl") === "monthly_ai_content_intl", "map monthly+intl");
+assert(getLookupKey("product", "sg") === "product_commercial_sg_v2", "map product+sg");
+assert(getLookupKey("narrative", "my") === "story_commercial_my_v2", "map narrative+my");
+assert(getLookupKey("series", "intl") === "story_series_intl_v2", "map series+intl");
+assert(getLookupKey("short", "my") === "ai_short_ad_my", "historical short+my");
+assert(getLookupKey("story", "sg") === "ai_story_ad_sg", "historical story+sg");
+assert(getLookupKey("monthly", "intl") === "monthly_ai_content_intl", "historical monthly+intl");
 assert(getLookupKey("hack", "my") === null, "reject bad service");
 assert(normalizeService("SHORT") === "short", "service normalize");
 assert(normalizeService("enterprise") === null, "reject arbitrary service");
@@ -37,8 +40,10 @@ assert(normalizeRegion("jp") === null, "reject arbitrary region");
 assert(normalizeRegion("us") === "intl", "us maps to intl");
 assert(getLookupKey("short", "us") === "ai_short_ad_intl", "us → intl lookup");
 
-assert(EXPECTED_UNIT_AMOUNTS.monthly_ai_content_intl.unit_amount === 12900, "USD monthly 129");
-assert(EXPECTED_UNIT_AMOUNTS.ai_short_ad_my.unit_amount === 6900, "MY short 69");
+assert(EXPECTED_UNIT_AMOUNTS.story_commercial_intl_v2.unit_amount === 12900, "USD story commercial 129");
+assert(EXPECTED_UNIT_AMOUNTS.product_commercial_sg_v2.unit_amount === 7900, "SGD product 79");
+assert(EXPECTED_UNIT_AMOUNTS.story_series_my_v2.unit_amount === 69900, "MYR series 699");
+assert(EXPECTED_UNIT_AMOUNTS.ai_short_ad_my.unit_amount === 6900, "historical MY short 69");
 
 // Client files must not contain secrets
 const clientFiles = [
@@ -107,7 +112,7 @@ let keyCount = 0;
 for (const s of Object.keys(LOOKUP_KEYS)) {
   for (const r of Object.keys(LOOKUP_KEYS[s])) keyCount++;
 }
-assert(keyCount === 9, "9 approved lookup keys in catalog");
+assert(keyCount === 18, "9 purchasable v2 keys plus 9 historical keys");
 
 if (failed) {
   console.error("\nFAILED:", failed);

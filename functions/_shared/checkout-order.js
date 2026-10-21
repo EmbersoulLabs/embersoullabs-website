@@ -3,7 +3,7 @@
  * A persist failure returns a recovery handle and no URL.
  * Nothing here marks an order paid.
  */
-import { SERVICE_LABELS } from "./catalog.js";
+import { SERVICE_LABELS, getPackageFacts } from "./catalog.js";
 import { PACKAGE_VERSION, createOrder, recoverUnappliedEvent } from "./order-state.js";
 import { randomToken, sha256Hex, timingSafeEqual } from "./order-access.js";
 import { stripeRequest as defaultStripeRequest } from "./stripe.js";
@@ -49,7 +49,7 @@ export function checkoutForm(input) {
   const cancelUrl =
     `${input.origin}/ai-ads/checkout/cancel/?service=${encodeURIComponent(input.service)}` +
     `&region=${encodeURIComponent(input.region)}`;
-  return {
+  const form = {
     mode: "payment",
     success_url: successUrl,
     cancel_url: cancelUrl,
@@ -68,6 +68,14 @@ export function checkoutForm(input) {
     "payment_intent_data[metadata][package_version]": PACKAGE_VERSION,
     "payment_intent_data[metadata][website_order_id]": input.orderId,
   };
+  const facts = input.facts || getPackageFacts(input.service);
+  if (facts) {
+    form["metadata[duration]"] = facts.duration;
+    form["metadata[episodes]"] = facts.episodes;
+    form["metadata[continuity]"] = facts.continuity;
+    form["metadata[deliverable]"] = facts.deliverable;
+  }
+  return form;
 }
 
 async function signRecovery(secret, payload) {
@@ -165,6 +173,7 @@ export async function persistCheckoutSession(options) {
     service: options.service,
     region: options.region,
     lookupKey: options.lookupKey,
+    facts: getPackageFacts(options.service),
     priceId: options.price.id,
     currency: options.price.currency,
     amountTotal: options.price.unit_amount,

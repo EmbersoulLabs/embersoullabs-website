@@ -84,6 +84,7 @@ async function paidOrder(db, id, checkoutId, token) {
     priceId: "price_1ShortMyLive001",
     currency: "myr",
     amountTotal: 6900,
+    packageVersion: "ai_ads_v1",
     now: NOW,
   });
   const paid = await applyPaymentEvent(db, {
