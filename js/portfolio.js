@@ -24,10 +24,15 @@
     return !!(project && Array.isArray(project.originalImages) && project.originalImages.length);
   }
 
+  function visiblePackage(raw) {
+    if (raw === "narrative" || raw === "story") return "narrative";
+    if (raw === "series" || raw === "monthly") return "series";
+    return "product";
+  }
+
   function ctaHref(project) {
-    var type = project.packageType || "short";
     var params = new URLSearchParams();
-    params.set("type", type);
+    params.set("type", visiblePackage(project && project.packageType));
     if (project.category) params.set("style", project.category);
     if (project.id) params.set("ref", project.id);
     return "/ai-ads/?" + params.toString();

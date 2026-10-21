@@ -8,6 +8,7 @@
  *   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SITE_ORIGIN, PAYMENT_EVENTS
  * Success/cancel URLs always from configured SITE_ORIGIN (never Host header in prod).
  */
+import { PURCHASABLE_SERVICES } from "../_shared/catalog.js";
 import { validateCheckoutBody } from "../_shared/checkout-validate.js";
 import {
   assertProductionCheckoutReady,
@@ -213,7 +214,7 @@ export async function onRequestGet(context) {
       ok: false,
       error: "Use POST with JSON body { service, region }",
       accepts: {
-        service: ["short", "story", "monthly"],
+        service: PURCHASABLE_SERVICES,
         region: ["my", "sg", "intl"],
       },
       client_amounts: "rejected",

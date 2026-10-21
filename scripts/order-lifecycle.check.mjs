@@ -110,6 +110,7 @@ async function seedOrder(db, overrides = {}) {
     priceId: "price_1ShortMyLive001",
     currency: "myr",
     amountTotal: 6900,
+    packageVersion: "ai_ads_v1",
     ...overrides,
   });
 }

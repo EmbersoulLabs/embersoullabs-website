@@ -62,7 +62,7 @@ function paidSession(id = "cs_live_TestSession001") {
       service: "short",
       region: "my",
       lookup_key: "ai_short_ad_my",
-      package_version: "ai_ads_v1",
+      package_version: "ai_ads_v2",
     },
     line_items: {
       data: [

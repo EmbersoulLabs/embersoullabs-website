@@ -10,7 +10,8 @@ import {
   normalizeService,
 } from "./catalog.js";
 
-export const PACKAGE_VERSION = "ai_ads_v1";
+export const PACKAGE_VERSION = "ai_ads_v2";
+export const ACCEPTED_PACKAGE_VERSIONS = Object.freeze(["ai_ads_v1", "ai_ads_v2"]);
 export const EMBEROS_PRODUCTION = "not_connected";
 
 export const ORDER_STATES = Object.freeze([
@@ -78,10 +79,11 @@ export function validateRetrievedSession(session, order) {
   if (!lookupKey || lookupKey !== order.lookup_key || getLookupKey(service, region) !== lookupKey) {
     return fail("lookup_mismatch");
   }
+  const packageVersion = session.metadata && session.metadata.package_version;
   if (
     !session.metadata ||
-    session.metadata.package_version !== PACKAGE_VERSION ||
-    order.package_version !== PACKAGE_VERSION
+    !ACCEPTED_PACKAGE_VERSIONS.includes(packageVersion) ||
+    packageVersion !== order.package_version
   ) {
     return fail("wrong_package_version");
   }
@@ -458,7 +460,9 @@ function catalogOrderFromSession(session) {
     service,
     region,
     lookup_key: lookupKey,
-    package_version: PACKAGE_VERSION,
+    package_version: ACCEPTED_PACKAGE_VERSIONS.includes(session.metadata.package_version)
+      ? session.metadata.package_version
+      : PACKAGE_VERSION,
     currency: expected.currency,
     amount_total: expected.unit_amount,
     price_id: price.id,

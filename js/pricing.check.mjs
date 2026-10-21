@@ -34,22 +34,28 @@ function assertNotIncludes(src, s, label) {
 
 // Fixed regional display strings (single source: pricing.js)
 [
-  "RM 69",
   "RM 189",
-  "RM 499 / 30-day package",
-  "SGD 29",
+  "RM 399",
+  "RM 699 / 30-day package",
   "SGD 79",
-  "SGD 199 / 30-day package",
-  "USD 19",
+  "SGD 169",
+  "SGD 299 / 30-day package",
   "USD 59",
-  "USD 129 / 30-day package",
+  "USD 129",
+  "USD 229 / 30-day package",
 ].forEach((s) => assertIncludes(pricingSrc, s, "pricing.js"));
+["RM 69", "SGD 29", "USD 19", "RM 499", "SGD 199"].forEach((s) => {
+  const re = new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?!\\d)");
+  assert(!re.test(pricingSrc), "pricing.js hides legacy display " + s);
+  assert(!re.test(homeSrc), "homepage hides legacy display " + s);
+  assert(!re.test(formSrc), "ai-ads hides legacy display " + s);
+});
 
 assertIncludes(pricingSrc, "embersoul_pricing_region", "pricing.js");
 assertIncludes(pricingSrc, "history.replaceState", "pricing.js keeps a manual market in the URL");
 assertIncludes(pricingSrc, "if (getManualRegion()) return;", "pricing.js does not let detection override a manual market");
 assertIncludes(pricingSrc, "/cdn-cgi/trace", "pricing.js");
-assertIncludes(pricingSrc, 'amount: 129', "pricing.js monthly USD amount");
+assertIncludes(pricingSrc, 'amount: 229', "pricing.js series USD amount");
 assertIncludes(pricingSrc, "one_time_30_day", "pricing.js monthly billing");
 
 // Amount sanity — scope to PRICES table only
@@ -66,15 +72,15 @@ function hasAmount(region, offer, amount) {
   return re.test(regionBlock);
 }
 
-assert(hasAmount("my", "short", 69), "MY short = 69");
-assert(hasAmount("my", "story", 189), "MY story = 189");
-assert(hasAmount("my", "monthly", 499), "MY monthly = 499");
-assert(hasAmount("sg", "short", 29), "SG short = 29");
-assert(hasAmount("sg", "story", 79), "SG story = 79");
-assert(hasAmount("sg", "monthly", 199), "SG monthly = 199");
-assert(hasAmount("intl", "short", 19), "INTL short = 19");
-assert(hasAmount("intl", "story", 59), "INTL story = 59");
-assert(hasAmount("intl", "monthly", 129), "INTL monthly = 129");
+assert(hasAmount("my", "product", 189), "MY product = 189");
+assert(hasAmount("my", "narrative", 399), "MY narrative = 399");
+assert(hasAmount("my", "series", 699), "MY series = 699");
+assert(hasAmount("sg", "product", 79), "SG product = 79");
+assert(hasAmount("sg", "narrative", 169), "SG narrative = 169");
+assert(hasAmount("sg", "series", 299), "SG series = 299");
+assert(hasAmount("intl", "product", 59), "INTL product = 59");
+assert(hasAmount("intl", "narrative", 129), "INTL narrative = 129");
+assert(hasAmount("intl", "series", 229), "INTL series = 229");
 
 // Standard package tables must not absorb custom starting quotes.
 [pricingSrc, stripeSrc].forEach((src, i) => {
@@ -95,7 +101,7 @@ assert(hasAmount("intl", "monthly", 129), "INTL monthly = 129");
 });
 
 assert(!/\b149\b/.test(pricingSrc.replace(/\/\*[\s\S]*?\*\//g, "")), "pricing.js has no 149 amount");
-assert(!/\b399\b/.test(pricingSrc.replace(/\/\*[\s\S]*?\*\//g, "")), "pricing.js has no 399 amount");
+assertNotIncludes(pricingSrc, "USD 399", "pricing.js does not convert the custom USD floor");
 
 ["From USD 149", "From USD 399", "Custom Quote", "custom_product_commercial", "brand_story_campaign", "agency_whitelabel"].forEach((s) => {
   assertIncludes(homeSrc, s, "homepage custom production");
@@ -106,24 +112,42 @@ assert((formSrc.match(/data-price-offer="/g) || []).length === 3, "ai-ads standa
 assert((homeSrc.match(/data-checkout-service=/g) || []).length === 3, "homepage buy actions stay on standard packages");
 assert((formSrc.match(/data-checkout-service=/g) || []).length === 3, "ai-ads buy actions stay on standard packages");
 assert(!formSrc.includes('data-checkout-service="custom'), "custom services have no checkout");
-assertIncludes(formSrc, "Discuss Agency Partnership", "ai-ads agency CTA");
+assertIncludes(formSrc, "Partner With Us", "ai-ads agency CTA");
+assertIncludes(formSrc, "Discuss Your Project", "ai-ads brand story CTA");
+assertIncludes(homeSrc, "Partner With Us", "homepage agency CTA");
+assertIncludes(homeSrc, "Create My Commercial", "homepage product CTA");
+assertIncludes(homeSrc, "Create My Story", "homepage story CTA");
+assertIncludes(homeSrc, "Start My Series", "homepage series CTA");
+assertIncludes(homeSrc, "4 Connected Episodes · 30–45s Each", "homepage series definition");
+assertNotIncludes(homeSrc, "AI Short Ad", "homepage hides short package");
+assertNotIncludes(formSrc, "AI Short Ad", "ai-ads hides short package");
+assertNotIncludes(homeSrc, 'data-checkout-service="short"', "homepage has no short checkout");
+assertNotIncludes(formSrc, 'data-checkout-service="short"', "ai-ads has no short checkout");
+assertNotIncludes(homeSrc, "?type=short", "homepage has no short preselection");
 assert((homeSrc.match(/Quoted in USD, including for Malaysia and Singapore/g) || []).length === 3, "homepage custom quotes name USD for MY/SG");
 assert((formSrc.match(/Quoted in USD, including for Malaysia and Singapore/g) || []).length === 3, "ai-ads custom quotes name USD for MY/SG");
 
 // Lookup keys
 [
-  "ai_short_ad_my",
-  "ai_short_ad_sg",
-  "ai_short_ad_intl",
-  "ai_story_ad_my",
-  "ai_story_ad_sg",
-  "ai_story_ad_intl",
-  "monthly_ai_content_my",
-  "monthly_ai_content_sg",
-  "monthly_ai_content_intl",
+  "product_commercial_my_v2",
+  "product_commercial_sg_v2",
+  "product_commercial_intl_v2",
+  "story_commercial_my_v2",
+  "story_commercial_sg_v2",
+  "story_commercial_intl_v2",
+  "story_series_my_v2",
+  "story_series_sg_v2",
+  "story_series_intl_v2",
 ].forEach((k) => {
   assertIncludes(pricingSrc, k, "pricing.js");
   assertIncludes(stripeSrc, k, "stripe-config.js");
+});
+[
+  "ai_short_ad_my",
+  "monthly_ai_content_intl",
+].forEach((k) => {
+  assertNotIncludes(pricingSrc, k, "pricing.js does not advertise historical keys");
+  assertIncludes(stripeSrc, k, "stripe-config preserves historical keys");
 });
 
 assertIncludes(stripeSrc, 'mode: "live"', "stripe-config");
@@ -133,12 +157,13 @@ assertIncludes(stripeSrc, "priceIds: {}", "stripe-config");
 assertIncludes(stripeSrc, "/api/checkout", "stripe-config");
 assertIncludes(stripeSrc, "/ai-ads/checkout/success/", "stripe-config");
 assertIncludes(stripeSrc, "/ai-ads/checkout/cancel/", "stripe-config");
-assertIncludes(stripeSrc, "allLookupKeysOk: true", "stripe-config catalog certified");
+assertIncludes(stripeSrc, "allLookupKeysOk: false", "v2 live prices are not certified yet");
 assertIncludes(stripeSrc, "recurringBillingEnabled: false", "stripe-config no subscriptions");
-assertIncludes(homeSrc, "Buy Now", "homepage buy CTA");
 assertIncludes(homeSrc, "data-checkout-service", "homepage checkout wiring");
 assertIncludes(homeSrc, "One-time payment", "homepage one-time note");
-assertIncludes(formSrc, 'data-checkout-service="short"', "ai-ads buy panel");
+assertIncludes(formSrc, 'data-checkout-service="product"', "ai-ads product panel");
+assertIncludes(formSrc, 'data-checkout-service="narrative"', "ai-ads story panel");
+assertIncludes(formSrc, 'data-checkout-service="series"', "ai-ads series panel");
 assertIncludes(formSrc, "Request a Quote", "ai-ads quote path");
 
 // Inquiry is Path B — no package prices / required package select
@@ -183,7 +208,7 @@ function countryToRegion(cc) {
 });
 
 assertIncludes(homeSrc, "Up to 3 revisions included", "homepage short/story revisions");
-assertIncludes(homeSrc, "Up to 3 revisions per video included", "homepage monthly revisions");
+assertIncludes(homeSrc, "Up to 3 revisions per episode included", "homepage series revisions");
 assertIncludes(homeSrc, "Includes up to 3 revisions within the approved creative direction", "homepage revision policy");
 assertIncludes(formSrc, "A quote request is not a payment", "ai-ads quote is not payment");
 assert(!/1 revision included/.test(homeSrc + formSrc), "no stale 1-revision copy");

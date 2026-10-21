@@ -23,7 +23,7 @@ const webhook = readFileSync(join(root, "functions/api/stripe-webhook.js"), "utf
 
 assert((aiAds.match(/data-checkout-service=/g) || []).length === 3, "three Buy Now actions");
 assert(aiAds.includes("Request a Quote") && aiAds.includes("Path A") && aiAds.includes("Path B"), "paths separated");
-assert(aiAds.includes("purchase-desc") && aiAds.includes("7–10s vertical") && aiAds.includes("EP01→EP04"), "package cards include explanations");
+assert(aiAds.includes("purchase-desc") && aiAds.includes("15–20s") && aiAds.includes("4 Connected Episodes · 30–45s Each"), "package cards include explanations");
 assert(!aiAds.includes('id="ad_type"'), "no required package select in inquiry");
 assert(!aiAds.includes('class="order-price-list"'), "no duplicated price list in inquiry");
 assert(!aiAds.includes("Selected Package"), "no package fieldset in inquiry");
@@ -35,7 +35,7 @@ assert(aiAds.includes("portfolio_reference") && aiAds.includes("preferred_style"
 assert((aiAds.match(/data-price-offer="/g) || []).length === 3, "prices appear once in package cards only");
 const formOnly = aiAds.slice(aiAds.indexOf('<form class="apply-form"'), aiAds.indexOf("</form>"));
 assert(!formOnly.includes("From USD 149") && !formOnly.includes("From USD 399") && !formOnly.includes("data-price-offer"), "inquiry form does not repeat prices");
-assert(aiAds.includes("Discuss Agency Partnership") && home.includes("From USD 149") && home.includes("From USD 399"), "custom quote offers are visible");
+assert(aiAds.includes("Partner With Us") && home.includes("From USD 149") && home.includes("From USD 399"), "custom quote offers are visible");
 
 assert(home.includes("Request a Quote") && home.includes('href="/ai-ads/#inquiry"'), "home quote CTA");
 assert(home.includes('ref=agency-whitelabel') && home.includes("#inquiry"), "agency CTA to inquiry");

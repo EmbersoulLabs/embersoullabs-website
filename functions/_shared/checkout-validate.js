@@ -5,6 +5,7 @@
 import {
   getExpectedAmount,
   getLookupKey,
+  isPurchasableService,
   normalizeRegion,
   normalizeService,
 } from "./catalog.js";
@@ -46,11 +47,13 @@ export function validateCheckoutBody(body) {
   const service = normalizeService(body.service);
   const region = normalizeRegion(body.region);
 
-  if (!service) {
+  if (!service || !isPurchasableService(service)) {
     return {
       ok: false,
-      code: "invalid_service",
-      error: "Invalid service. Allowed: short | story | monthly",
+      code: service ? "legacy_package_hidden" : "invalid_service",
+      error: service
+        ? "This package is no longer available for purchase."
+        : "Invalid service. Allowed: product | narrative | series",
     };
   }
   if (!region) {
