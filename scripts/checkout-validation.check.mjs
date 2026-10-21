@@ -197,7 +197,7 @@ assert(recurring.ok === false && recurring.code === "not_one_time", "mock reject
 const missing = await resolvePriceByLookupKey("sk_test_mock", "story_series_my_v2_missing", null);
 assert(missing.ok === false && missing.code === "lookup_key_missing", "mock missing key fails closed");
 globalThis.fetch = realFetch;
-console.log("STRIPE_TEST_MODE=mock V2_PRICES_CREATED_ON_STRIPE=NO");
+console.log("STRIPE_TEST_MODE=mock");
 
 // Live dry-run of historical prices only (NO session / NO charge / NO v2 create)
 const secretFile = join(root, "..", "stripe.local.txt");
@@ -221,7 +221,15 @@ if (secret) {
       `historical dry_run ${key}` + (resolved.ok ? "" : " :: " + resolved.error)
     );
   }
-  console.log("V2_LIVE_PRICES_NOT_CREATED=YES");
+  for (const [, , key] of expectedMap) {
+    const expected = getExpectedAmount(key);
+    const resolved = await resolvePriceByLookupKey(secret, key, expected);
+    assert(
+      resolved.ok === true && resolved.price && resolved.price.type === "one_time" && resolved.price.active === true,
+      `v2 dry_run ${key}` + (resolved.ok ? "" : " :: " + resolved.error)
+    );
+  }
+  console.log("V2_LIVE_PRICES_VALID=9");
   console.log("DRY_RUN_SESSIONS_CREATED=0");
   console.log("LIVE_CHARGE_CREATED=NO");
 } else {

@@ -36,9 +36,9 @@ window.EmberSoulStripe = {
     webhook: "/api/stripe-webhook",
   },
   catalogStatus: {
-    lastAudit: "live_rk_2026-10-01_recheck",
+    lastAudit: "live_v2_prices_2026-10-21",
     account: "acct_1TlBCeH5ZiMpbPaM",
-    allLookupKeysOk: false,
+    allLookupKeysOk: true,
     okLookupKeys: [
       "product_commercial_my_v2",
       "product_commercial_sg_v2",

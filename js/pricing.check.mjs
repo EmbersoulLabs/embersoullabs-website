@@ -157,7 +157,7 @@ assertIncludes(stripeSrc, "priceIds: {}", "stripe-config");
 assertIncludes(stripeSrc, "/api/checkout", "stripe-config");
 assertIncludes(stripeSrc, "/ai-ads/checkout/success/", "stripe-config");
 assertIncludes(stripeSrc, "/ai-ads/checkout/cancel/", "stripe-config");
-assertIncludes(stripeSrc, "allLookupKeysOk: false", "v2 live prices are not certified yet");
+assertIncludes(stripeSrc, "allLookupKeysOk: true", "v2 live prices are certified");
 assertIncludes(stripeSrc, "recurringBillingEnabled: false", "stripe-config no subscriptions");
 assertIncludes(homeSrc, "data-checkout-service", "homepage checkout wiring");
 assertIncludes(homeSrc, "One-time payment", "homepage one-time note");
