@@ -48,6 +48,12 @@ assert(!/id:\s*"fnb-short"/.test(dataSource), "placeholder projects are not hard
 assert(scriptSource.includes("preload=\"none\""), "modal videos are not fully preloaded");
 assert(scriptSource.includes("preload=\"metadata\""), "card after previews load metadata only");
 assert(scriptSource.includes("data-portfolio-preview"), "after preview uses native video");
+assert(scriptSource.includes('controlsList="nodownload"'), "portfolio videos hide the download control");
+assert(scriptSource.includes("protectPortfolioVideo"), "portfolio videos get a playback guard");
+assert(scriptSource.includes('addEventListener("contextmenu"'), "context menu is restricted on portfolio videos");
+assert(scriptSource.includes('addEventListener("dragstart"'), "dragging is restricted on portfolio videos");
+assert(!scriptSource.includes("download="), "portfolio markup has no download link");
+assert(!index.includes('oncontextmenu="return false"'), "the site does not block every context menu");
 assert(!scriptSource.includes("afterPreviewSrc"), "after preview does not reuse before image helpers");
 assert(!/poster=\"\s*'\s*\+\s*escapeAttr\(project\.poster\)/.test(scriptSource), "before image is not used as video poster");
 assert(scriptSource.includes("pauseOthers") || scriptSource.includes("pause"), "only one video plays");
@@ -58,6 +64,7 @@ assert(scriptSource.includes("Escape"), "modal supports Escape to close");
 assert(scriptSource.includes("openModal"), "modal opens from compact cards");
 assert(!scriptSource.includes("is-expanded"), "cards no longer rely on oversized expanded layout");
 assert(css.includes("portfolio-after-preview"), "after preview video styles exist");
+assert(css.includes("-webkit-user-drag: none"), "portfolio videos are not draggable");
 assert(manifestSource.includes("EmberSoulPortfolioManifest"), "manifest file is generated");
 
 const sandbox = { window: {}, globalThis: {} };
